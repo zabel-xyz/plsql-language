@@ -1,0 +1,13 @@
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "es5",
+		"outDir": "out/src",
+		"noLib": true,
+		"sourceMap": true
+	},
+	"exclude": [
+		"node_modules",
+		".history"
+	]
+}

@@ -1,0 +1,56 @@
+{
+    "name": "plsql-language",
+    "displayName": "Language plsql",
+    "description": "plsql language support for Visual Studio Code",
+    "version": "0.0.1",
+    "publisher": "xyz",
+    "engines": {
+        "vscode": "^1.0.0"
+    },
+    "categories": [
+        "Languages"
+    ],
+    "keywords": [
+        "plsql",
+        "oracle"
+    ],
+    "activationEvents": [
+        "onLanguage:PLSQL"
+    ],
+    "main": "./out/src/extension",
+    "contributes": {
+        "languages": [
+            {
+                "id": "PLSQL",
+                "aliases": [
+                    "PLSQL",
+                    "PL/SQL"
+                ],
+                "extensions": [
+                    ".sql",
+                    ".ddl",
+                    ".dml",
+                    ".pkb",
+                    ".pkh"
+                ],
+                "configuration": "./syntaxes/plsql.configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "PLSQL",
+                "scopeName": "source.plsql.oracle",
+                "path": "./syntaxes/plsql.tmLanguage"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
+        "compile": "node ./node_modules/vscode/bin/compile -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install"
+    },
+    "devDependencies": {
+        "typescript": "1.8.10",
+        "vscode": "0.11.13"
+    }
+}
