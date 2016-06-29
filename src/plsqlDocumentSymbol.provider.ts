@@ -16,20 +16,24 @@ export class PLSQLDocumentSymbolProvider implements vscode.DocumentSymbolProvide
 
 	public provideDocumentSymbols(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.SymbolInformation[] {
 
-		let regexp = /\b(function|procedure|((create)(\s*or\s+replace)?\s*package)(\s*body)?)\s*\w*/gi;
-		let symbols: vscode.SymbolInformation[] = [];
+		let regexp = /\b(function|procedure|((create)(\s*or\s+replace)?\s*package)(\s*body)?)\s*\w*/gi,
+			symbols: vscode.SymbolInformation[] = [],
+			text = document.getText(),
+			found;
 
-		for (let index = 0; index < document.lineCount; index++) {
-			regexp.lastIndex = 0;
-			let found = regexp.exec(document.lineAt(index).text);
-			if (found) {
+        do {
+            found = regexp.exec(text);
+            if (found) {
+
+				let line = document.lineAt(document.positionAt(found.index));
 				let symbolInfo = new vscode.SymbolInformation(
 					found[0],
 					this.getSymbolKind(found[0].toLowerCase()),
-					new vscode.Range(index, found.index, index, found.index))
+					new vscode.Range(line.range.start, line.range.end))
 				symbols.push(symbolInfo);
-			};
-		}
+			}
+        }
+        while (found);
 
 		return symbols;
 	}
