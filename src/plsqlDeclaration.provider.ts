@@ -8,39 +8,49 @@ interface PLSQLDefinition {
     offset?: number;
 }
 
-interface PLSQLPosition {
+interface PLSQLRange {
     start: number;
     end: number;
 }
 
+interface PLSQLInfos {
+    packageName: string;
+    specOffset?: number;
+    bodyOffset?: number;
+}
+
 export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
 
-    private getPackageName(document) {
-        let regexp = /\b((create)(\s*or\s+replace)?\s*package)(\s*body)?\s*\w*/gi;
-        for (let index = 0; index < document.lineCount; index++) {
-            regexp.lastIndex = 0;
-            let found = regexp.exec(document.lineAt(index).text);
-            if (found) {
-                // return last word = package name
-                return found.input.split(/\s+/ig).slice(-1)[0].toLowerCase();
-            }
-        }
-    }
-
-    // private searchInFile() {
-    // 	findInfile()
-    // 		read
-    // 			content cut in lines.foreach
-    // 				RegExp.
-    // }
-
-    private findFunction(name, text: string, currentPosition?: PLSQLPosition): number {
-        let regexp = new RegExp('\\b(function|procedure)\\s*' + name, 'gi');
-        let found;
+    private getPackageInfos(text: string): PLSQLInfos {
+        let regexp = /\b((create)(\s*or\s+replace)?\s*package)(\s*body)?\s*\w*/gi,
+            infos: PLSQLInfos,
+            found;
 
         do {
             found = regexp.exec(text);
-            if (found && (!currentPosition || (found.index < currentPosition.start) || (found.index > currentPosition.end)) )
+            if (found) {
+                found[0] = found[0].toLowerCase();
+                // last word = package name
+                if (!infos)
+                    infos = {packageName: found[0].split(/\s+/ig).slice(-1)[0].toLowerCase()};
+                if (found[0].indexOf('body') < 0)
+                    infos.specOffset = found.index;
+                else
+                    infos.bodyOffset = found.index;
+            }
+        }
+        while (found);
+
+        return infos;
+    }
+
+    private findFunction(name, text: string, searchRange?: PLSQLRange): number {
+        let regexp = new RegExp('\\b(function|procedure)\\s*' + name, 'gi'),
+            found;
+
+        do {
+            found = regexp.exec(text);
+            if (found && (!searchRange || ((found.index > searchRange.start) && (found.index < searchRange.end)) ))
                 return found.index;
         }
         while (found);
@@ -53,50 +63,60 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
     }
 
     public provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): vscode.Location {
-        let offset: number,
-            line = document.lineAt(position),
+        let line = document.lineAt(position),
             lineText = line.text,
-            currentWord = document.getText(document.getWordRangeAtPosition(position));
+            currentWord = document.getText(document.getWordRangeAtPosition(position)),
+            documentText = document.getText(),
+            infos: PLSQLInfos,
+            offset: number;
 
-        // TODO currentWord = keyword => exit
-
-        // SpecOffset - BodyOffset
-        // BodyOffset - end
+        // Get infos of current package
+        infos = this.getPackageInfos(documentText);
 
         // It's the specification line or the body declaration line
         if (this.findFunction(currentWord, lineText) !== null) {
-            // TODO
-            //if SpecOffSet or BodyOffset is null => anotherFile
-            // else if find < BodyOffset or find > BodyOffset => if not found, return null
-            let currentPosition = {start: document.offsetAt(line.range.start), end: document.offsetAt(line.range.end)};
-            if (offset = this.findFunction(currentWord, document.getText(), currentPosition)) {
-                return this.getLocation(document, offset);
+            if (infos.specOffset != null && infos.bodyOffset != null) {
+                let searchRange: PLSQLRange;
+                if (document.offsetAt(line.range.start) < infos.bodyOffset)
+                    searchRange = {start: infos.bodyOffset, end: Number.MAX_VALUE};
+                else
+                    searchRange = {start: 0, end: infos.bodyOffset};
+                if (offset = this.findFunction(currentWord, documentText, searchRange))
+                    return this.getLocation(document, offset)
+                else
+                    return null;
             } else {
-                // TODO: search in another file
+                // TODO: search in another file (spec and body are in separate files)
             }
         } else {
-            // It's a link to another function in the same package
+            // It's a link to another function
             let regExp = new RegExp('\\b\\w+\\.'+ currentWord, 'i'),
                 found;
             if (found = regExp.exec(lineText)) {
-                let currentPackageName = this.getPackageName(document),
-                    packageName = found[0].split('.', 1)[0].toLowerCase();
-                // TODO search after body => if not found stop
-                if ((currentPackageName === packageName) && (offset = this.findFunction(currentWord, document.getText()))) {
-                    return this.getLocation(document, offset);
+                let packageName = found[0].split('.', 1)[0].toLowerCase();
+                // In the same package
+                if (infos.packageName === packageName) {
+                    if (offset = this.findFunction(currentWord, documentText, {start: infos.bodyOffset, end: Number.MAX_VALUE}))
+                        return this.getLocation(document, offset);
+                    else
+                        return null;
                 } else {
                     // TODO
-                    // search in another file (after body)
+                    // Search in another file (after body)
+                    // if it's not a keyword, string, number => exit
                     // 1) *packageName*.*
                     // 2) *.*
                 }
             } else {
-                // TODO
-                // It's a link without package in this file => search after body
-                // or in another file (after body)
+                if (offset = this.findFunction(currentWord, documentText, {start: infos.bodyOffset, end: Number.MAX_VALUE}))
+                    return this.getLocation(document, offset);
+                else {
+                    // TODO Search in another file (after body)
+                    // if it's not a keyword, string, number => exit
+                    // And it's not a package ! (perhaps a function)
+                }
             }
         }
-
         return null;
     }
 
