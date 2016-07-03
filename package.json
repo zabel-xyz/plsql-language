@@ -1,11 +1,16 @@
 {
     "name": "plsql-language",
-    "displayName": "Language plsql",
-    "description": "plsql language support for Visual Studio Code",
+    "displayName": "Language PL/SQL",
+    "description": "PL/SQL language (Oracle) support",
     "version": "0.0.2",
     "publisher": "xyz",
     "engines": {
         "vscode": "^1.0.0"
+    },
+    "homepage": "https://github.com/zabel-xyz/plsql-language",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/zabel-xyz/plsql-language.git"
     },
     "categories": [
         "Languages"
