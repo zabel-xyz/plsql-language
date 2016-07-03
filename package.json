@@ -2,7 +2,7 @@
     "name": "plsql-language",
     "displayName": "Language plsql",
     "description": "plsql language support for Visual Studio Code",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "publisher": "xyz",
     "engines": {
         "vscode": "^1.0.0"
