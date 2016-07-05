@@ -1,7 +1,7 @@
 'use strict';
 
 import vscode = require('vscode');
-import Path = require('path');
+import path = require('path');
 import fs = require('fs');
 
 interface PLSQLRange {
@@ -40,7 +40,8 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
         return infos;
     }
 
-    private findFunction(name, text: string, searchRange?: PLSQLRange): number {
+    private findPkgMethod(name, text: string, searchRange?: PLSQLRange): number {
+        // TODO name+suffix or name ?
         let regexp = new RegExp('\\b(function|procedure)\\s*' + name, 'gi'),
             found;
 
@@ -54,38 +55,60 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
         return null;
     }
 
-    private findFile(fileName, functionName: string): Thenable<vscode.Location> {
+    private findMethod(name, text: string): number {
+        // TODO name+suffix or name ?
+        let regexp =  new RegExp('\\b(create)(\\s*or\\s+replace)?\\s*(function|procedure)\\s*'+name, 'gi'),
+            found;
+
+        do {
+            found = regexp.exec(text);
+            if (found)
+                return found.index;
+        }
+        while (found);
+
+        return null;
+    }
+
+    private findFile(fileName, functionName: string, isPackage?: boolean): Thenable<vscode.Location> {
         return new Promise((resolve, reject) => {
             if (!vscode.workspace)
                 reject('No workspace');
 
             // Don't use findFiles it's case sensitive (issus ##8666)
             // vscode.workspace.findFiles('**/*'+fileName+'*.*','')
-            // TODO search exclude
             let glob = require("glob"),
                 me = this;
+
+            // ignore like search.exclude settings
+            // TODO: not do that every time
+            let searchExclude = vscode.workspace.getConfiguration('search').get('exclude'),
+                ignore = [];
+            for (let key in searchExclude)
+                if (searchExclude[key])
+                    ignore.push(key);
+
             glob('**/*'+fileName+'*.*',
-                    {nocase: true, cwd: vscode.workspace.rootPath, ignore: '"**/.history"'}, (err, files) => {
+                    {nocase: true, cwd: vscode.workspace.rootPath, ignore: ignore}, (err, files) => {
 
                 if (err || !files || !files.length) {
                     if (err)
                         reject(err)
                     else
                         resolve(null);
+                    return;
                 }
 
                 // Generator is not supported by typescript yet
-                files.iter = -1;
+                files.iter = 0;
                 files.next = () => {
                     if (files.iter < files.length)
-                        // TODO path
-                        return {done: false, value: vscode.workspace.rootPath+'/'+files[++files.iter]}
+                        return {done: false, value: path.join(vscode.workspace.rootPath, files[files.iter++])};
                     else
                         return {done: true, value: undefined}
                 };
                 // read all files
-                // TODO fileName = packageName
-                me.readFiles(files, fileName, functionName)
+                me.readFiles(files, fileName, functionName, isPackage)
                 .then (value => {
                     resolve(value)
                 })
@@ -96,7 +119,7 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
         })
     }
 
-    private readFiles(allFiles, packageName, functionName) {
+    private readFiles(allFiles, packageName, functionName, isPackage?: boolean) {
         return new Promise((resolve, reject) => {
             let result = allFiles.next(),
                 me = this;
@@ -106,7 +129,7 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
 
                 // if there's more to do
                 if (!result.done) {
-                    me.readFile(result.value, packageName, functionName)
+                    me.readFile(result.value, packageName, functionName, isPackage)
                     .then(value => {
                         if (value) {
                             console.log(value);
@@ -127,11 +150,11 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
         })
     }
 
-    private readFile(file, packageName, functionName) {
+    private readFile(file, packageName, functionName, isPackage?: boolean) {
         return new Promise((resolve, reject) => {
             // only want files whose ext matches .sql or .pkb
-            // if (['.sql', '.pkb'].includes(Path.extname(file)))  // ts Error ?
-            if (['.sql', '.pkb'].indexOf(Path.extname(file)) < 0) {
+            // if (['.sql', '.pkb'].includes(path.extname(file).toLowerCase()))  // ts Error ?
+            if (['.sql', '.pkb'].indexOf(path.extname(file).toLowerCase()) < 0) {
                 resolve(null)
             } else {
                 let me = this;
@@ -139,25 +162,35 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                     if (err)
                         reject(err);
 
+                    let infos: PLSQLInfos,
+                        offset: number,
+                        text = data.toString();
 
-                let infos: PLSQLInfos,
-                    offset: number,
-                    text = data.toString();
-
-                    // Get infos of current package
-                    infos = this.getPackageInfos(text);
-                    // if it's ok, find function
-                    if ((infos.bodyOffset != null) && (infos.packageName === packageName)) {
-                        if (offset = me.findFunction(functionName, text, {start: infos.bodyOffset, end: Number.MAX_VALUE})) {
-                            vscode.workspace.openTextDocument(file)
-                                .then(document => {
-                                    resolve(me.getLocation(document, offset));
-                                });
+                    if (isPackage) {
+                        // Get infos of current package
+                        infos = this.getPackageInfos(text);
+                        // if it's ok, find function
+                        if ((infos.bodyOffset != null) && (infos.packageName === packageName)) {
+                            offset = me.findPkgMethod(functionName, text, {start: infos.bodyOffset, end: Number.MAX_VALUE});
                         } else {
-                            reject('function not found')
+                            // try with another file
+                            resolve(null)
                         }
                     } else {
-                        resolve(null)
+                        offset = me.findMethod(functionName, text);
+                        if (offset == null)
+                            // try with another file
+                            resolve(null);
+                    }
+
+                    if (offset != null) {
+                        vscode.workspace.openTextDocument(file)
+                            .then(document => {
+                                resolve(me.getLocation(document, offset));
+                            });
+                    } else {
+                        // stop all search here
+                        reject('function not found')
                     }
                 });
             }
@@ -183,14 +216,14 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
             infos = this.getPackageInfos(documentText);
 
             // It's the specification or the body declaration line
-            if (this.findFunction(currentWord, lineText) !== null) {
+            if (this.findPkgMethod(currentWord, lineText) !== null) {
                 if (infos.specOffset != null && infos.bodyOffset != null) {
                     let searchRange: PLSQLRange;
                     if (document.offsetAt(line.range.start) < infos.bodyOffset)
                         searchRange = {start: infos.bodyOffset, end: Number.MAX_VALUE};
                     else
                         searchRange = {start: 0, end: infos.bodyOffset};
-                    if (offset = this.findFunction(currentWord, documentText, searchRange))
+                    if (offset = this.findPkgMethod(currentWord, documentText, searchRange))
                         resolve(this.getLocation(document, offset))
                     else
                         resolve(null);
@@ -206,26 +239,29 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                     let packageName = found[0].split('.', 1)[0].toLowerCase();
                     // In the same package
                     if (infos.packageName === packageName) {
-                        if (offset = this.findFunction(currentWord, documentText, {start: infos.bodyOffset, end: Number.MAX_VALUE}))
+                        if (offset = this.findPkgMethod(currentWord, documentText, {start: infos.bodyOffset, end: Number.MAX_VALUE}))
                             resolve(this.getLocation(document, offset));
                         else
                             resolve(null);
                     } else {
                         // In another package
                         // Search in another file (after body) with filename
-                        this.findFile(packageName, currentWord)
+                        this.findFile(packageName, currentWord, true)
                         .then (value => {
                             resolve(value);
                         })
                     }
                 } else {
                     // function in the package
-                    if (offset = this.findFunction(currentWord, documentText, {start: infos.bodyOffset, end: Number.MAX_VALUE}))
+                    if (offset = this.findPkgMethod(currentWord, documentText, {start: infos.bodyOffset, end: Number.MAX_VALUE}))
                         resolve(this.getLocation(document, offset));
                     else {
                         // TODO ? if it's not a keyword, string, number => resolve(null)
-                        // TODO Search in another file (after body) and it's not a package ! (perhaps a function)
-                        resolve(null);
+                        // Search in another file and it's not a package ! (perhaps a function or a method)
+                        this.findFile(currentWord, currentWord)
+                        .then (value => {
+                            resolve(value);
+                        })
                     }
                 }
             }
