@@ -10,6 +10,6 @@ Easily navigate to methods (procedures and functions) inside a package file
 
 #Go to Definition
 Easily navigate to methods (procedures and functions) with some limitations :
-- To a method inside the same package
-- To a method inside a file named \*packageName\* or \*methodName\*
+- Go to a method in the same package
+- Go to a method in another file whose name includes the package or method name.
   <br />e.g.: *XXX_MyPackage.pkb or XXX_MyFunction.sql*

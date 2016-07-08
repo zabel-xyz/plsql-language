@@ -36,7 +36,8 @@
                     ".ddl",
                     ".dml",
                     ".pkb",
-                    ".pkh"
+                    ".pkh",
+                    ".pks"
                 ],
                 "configuration": "./syntaxes/plsql.configuration.json"
             }

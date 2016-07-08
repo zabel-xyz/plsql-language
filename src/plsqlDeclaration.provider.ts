@@ -15,6 +15,12 @@ interface PLSQLInfos {
     bodyOffset?: number;
 }
 
+const enum PLSQLFindKind {
+    PkgSpec = 1,
+    PkgBody,
+    Method
+}
+
 export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
 
     private getPackageInfos(text: string): PLSQLInfos {
@@ -41,8 +47,7 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
     }
 
     private findPkgMethod(name, text: string, searchRange?: PLSQLRange): number {
-        // TODO name+suffix or name ?
-        let regexp = new RegExp('\\b(function|procedure)\\s*' + name, 'gi'),
+        let regexp = new RegExp('\\b(function|procedure)\\s*' + name +'\\b', 'gi'),
             found;
 
         do {
@@ -56,8 +61,7 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
     }
 
     private findMethod(name, text: string): number {
-        // TODO name+suffix or name ?
-        let regexp =  new RegExp('\\b(create)(\\s*or\\s+replace)?\\s*(function|procedure)\\s*'+name, 'gi'),
+        let regexp =  new RegExp('\\b(create)(\\s*or\\s+replace)?\\s*(function|procedure)\\s*'+name+'\\b', 'gi'),
             found;
 
         do {
@@ -70,10 +74,12 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
         return null;
     }
 
-    private findFile(fileName, functionName: string, isPackage?: boolean): Thenable<vscode.Location> {
+    private findFile(fileName, functionName: string, findKind: PLSQLFindKind): Thenable<vscode.Location> {
         return new Promise((resolve, reject) => {
-            if (!vscode.workspace)
+            if (!vscode.workspace) {
                 reject('No workspace');
+                return;
+            }
 
             // Don't use findFiles it's case sensitive (issus ##8666)
             // vscode.workspace.findFiles('**/*'+fileName+'*.*','')
@@ -88,6 +94,7 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                 if (searchExclude[key])
                     ignore.push(key);
 
+            // TODO : cache ? (createFileSystemWatcher)
             glob('**/*'+fileName+'*.*',
                     {nocase: true, cwd: vscode.workspace.rootPath, ignore: ignore}, (err, files) => {
 
@@ -108,7 +115,7 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                         return {done: true, value: undefined}
                 };
                 // read all files
-                me.readFiles(files, fileName, functionName, isPackage)
+                me.readFiles(files, fileName, functionName, findKind)
                 .then (value => {
                     resolve(value)
                 })
@@ -119,7 +126,7 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
         })
     }
 
-    private readFiles(allFiles, packageName, functionName, isPackage?: boolean) {
+    private readFiles(allFiles, packageName, functionName, findKind: PLSQLFindKind) {
         return new Promise((resolve, reject) => {
             let result = allFiles.next(),
                 me = this;
@@ -129,10 +136,9 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
 
                 // if there's more to do
                 if (!result.done) {
-                    me.readFile(result.value, packageName, functionName, isPackage)
+                    me.readFile(result.value, packageName, functionName, findKind)
                     .then(value => {
                         if (value) {
-                            console.log(value);
                             resolve(value);
                         } else {
                             // Read next file
@@ -150,28 +156,38 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
         })
     }
 
-    private readFile(file, packageName, functionName, isPackage?: boolean) {
+    private readFile(file, packageName, functionName, findKind: PLSQLFindKind) {
         return new Promise((resolve, reject) => {
-            // only want files whose ext matches .sql or .pkb
-            // if (['.sql', '.pkb'].includes(path.extname(file).toLowerCase()))  // ts Error ?
-            if (['.sql', '.pkb'].indexOf(path.extname(file).toLowerCase()) < 0) {
+
+            let searchExt = ['.sql'];
+            if (findKind === PLSQLFindKind.PkgSpec)
+                searchExt.push('.pkh','.pks');
+            else if (findKind === PLSQLFindKind.PkgBody)
+                searchExt.push('.pkb');
+
+            if (searchExt.indexOf(path.extname(file).toLowerCase()) < 0) {
                 resolve(null)
             } else {
                 let me = this;
                 fs.readFile(file, (err, data) => {
-                    if (err)
+                    if (err) {
                         reject(err);
+                        return;
+                    }
 
                     let infos: PLSQLInfos,
                         offset: number,
                         text = data.toString();
 
-                    if (isPackage) {
+                    if (findKind !== PLSQLFindKind.Method) {
                         // Get infos of current package
                         infos = this.getPackageInfos(text);
+
                         // if it's ok, find function
-                        if ((infos.bodyOffset != null) && (infos.packageName === packageName)) {
+                        if ((infos.bodyOffset != null) && (findKind === PLSQLFindKind.PkgBody) && (infos.packageName === packageName)) {
                             offset = me.findPkgMethod(functionName, text, {start: infos.bodyOffset, end: Number.MAX_VALUE});
+                        } else if ((infos.specOffset != null) && (findKind === PLSQLFindKind.PkgSpec) && (infos.packageName === packageName)) {
+                            offset = me.findPkgMethod(functionName, text, {start: infos.specOffset, end: infos.bodyOffset != null ? infos.bodyOffset : Number.MAX_VALUE});
                         } else {
                             // try with another file
                             resolve(null)
@@ -198,7 +214,6 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
     }
 
     private getLocation(document: vscode.TextDocument, offset: number): vscode.Location {
-        console.log(vscode.Uri.file(document.fileName));
         return new vscode.Location(vscode.Uri.file(document.fileName), document.positionAt(offset));
     }
 
@@ -228,8 +243,11 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                     else
                         resolve(null);
                 } else {
-                    // TODO: search in another file (spec and body are in separate files)
-                    resolve(null);
+                    // search in another file (spec and body are in separate files)
+                    this.findFile(infos.packageName, currentWord, infos.bodyOffset == null ? PLSQLFindKind.PkgBody : PLSQLFindKind.PkgSpec)
+                    .then (value => {
+                        resolve(value);
+                    })
                 }
             } else {
                 // It's a link to another function
@@ -246,7 +264,7 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                     } else {
                         // In another package
                         // Search in another file (after body) with filename
-                        this.findFile(packageName, currentWord, true)
+                        this.findFile(packageName, currentWord, PLSQLFindKind.PkgBody)
                         .then (value => {
                             resolve(value);
                         })
@@ -258,7 +276,7 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                     else {
                         // TODO ? if it's not a keyword, string, number => resolve(null)
                         // Search in another file and it's not a package ! (perhaps a function or a method)
-                        this.findFile(currentWord, currentWord)
+                        this.findFile(currentWord, currentWord, PLSQLFindKind.Method)
                         .then (value => {
                             resolve(value);
                         })
