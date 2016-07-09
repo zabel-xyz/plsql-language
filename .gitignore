@@ -1,3 +1,5 @@
+*.vsix
+
 out
 node_modules
 .history
