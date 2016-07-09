@@ -231,7 +231,7 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
             infos = this.getPackageInfos(documentText);
 
             // It's the specification or the body declaration line
-            if (this.findPkgMethod(currentWord, lineText) !== null) {
+            if (infos && (this.findPkgMethod(currentWord, lineText) !== null)) {
                 if (infos.specOffset != null && infos.bodyOffset != null) {
                     let searchRange: PLSQLRange;
                     if (document.offsetAt(line.range.start) < infos.bodyOffset)
@@ -253,7 +253,7 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                 // It's a link to another function
                 let regExp = new RegExp('\\b\\w+\\.'+ currentWord, 'i'),
                     found;
-                if (found = regExp.exec(lineText)) {
+                if (infos && (found = regExp.exec(lineText))) {
                     let packageName = found[0].split('.', 1)[0].toLowerCase();
                     // In the same package
                     if (infos.packageName === packageName) {
@@ -270,8 +270,8 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                         })
                     }
                 } else {
-                    // function in the package
-                    if (offset = this.findPkgMethod(currentWord, documentText, {start: infos.bodyOffset, end: Number.MAX_VALUE}))
+                    // function in the package or nested function
+                    if (offset = this.findPkgMethod(currentWord, documentText, {start: infos ? infos.bodyOffset : 0, end: Number.MAX_VALUE}))
                         resolve(this.getLocation(document, offset));
                     else {
                         // TODO ? if it's not a keyword, string, number => resolve(null)

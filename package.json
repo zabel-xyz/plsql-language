@@ -12,6 +12,7 @@
         "type": "git",
         "url": "https://github.com/zabel-xyz/plsql-language.git"
     },
+    "icon": "local-history.png",
     "categories": [
         "Languages"
     ],
