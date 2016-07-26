@@ -23,6 +23,75 @@ const enum PLSQLFindKind {
 
 export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
 
+    public provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): Thenable<vscode.Location> {
+        return new Promise<vscode.Location>((resolve, reject) => {
+
+            let line = document.lineAt(position),
+                lineText = line.text,
+                currentWord = document.getText(document.getWordRangeAtPosition(position)),
+                documentText = document.getText(),
+                infos: PLSQLInfos,
+                offset: number;
+
+            // Get infos of current package
+            infos = this.getPackageInfos(documentText);
+
+            // It's the specification or the body declaration line
+            if (infos && (this.findPkgMethod(currentWord, lineText) !== null)) {
+                if (infos.specOffset != null && infos.bodyOffset != null) {
+                    let searchRange: PLSQLRange;
+                    if (document.offsetAt(line.range.start) < infos.bodyOffset)
+                        searchRange = {start: infos.bodyOffset, end: Number.MAX_VALUE};
+                    else
+                        searchRange = {start: 0, end: infos.bodyOffset};
+                    if (offset = this.findPkgMethod(currentWord, documentText, searchRange))
+                        resolve(this.getLocation(document, offset));
+                    else
+                        resolve(null);
+                } else {
+                    // search in another file (spec and body are in separate files)
+                    this.findFile(infos.packageName, currentWord, infos.bodyOffset == null ? PLSQLFindKind.PkgBody : PLSQLFindKind.PkgSpec)
+                    .then (value => {
+                        resolve(value);
+                    });
+                }
+            } else {
+                // It's a link to another function
+                let regExp = new RegExp('\\b\\w+\\.'+ currentWord, 'i'),
+                    found;
+                if (infos && (found = regExp.exec(lineText))) {
+                    let packageName = found[0].split('.', 1)[0].toLowerCase();
+                    // In the same package
+                    if (infos.packageName === packageName) {
+                        if (offset = this.findPkgMethod(currentWord, documentText, {start: infos.bodyOffset, end: Number.MAX_VALUE}))
+                            resolve(this.getLocation(document, offset));
+                        else
+                            resolve(null);
+                    } else {
+                        // In another package
+                        // Search in another file (after body) with filename
+                        this.findFile(packageName, currentWord, PLSQLFindKind.PkgBody)
+                        .then (value => {
+                            resolve(value);
+                        });
+                    }
+                } else {
+                    // function in the package or nested function
+                    if (offset = this.findPkgMethod(currentWord, documentText, {start: infos ? infos.bodyOffset : 0, end: Number.MAX_VALUE}))
+                        resolve(this.getLocation(document, offset));
+                    else {
+                        // TODO ? if it's not a keyword, string, number => resolve(null)
+                        // Search in another file and it's not a package ! (perhaps a function or a method)
+                        this.findFile(currentWord, currentWord, PLSQLFindKind.Method)
+                        .then (value => {
+                            resolve(value);
+                        });
+                    }
+                }
+            }
+        });
+    }
+
     private getPackageInfos(text: string): PLSQLInfos {
         let regexp = /\b((create)(\s*or\s+replace)?\s*package)(\s*body)?\s*\w*/gi,
             infos: PLSQLInfos,
@@ -83,7 +152,7 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
 
             // Don't use findFiles it's case sensitive (issus ##8666)
             // vscode.workspace.findFiles('**/*'+fileName+'*.*','')
-            let glob = require("glob"),
+            let glob = require('glob'),
                 me = this;
 
             // ignore like search.exclude settings
@@ -100,7 +169,7 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
 
                 if (err || !files || !files.length) {
                     if (err)
-                        reject(err)
+                        reject(err);
                     else
                         resolve(null);
                     return;
@@ -112,18 +181,18 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                     if (files.iter < files.length)
                         return {done: false, value: path.join(vscode.workspace.rootPath, files[files.iter++])};
                     else
-                        return {done: true, value: undefined}
+                        return {done: true, value: undefined};
                 };
                 // read all files
                 me.readFiles(files, fileName, functionName, findKind)
                 .then (value => {
-                    resolve(value)
+                    resolve(value);
                 })
                 .catch(error => {
                     resolve(null);
-                })
-            })
-        })
+                });
+            });
+        });
     }
 
     private readFiles(allFiles, packageName, functionName, findKind: PLSQLFindKind) {
@@ -153,7 +222,7 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                     resolve(null);
             };
             step();
-        })
+        });
     }
 
     private readFile(file, packageName, functionName, findKind: PLSQLFindKind) {
@@ -166,7 +235,7 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                 searchExt.push('.pkb');
 
             if (searchExt.indexOf(path.extname(file).toLowerCase()) < 0) {
-                resolve(null)
+                resolve(null);
             } else {
                 let me = this;
                 fs.readFile(file, (err, data) => {
@@ -190,7 +259,7 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                             offset = me.findPkgMethod(functionName, text, {start: infos.specOffset, end: infos.bodyOffset != null ? infos.bodyOffset : Number.MAX_VALUE});
                         } else {
                             // try with another file
-                            resolve(null)
+                            resolve(null);
                         }
                     } else {
                         offset = me.findMethod(functionName, text);
@@ -206,7 +275,7 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                             });
                     } else {
                         // stop all search here
-                        reject('function not found')
+                        reject('function not found');
                     }
                 });
             }
@@ -215,74 +284,5 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
 
     private getLocation(document: vscode.TextDocument, offset: number): vscode.Location {
         return new vscode.Location(vscode.Uri.file(document.fileName), document.positionAt(offset));
-    }
-
-    public provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): Thenable<vscode.Location> {
-        return new Promise<vscode.Location>((resolve, reject) => {
-
-            let line = document.lineAt(position),
-                lineText = line.text,
-                currentWord = document.getText(document.getWordRangeAtPosition(position)),
-                documentText = document.getText(),
-                infos: PLSQLInfos,
-                offset: number;
-
-            // Get infos of current package
-            infos = this.getPackageInfos(documentText);
-
-            // It's the specification or the body declaration line
-            if (infos && (this.findPkgMethod(currentWord, lineText) !== null)) {
-                if (infos.specOffset != null && infos.bodyOffset != null) {
-                    let searchRange: PLSQLRange;
-                    if (document.offsetAt(line.range.start) < infos.bodyOffset)
-                        searchRange = {start: infos.bodyOffset, end: Number.MAX_VALUE};
-                    else
-                        searchRange = {start: 0, end: infos.bodyOffset};
-                    if (offset = this.findPkgMethod(currentWord, documentText, searchRange))
-                        resolve(this.getLocation(document, offset))
-                    else
-                        resolve(null);
-                } else {
-                    // search in another file (spec and body are in separate files)
-                    this.findFile(infos.packageName, currentWord, infos.bodyOffset == null ? PLSQLFindKind.PkgBody : PLSQLFindKind.PkgSpec)
-                    .then (value => {
-                        resolve(value);
-                    })
-                }
-            } else {
-                // It's a link to another function
-                let regExp = new RegExp('\\b\\w+\\.'+ currentWord, 'i'),
-                    found;
-                if (infos && (found = regExp.exec(lineText))) {
-                    let packageName = found[0].split('.', 1)[0].toLowerCase();
-                    // In the same package
-                    if (infos.packageName === packageName) {
-                        if (offset = this.findPkgMethod(currentWord, documentText, {start: infos.bodyOffset, end: Number.MAX_VALUE}))
-                            resolve(this.getLocation(document, offset));
-                        else
-                            resolve(null);
-                    } else {
-                        // In another package
-                        // Search in another file (after body) with filename
-                        this.findFile(packageName, currentWord, PLSQLFindKind.PkgBody)
-                        .then (value => {
-                            resolve(value);
-                        })
-                    }
-                } else {
-                    // function in the package or nested function
-                    if (offset = this.findPkgMethod(currentWord, documentText, {start: infos ? infos.bodyOffset : 0, end: Number.MAX_VALUE}))
-                        resolve(this.getLocation(document, offset));
-                    else {
-                        // TODO ? if it's not a keyword, string, number => resolve(null)
-                        // Search in another file and it's not a package ! (perhaps a function or a method)
-                        this.findFile(currentWord, currentWord, PLSQLFindKind.Method)
-                        .then (value => {
-                            resolve(value);
-                        })
-                    }
-                }
-            }
-        })
     }
 }
