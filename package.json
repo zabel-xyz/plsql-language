@@ -2,7 +2,7 @@
     "name": "plsql-language",
     "displayName": "Language PL/SQL",
     "description": "PL/SQL language (Oracle) support",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "publisher": "xyz",
     "engines": {
         "vscode": "^1.0.0"
@@ -25,31 +25,48 @@
     ],
     "main": "./out/src/extension",
     "contributes": {
-        "languages": [
-            {
-                "id": "PLSQL",
-                "aliases": [
-                    "PLSQL",
-                    "PL/SQL"
-                ],
-                "extensions": [
-                    ".sql",
-                    ".ddl",
-                    ".dml",
-                    ".pkb",
-                    ".pkh",
-                    ".pks"
-                ],
-                "configuration": "./syntaxes/plsql.configuration.json"
+        "languages": [{
+            "id": "PLSQL",
+            "aliases": [
+                "PLSQL",
+                "PL/SQL"
+            ],
+            "extensions": [
+                ".sql",
+                ".ddl",
+                ".dml",
+                ".pkb",
+                ".pkh",
+                ".pks"
+            ],
+            "configuration": "./syntaxes/plsql.configuration.json"
+        }],
+        "grammars": [{
+            "language": "PLSQL",
+            "scopeName": "source.plsql.oracle",
+            "path": "./syntaxes/plsql.tmLanguage"
+        }],
+        "configuration": {
+            "type": "object",
+            "title": "PL/SQL configuration",
+            "properties": {
+                "plsql-language.searchFolder": {
+                    "type": "string",
+                    "default": null,
+                    "description": "A folder to search plsql files (default is to search in workspace folder)"
+                },
+                "plsql-language.replaceSearch": {
+                    "type": "string",
+                    "default": null,
+                    "description": "Regular expression that will be replaced into methodname to build filename"
+                },
+                "plsql-language.replaceValue": {
+                    "type": "string",
+                    "default": null,
+                    "description": "String value to replace into methodname to build filename"
+                }
             }
-        ],
-        "grammars": [
-            {
-                "language": "PLSQL",
-                "scopeName": "source.plsql.oracle",
-                "path": "./syntaxes/plsql.tmLanguage"
-            }
-        ]
+        }
     },
     "scripts": {
         "vscode:prepublish": "node ./node_modules/vscode/bin/compile",

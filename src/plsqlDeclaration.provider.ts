@@ -152,8 +152,8 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
 
             // Don't use findFiles it's case sensitive (issus ##8666)
             // vscode.workspace.findFiles('**/*'+fileName+'*.*','')
-            let glob = require('glob'),
-                me = this;
+            const glob = require('glob'),
+                  me = this;
 
             // ignore like search.exclude settings
             // TODO: not do that every time
@@ -163,9 +163,20 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                 if (searchExclude[key])
                     ignore.push(key);
 
+            let cwd = vscode.workspace.getConfiguration('plsql-language').get('searchFolder');
+            if (!cwd)
+                cwd = vscode.workspace.rootPath;
+
+            const replaceSearch = <string>vscode.workspace.getConfiguration('plsql-language').get('replaceSearch');
+            if (replaceSearch) {
+                const regExp = new RegExp(replaceSearch, 'i');
+                const replaceValue = <string>vscode.workspace.getConfiguration('plsql-language').get('replaceValue') || '';
+                fileName = fileName.replace(regExp, replaceValue);
+            }
+
             // TODO : cache ? (createFileSystemWatcher)
             glob('**/*'+fileName+'*.*',
-                    {nocase: true, cwd: vscode.workspace.rootPath, ignore: ignore}, (err, files) => {
+                    {nocase: true, cwd: cwd, ignore: ignore}, (err, files) => {
 
                 if (err || !files || !files.length) {
                     if (err)
@@ -179,7 +190,7 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                 files.iter = 0;
                 files.next = () => {
                     if (files.iter < files.length)
-                        return {done: false, value: path.join(vscode.workspace.rootPath, files[files.iter++])};
+                        return {done: false, value: path.join(cwd, files[files.iter++])};
                     else
                         return {done: true, value: undefined};
                 };
