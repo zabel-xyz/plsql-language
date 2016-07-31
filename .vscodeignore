@@ -1,8 +1,12 @@
 .vscode/**
 .history/**
 typings/**
+src/**
 out/test/**
 test/**
 **/*.map
 .gitignore
+.gitattributes
 tsconfig.json
+tslint.json
+.TODO.txt
