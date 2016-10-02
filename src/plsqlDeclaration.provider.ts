@@ -59,10 +59,10 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                 // It's a link to another function
                 let regExp = new RegExp('\\b\\w+\\.'+ currentWord, 'i'),
                     found;
-                if (infos && (found = regExp.exec(lineText))) {
+                if (found = regExp.exec(lineText)) {
                     let packageName = found[0].split('.', 1)[0].toLowerCase();
                     // In the same package
-                    if (infos.packageName === packageName) {
+                    if (infos && (infos.packageName === packageName)) {
                         if (offset = this.findPkgMethod(currentWord, documentText, {start: infos.bodyOffset, end: Number.MAX_VALUE}))
                             resolve(this.getLocation(document, offset));
                         else
