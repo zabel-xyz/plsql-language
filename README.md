@@ -16,6 +16,9 @@ Navigate to methods (procedures and functions) with some limitations :
 
 #Note
 For this extension works with .sql files you must change your settings (user or workspace) like this:
+<br />
+    `
     "files.associations": {
    		"*.sql": "plsql"
 	}
+  `
