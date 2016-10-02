@@ -13,3 +13,9 @@ Navigate to methods (procedures and functions) with some limitations :
 - Go to a method in the same file
 - Go to a method in another file whose name includes the package or method name.
   <br />e.g.: *XXX_MyPackage.pkb or XXX_MyFunction.sql*
+
+#Note
+For this extension works with .sql files you must change your settings (user or workspace) like this:
+    "files.associations": {
+   		"*.sql": "plsql"
+	}
