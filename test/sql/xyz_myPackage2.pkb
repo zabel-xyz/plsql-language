@@ -1,22 +1,4 @@
-CREATE OR REPLACE PACKAGE MyPackage
-as
-  /**
-   * Comment
-   */
-  function get_myValue(param1 in varchar2)
-    return varchar2;
-
-  /**
-   * Comment
-   */
-  procedure set_myValue(param1 in varchar2);
-
-  procedure callTo(param1 in varchar2);
-
-end;
-/
-
-create or replace package body MyPackage
+create or replace package body MyPackage2
 as
 
   function get_myValue(param1 in varchar2)
@@ -29,7 +11,7 @@ as
   procedure set_myValue(param1 in varchar2)
   is
   begin
-    MyPackage.callTo('test');
+    MyPackage2.callTo('test');
     pCallInternal('test2');
     -- some other code to execute
     return;
