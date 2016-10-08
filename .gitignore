@@ -1,5 +1,5 @@
 *.vsix
-
+todo.*
 out
 node_modules
 .history

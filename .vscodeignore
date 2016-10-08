@@ -9,4 +9,4 @@ test/**
 .gitattributes
 tsconfig.json
 tslint.json
-.TODO.txt
+todo.*
