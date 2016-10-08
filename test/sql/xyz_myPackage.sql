@@ -11,7 +11,7 @@ as
    */
   procedure set_myValue(param1 in varchar2);
 
-  procedure callTo(param1 in varchar2);
+  procedure myCall(param1 in varchar2);
 
 end;
 /
@@ -29,13 +29,13 @@ as
   procedure set_myValue(param1 in varchar2)
   is
   begin
-    MyPackage.callTo('test');
+    MyPackage.myCall('test');
     pCallInternal('test2');
     -- some other code to execute
     return;
   end;
 
-  procedure callTo(param1 in varchar2)
+  procedure myCall(param1 in varchar2)
   is
   begin
     -- some code to execute
@@ -46,6 +46,8 @@ as
   is
   begin
     -- some code to execute
+    MyPackage2.myCall('Test');
+    MyFunc('Test');
     return;
   end;
 

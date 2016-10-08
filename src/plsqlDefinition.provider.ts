@@ -264,7 +264,10 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                         infos = this.getPackageInfos(text);
 
                         // if it's ok, find function
-                        if ((infos.bodyOffset != null) && (findKind === PLSQLFindKind.PkgBody) && (infos.packageName === packageName)) {
+                        if (!infos)
+                            // try with another file
+                            resolve(null);
+                        else if ((infos.bodyOffset != null) && (findKind === PLSQLFindKind.PkgBody) && (infos.packageName === packageName)) {
                             offset = me.findPkgMethod(functionName, text, {start: infos.bodyOffset, end: Number.MAX_VALUE});
                         } else if ((infos.specOffset != null) && (findKind === PLSQLFindKind.PkgSpec) && (infos.packageName === packageName)) {
                             offset = me.findPkgMethod(functionName, text, {start: infos.specOffset, end: infos.bodyOffset != null ? infos.bodyOffset : Number.MAX_VALUE});

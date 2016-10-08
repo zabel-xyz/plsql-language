@@ -11,13 +11,13 @@ as
   procedure set_myValue(param1 in varchar2)
   is
   begin
-    MyPackage2.callTo('test');
+    MyPackage2.myCall('test');
     pCallInternal('test2');
     -- some other code to execute
     return;
   end;
 
-  procedure callTo(param1 in varchar2)
+  procedure myCall(param1 in varchar2)
   is
   begin
     -- some code to execute
@@ -28,6 +28,8 @@ as
   is
   begin
     -- some code to execute
+    MyPackage.myCall('Test');
+    MyFunc('Test');
     return;
   end;
 

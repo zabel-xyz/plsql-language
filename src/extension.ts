@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { PLSQLDefinitionProvider } from './plsqlDeclaration.provider';
+import { PLSQLDefinitionProvider } from './plsqlDefinition.provider';
 import { PLSQLDocumentSymbolProvider } from './plsqlDocumentSymbol.provider';
 
 export function activate(context: vscode.ExtensionContext) {

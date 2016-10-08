@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 
 import * as path from 'path';
 
-import { PLSQLDefinitionProvider } from '../src/plsqlDeclaration.provider';
+import { PLSQLDefinitionProvider } from '../src/plsqlDefinition.provider';
 
 interface ICase {
     currPos: vscode.Position;
@@ -44,39 +44,51 @@ suite('PLSQL Definition', () => {
             currText: currText,
             expectedPos: new vscode.Position(expPos[0], expPos[1]),
             expectedFile: expFile
-        }
+        };
     }
 
-    test('Inside same package', (done) => {
+    test('Package', (done) => {
         let testCases: ICase[] = [
-            buildCase([21,13], 'get_myValue', [5,2], 'xyz_myPackage.sql'),   // body to spec
-            buildCase([11,16], 'set_myValue', [28,2], 'xyz_myPackage.sql'),  // spec to body
-            buildCase([31,16], 'callTo', [37,2], 'xyz_myPackage.sql'),       // body to body
-            buildCase([32,16], 'pCallInternal', [44,2], 'xyz_myPackage.sql') // body to body
+            buildCase([21,13], 'get_myValue', [5,2], 'xyz_myPackage.sql'),    // body to spec
+            buildCase([11,16], 'set_myValue', [28,2], 'xyz_myPackage.sql'),   // spec to body
+            buildCase([31,16], 'myCall', [37,2], 'xyz_myPackage.sql'),        // body to body
+            buildCase([32,16], 'pCallInternal', [44,2], 'xyz_myPackage.sql'), // body to body
+            buildCase([48,16], 'myCall', [19,2], 'xyz_myPackage2.pkb'),       // body to body in another package
+            buildCase([49, 6], 'MyFunc', [0,0], 'xyz_myFunc.sql')             // body to a function file
         ];
         runTest('xyz_myPackage.sql', testCases, done);
     });
 
-    test('Separate spec/body', (done) => {
+    test('Separate package spec', (done) => {
         let testCases: ICase[] = [
-            buildCase([11,16], 'set_myValue', [10,2], 'xyz_myPackage2.pkb'),      // spec to body
-        ]
+            buildCase([11,16], 'set_myValue', [10,2], 'xyz_myPackage2.pkb'),   // spec to body
+        ];
         runTest('xyz_myPackage2.pks', testCases, done);
     });
-    test('Separate body/spec', (done) => {
+    test('Separate package body', (done) => {
         let testCases: ICase[] = [
-            buildCase([3,13], 'get_myValue', [5,2], 'xyz_myPackage2.pks'),       // body to spec
-            buildCase([13,16], 'callTo', [19,2], 'xyz_myPackage2.pkb'),           // body to body
-            buildCase([14,16], 'pCallInternal', [26,2], 'xyz_myPackage2.pkb')     // body to body
+            buildCase([ 3,13], 'get_myValue', [5,2], 'xyz_myPackage2.pks'),    // body to spec
+            buildCase([13,16], 'myCall', [19,2], 'xyz_myPackage2.pkb'),        // body to body
+            buildCase([14,16], 'pCallInternal', [26,2], 'xyz_myPackage2.pkb'), // body to body
+            buildCase([30,16], 'myCall', [37,2], 'xyz_myPackage.sql'),         // body to body in another package
+            buildCase([31, 6], 'MyFunc', [0,0], 'xyz_myFunc.sql')              // body to a function file
         ];
         runTest('xyz_myPackage2.pkb', testCases, done);
     });
 
-    // TODO :
-    // package to another one
-    // package to procedure
-    // procedure to package
-    // dmt to package
-    // function to nested function
+    test('Function', (done) => {
+        let testCases: ICase[] = [
+            buildCase([11,12], 'myCall', [37,2], 'xyz_myPackage.sql'),         // function to package
+            buildCase([12,16], 'myNestedFunc', [3,2], 'xyz_myFunc.sql'),       // function to nested function
+        ];
+        runTest('xyz_myFunc.sql', testCases, done);
+    });
+
+    test('Dml', (done) => {
+        let testCases: ICase[] = [
+            buildCase([1,25], 'set_myValue', [28,2], 'xyz_myPackage.sql'),     // dmt to package
+        ];
+        runTest('xyz_myDml.sql', testCases, done);
+    });
 
 });

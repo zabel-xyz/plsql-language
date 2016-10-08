@@ -1,14 +1,14 @@
-CREATE OR REPLACE FUNCTION myFunc(param1 VARCHAR2) RETURN VARCHAR2
-IS
+CREATE OR REPLACE FUNCTION MyFunc(param1 varchar2) return varchar2
+is
 
-    FUNCTION myNestedFunc(param1 VARCHAR2)
-        RETURN VARCHAR2
-    IS
-    BEGIN
-        yrstr := TO_CHAR(TO_NUMBER(year_string)*2);
-        RETURN yrstr;
-    END;
+  function myNestedFunc(param1 varchar2)
+    return varchar2
+  is
+  begin
+    return param1||'_TEST';
+  end;
 
-BEGIN
-  RETURN myNestedFunc(param1)||'_TEST';
-END;
+begin
+  myPackage.myCall(param1);
+  return myNestedFunc(param1);
+end;

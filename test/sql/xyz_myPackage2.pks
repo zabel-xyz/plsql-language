@@ -11,7 +11,7 @@ as
    */
   procedure set_myValue(param1 in varchar2);
 
-  procedure callTo(param1 in varchar2);
+  procedure myCall(param1 in varchar2);
 
 end;
 /

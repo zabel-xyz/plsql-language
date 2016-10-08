@@ -1,3 +1,3 @@
 update myTable
-set myField = MyPackage.get_value('toto')
+set myField = MyPackage.set_myValue('toto')
 /
