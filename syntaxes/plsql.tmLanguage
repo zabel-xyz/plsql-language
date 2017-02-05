@@ -175,7 +175,7 @@
         </dict>
         <dict>
             <key>match</key>
-            <string>(?i)\b(end|then|exception|when|others|begin|in|out|is|as|exit|open|fetch|into|close|type|rowtype|default|\.(extend|count|first|last|next|nextval|currval))\b</string>
+            <string>(?i)\b(end|then|exception|when|others|begin|in|out|is|as|exit|open|fetch|into|close|type|rowtype|default|declare|\.(extend|count|first|last|next|nextval|currval))\b</string>
             <key>name</key>
             <string>keyword.other.oracle</string>
         </dict>
