@@ -49,12 +49,12 @@ suite('PLSQL Definition', () => {
 
     test('Package', (done) => {
         let testCases: ICase[] = [
-            buildCase([21,13], 'get_myValue', [5,2], 'xyz_myPackage.sql'),    // body to spec
-            buildCase([11,16], 'set_myValue', [28,2], 'xyz_myPackage.sql'),   // spec to body
-            buildCase([31,16], 'myCall', [37,2], 'xyz_myPackage.sql'),        // body to body
-            buildCase([32,16], 'pCallInternal', [44,2], 'xyz_myPackage.sql'), // body to body
-            buildCase([48,16], 'myCall', [19,2], 'xyz_myPackage2.pkb'),       // body to body in another package
-            buildCase([49, 6], 'MyFunc', [0,0], 'xyz_myFunc.sql')             // body to a function file
+            buildCase([24,13], 'get_myValue', [5,2], 'xyz_myPackage.sql'),    // body to spec
+            buildCase([14,16], 'set_myValue', [31,2], 'xyz_myPackage.sql'),   // spec to body
+            buildCase([34,16], 'myCall', [40,2], 'xyz_myPackage.sql'),        // body to body
+            buildCase([35,16], 'pCallInternal', [47,2], 'xyz_myPackage.sql'), // body to body
+            buildCase([51,16], 'myCall', [19,2], 'xyz_myPackage2.pkb'),       // body to body in another package
+            buildCase([52, 6], 'MyFunc', [0,0], 'xyz_myFunc.sql')             // body to a function file
         ];
         runTest('xyz_myPackage.sql', testCases, done);
     });
@@ -70,7 +70,7 @@ suite('PLSQL Definition', () => {
             buildCase([ 3,13], 'get_myValue', [5,2], 'xyz_myPackage2.pks'),    // body to spec
             buildCase([13,16], 'myCall', [19,2], 'xyz_myPackage2.pkb'),        // body to body
             buildCase([14,16], 'pCallInternal', [26,2], 'xyz_myPackage2.pkb'), // body to body
-            buildCase([30,16], 'myCall', [37,2], 'xyz_myPackage.sql'),         // body to body in another package
+            buildCase([30,16], 'myCall', [40,2], 'xyz_myPackage.sql'),         // body to body in another package
             buildCase([31, 6], 'MyFunc', [0,0], 'xyz_myFunc.sql')              // body to a function file
         ];
         runTest('xyz_myPackage2.pkb', testCases, done);
@@ -78,7 +78,7 @@ suite('PLSQL Definition', () => {
 
     test('Function', (done) => {
         let testCases: ICase[] = [
-            buildCase([11,12], 'myCall', [37,2], 'xyz_myPackage.sql'),         // function to package
+            buildCase([11,12], 'myCall', [40,2], 'xyz_myPackage.sql'),         // function to package
             buildCase([12,16], 'myNestedFunc', [3,2], 'xyz_myFunc.sql'),       // function to nested function
         ];
         runTest('xyz_myFunc.sql', testCases, done);
@@ -86,7 +86,7 @@ suite('PLSQL Definition', () => {
 
     test('Dml', (done) => {
         let testCases: ICase[] = [
-            buildCase([1,25], 'set_myValue', [28,2], 'xyz_myPackage.sql'),     // dmt to package
+            buildCase([1,25], 'set_myValue', [31,2], 'xyz_myPackage.sql'),     // dmt to package
         ];
         runTest('xyz_myDml.sql', testCases, done);
     });

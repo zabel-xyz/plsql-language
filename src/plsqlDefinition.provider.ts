@@ -116,12 +116,15 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
     }
 
     private findPkgMethod(name, text: string, searchRange?: PLSQLRange): number {
-        let regexp = new RegExp('\\b(function|procedure)\\s*' + name +'\\b', 'gi'),
-            found;
+        const regComment = `\\/\\*[\\s\\S]*?\\*\\/`;
+        const regFind = `${regComment}|\\b(function|procedure)\\s*${name}\\b`;
+        const regexp = new RegExp(regFind, 'gi');
+        let   found;
 
         do {
             found = regexp.exec(text);
-            if (found && (!searchRange || ((found.index > searchRange.start) && (found.index < searchRange.end)) ))
+            if (found && !(found[0].startsWith('/*')) &&
+                (!searchRange || ((found.index > searchRange.start) && (found.index < searchRange.end)) ))
                 return found.index;
         }
         while (found);
@@ -163,7 +166,7 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                 if (searchExclude[key])
                     ignore.push(key);
 
-            let cwd = vscode.workspace.getConfiguration('plsql-language').get('searchFolder');
+            let cwd = <string>vscode.workspace.getConfiguration('plsql-language').get('searchFolder');
             if (!cwd)
                 cwd = vscode.workspace.rootPath;
 

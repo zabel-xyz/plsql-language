@@ -8,6 +8,9 @@ as
 
   /**
    * Comment
+   *
+   * procedure set_myValue
+   *
    */
   procedure set_myValue(param1 in varchar2);
 
