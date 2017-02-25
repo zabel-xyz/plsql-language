@@ -1,6 +1,10 @@
 CREATE OR REPLACE FUNCTION MyFunc(param1 varchar2) return varchar2
 is
 
+  /**
+   * function myNestedFunc
+   */
+  -- function myNestedFunc
   function myNestedFunc(param1 varchar2)
     return varchar2
   is

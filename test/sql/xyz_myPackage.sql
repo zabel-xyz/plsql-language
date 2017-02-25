@@ -22,6 +22,7 @@ end;
 create or replace package body MyPackage
 as
 
+  -- function get_myValue
   function get_myValue(param1 in varchar2)
     return varchar2
   is

@@ -1,5 +1,3 @@
-'use strict';
-
 import vscode = require('vscode');
 import path = require('path');
 import fs = require('fs');
@@ -116,14 +114,14 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
     }
 
     private findPkgMethod(name, text: string, searchRange?: PLSQLRange): number {
-        const regComment = `\\/\\*[\\s\\S]*?\\*\\/`;
-        const regFind = `${regComment}|\\b(function|procedure)\\s*${name}\\b`;
+        const regComment = `(\\/\\*[\\s\\S]*?\\*\\/)|(--.*)`;
+        const regFind = `${regComment}|(\\b(function|procedure)\\s*${name}\\b)`;
         const regexp = new RegExp(regFind, 'gi');
         let   found;
 
         do {
             found = regexp.exec(text);
-            if (found && !(found[0].startsWith('/*')) &&
+            if (found && found[3] && //!(found[0].startsWith('/*')) && !(found[0].startsWith('--')) &&
                 (!searchRange || ((found.index > searchRange.start) && (found.index < searchRange.end)) ))
                 return found.index;
         }
@@ -133,12 +131,14 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
     }
 
     private findMethod(name, text: string): number {
-        let regexp =  new RegExp('\\b(create)(\\s*or\\s+replace)?\\s*(function|procedure)\\s*'+name+'\\b', 'gi'),
-            found;
+        const regComment = `(\\/\\*[\\s\\S]*?\\*\\/)|(--.*)`;
+        const regFind = `${regComment}|(\\b(create)(\\s*or\\s+replace)?\\s*(function|procedure)\\s*${name}\\b)`;
+        const regexp = new RegExp(regFind, 'gi');
+        let   found;
 
         do {
             found = regexp.exec(text);
-            if (found)
+            if (found && found[3]) //!(found[0].startsWith('/*')) && !(found[0].startsWith('--')))
                 return found.index;
         }
         while (found);
