@@ -7,6 +7,8 @@
         <string>sql</string>
         <string>ddl</string>
         <string>dml</string>
+        <string>pks</string>
+        <string>pkb</string>
     </array>
     <key>foldingStartMarker</key>
     <string>(?i)^\s*(begin|if|loop)\b</string>
@@ -31,6 +33,24 @@
             <string>--.*$</string>
             <key>name</key>
             <string>comment.line.double-dash.oracle</string>
+        </dict>
+        <dict>
+            <key>match</key>
+            <string>Rem.*$</string>
+            <key>name</key>
+            <string>comment.line.sqlplus.oracle</string>
+        </dict>
+        <dict>
+            <key>match</key>
+            <string>rem.*$</string>
+            <key>name</key>
+            <string>comment.line.sqlplus-lowercase.oracle</string>
+        </dict>
+        <dict>
+            <key>match</key>
+            <string>prompt.*$</string>
+            <key>name</key>
+            <string>comment.line.sqlplus-prompt.oracle</string>
         </dict>
         <dict>
             <key>captures</key>
@@ -133,7 +153,7 @@
         </dict>
         <dict>
             <key>match</key>
-            <string>(?i)\b(if|elsif|else|end\s+if|loop|end\s+loop|for|case|end\s+case|continue|return|goto)\b</string>
+            <string>(?i)\b(if|elsif|else|end\s+if|loop|end\s+loop|for|while|case|end\s+case|continue|return|goto)\b</string>
             <key>name</key>
             <string>keyword.control.oracle</string>
         </dict>
@@ -145,13 +165,13 @@
         </dict>
         <dict>
             <key>match</key>
-            <string>(?i)\b(sysdate|%(isopen|found|notfound|rowcount)|commit|rollback|sqlerrm|substr|cast|decode|length|lower|upper)\b</string>
+            <string>(?i)\b(user|sysdate|localtimestamp|%(isopen|found|notfound|rowcount)|commit|rollback|sqlerrm|substr|instr|cast|decode|length|lower|upper)\b</string>
             <key>name</key>
             <string>support.function.oracle</string>
         </dict>
         <dict>
             <key>match</key>
-            <string>(?i)\b(avg|count|sum|max|min|nvl|trim|to_date|to_char|lpad|ltrim|rpad|rtrim|trunc|to_number)\b</string>
+            <string>(?i)\b(avg|count|sum|max|min|nvl|coalesce|chr|trim|to_date|to_char|lpad|ltrim|rpad|rtrim|trunc|to_number|extractvalue|sign|abs|floor|mod|ascii)\b</string>
             <key>name</key>
             <string>support.function.builtin.oracle</string>
         </dict>
@@ -175,25 +195,49 @@
         </dict>
         <dict>
             <key>match</key>
-            <string>(?i)\b(end|then|exception|when|others|begin|in|out|is|as|exit|open|fetch|into|close|type|rowtype|default|declare|\.(extend|count|first|last|next|nextval|currval))\b</string>
+            <string>(?i)\b(end|then|constant|exception|when|raise|declare|pragma|exception_init|begin|in|out|nocopy|is|as|exit|open|fetch|into|close|returning|type|row|rowtype|rowid|default|exclusive|mode|lock|record|\.(extend|count|first|last|next|nextval|currval))\b</string>
             <key>name</key>
             <string>keyword.other.oracle</string>
         </dict>
         <dict>
             <key>match</key>
-            <string>(?i)\b(select|from|where|order\s+by|group\s+by|asc|desc|update|set|insert|into|values|delete|from|distinct|union|having|limit|table|of)\b</string>
+            <string>(?i)\b(with|select|from|where|order\s+by|group\s+by|partition\s+by|rows\s+between|over|asc|desc|nulls\s+first|nulls\s+last|update|set|insert|into|values|delete|from|merge|distinct|union|having|limit|table|view|between|of|all|any|exists|rownum|cursor|before|after|each)\b</string>
             <key>name</key>
             <string>keyword.other.sql.oracle</string>
         </dict>
         <dict>
             <key>match</key>
-            <string>(?i)\b(dbms_lock|dbms_output)\b</string>
+            <string>(?i)\b(grant|revoke|alter|drop|force|add constraint|primary key|foreign key|references|unique index|sequence|increment by|start with|cache|nocycle|on)\b</string>
+            <key>name</key>
+            <string>keyword.other.ddl.oracle</string>
+        </dict>
+        <dict>
+            <key>match</key>
+            <string>(?i)\b(define|column|set|whenever\s+sqlerror|exec|timing\s+start|timing\s+stop)\b</string>
+            <key>name</key>
+            <string>keyword.other.sqlplus.oracle</string>
+        </dict>
+        <dict>
+            <key>match</key>
+            <string>(?i)\b(no_data_found|too_many_rows|others|value_error|dup_val_on_index)\b</string>
+            <key>name</key>
+            <string>support.type.exception.sql.oracle</string>
+        </dict>
+        <dict>
+            <key>match</key>
+            <string>(?i)\b(dbms_alert|dbms_application_info|dbms_aq|dbms_aqadm|dbms_assert|dbms_backup_restore|dbms_crypto|dbms_crypto_toolkit|dbms_datapump|dbms_dblink|dbms_dbverify|dbms_db_version|dbms_ddl|dbms_debug|dbms_describe|dbms_dimension|dbms_epg|dbms_errlog|dbms_fga|dbms_flashback|dbms_job|dbms_ldap|dbms_lob|dbms_lock|dbms_logmnr|dbms_metadata|dbms_monitor|dbms_obfuscation_toolkit|dbms_pipe|dbms_profiler|dbms_random|dbms_refresh|dbms_registry|dbms_regxdb|dbms_repair|dbms_repcat|dbms_rls|dbms_rowid|dbms_scheduler|dbms_session|dbms_snapshot|dbms_space|dbms_space_admin|dbms_sql|dbms_sqltune|dbms_standard|dbms_stats|dbms_streams|dbms_sys_error|dbms_sys_sql|dbms_system|dbms_trace|dbms_transaction|dbms_transform|dbms_types|dbms_utility|dbms_xmlgen|dbms_xmlstore|dbms_xplan|utl_coll|utl_compress|utl_encode|utl_file|utl_file_nonstandard|utl_gdk|utl_http|utl_inaddr|utl_i18n|utl_lms|utl_match|utl_raw|utl_recomp|utl_ref|utl_smtp|utl_sys_compress|utl_tcp|utl_url|owa|owa_cache|owa_cookie|owa_custom|owa_cx|owa_image|owa_match|owa_opt_lock|owa_pattern|owa_sec|owa_text|owa_util|htf|htp|apex_activity_log|apex_application|apex_application_global|apex_application_install|apex_authentication|apex_authorization|apex_cloud_archive|apex_collection|apex_collections|apex_css|apex_custom_auth|apex_data_load|apex_debug|apex_error|apex_instance_admin|apex_ir|apex_item|apex_javascript|apex_json|apex_lang|apex_ldap|apex_mail|apex_page|apex_plugin|apex_plugin_util|apex_region|apex_session|apex_spatial|apex_string|apex_theme|apex_ui_default_update|apex_util|apex_web_service|apex_zip)\b</string>
             <key>name</key>
             <string>support.class.oracle</string>
         </dict>
         <dict>
             <key>match</key>
-            <string>(?i)\b(put_line)\b</string>
+            <string>\w*_pkg\b</string>
+            <key>name</key>
+            <string>support.class.user-defined.oracle</string>
+        </dict>
+        <dict>
+            <key>match</key>
+            <string>(?i)\b(execute\s+immediate|alter\s+session|put_line|raise_application_error)\b</string>
             <key>name</key>
             <string>support.function.oracle</string>
         </dict>
@@ -215,7 +259,7 @@
         </dict>
         <dict>
             <key>match</key>
-            <string>(?i)\b(number|integer|varchar2|boolean|date)\b</string>
+            <string>(?i)\b(number|decimal|integer|smallint|float|long|char|varchar2|varchar|boolean|date|xmltype|blob|clob)\b</string>
             <key>name</key>
             <string>storage.type.oracle</string>
         </dict>
