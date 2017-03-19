@@ -275,7 +275,7 @@
         </dict>
            <dict>
             <key>match</key>
-            <string>(?i)\b(with|select|from|where|order\s+(siblings\s+)?by|group\s+by|rollup|cube|((left|right|cross)\s+(outer\s+)?)?join|on|asc|desc|update|set|insert|into|values|delete|distinct|union|minus|intersect|having|limit|table|between|like|of|row|(range|rows)\s+between|nulls\s+first|nulls\s+last|before|after|all|any|exists|rownum|cursor|returning|over|partition\s+by|merge|using|matched)\b</string>
+            <string>(?i)\b(with|select|from|where|order\s+(siblings\s+)?by|group\s+by|rollup|cube|((left|right|cross)\s+(outer\s+)?)?join|on|asc|desc|update|set|insert|into|values|delete|distinct|union|minus|intersect|having|limit|table|between|like|of|row|(range|rows)\s+between|nulls\s+first|nulls\s+last|before|after|all|any|exists|rownum|cursor|returning|over|partition\s+by|merge|using|matched|pivot|unpivot)\b</string>
             <key>name</key>
             <string>keyword.other.sql.oracle</string>
         </dict>
