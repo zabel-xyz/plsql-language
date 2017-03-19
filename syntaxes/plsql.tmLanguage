@@ -197,7 +197,7 @@
         </dict>
         <dict>
             <key>match</key>
-            <string>(?i)\b(bfilename|cardinality|coalesce|decode|empty_(blob|clob)|lag|lead|listagg|lnnvl|nanvl|nullif|nvl|nvl2|sys_(context|guid|typeid|connect_by_path|extract_utc)|uid|user|userenv|cardinality|collect|powermultiset(_by_cardinality)?|set|ora_hash|standard_hash)|(execute\s+immediate|alter\s+session)\b</string>
+            <string>(?i)\b(bfilename|cardinality|coalesce|decode|empty_(blob|clob)|lag|lead|listagg|lnnvl|nanvl|nullif|nvl|nvl2|sys_(context|guid|typeid|connect_by_path|extract_utc)|uid|user|userenv|cardinality|collect|powermultiset(_by_cardinality)?|ora_hash|standard_hash)|(execute\s+immediate|alter\s+session)\b</string>
             <key>name</key>
             <string>support.function.builtin.advanced.oracle</string>
         </dict>
@@ -263,7 +263,7 @@
         </dict>
         <dict>
             <key>match</key>
-            <string>(?i)\b(end|then|deterministic|exception|when|declare|begin|in|out|nocopy|is|as|exit|open|fetch|into|close|subtype|type|rowtype|default|exclusive|mode|lock|record|index\s+by|result_cache)|constant|\.(nextval|currval)\b</string>
+            <string>(?i)\b(end|then|deterministic|exception|when|declare|begin|in|out|nocopy|is|as|exit|open|fetch|into|close|subtype|type|rowtype|default|exclusive|mode|lock|record|index\s+by|result_cache|constant|\.(nextval|currval))\b</string>
             <key>name</key>
             <string>keyword.other.oracle</string>
         </dict>
