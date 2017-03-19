@@ -1,5 +1,10 @@
+## 0.0.9
+* Add some keywords, functions to improve colorization of syntax [#4](https://github.com/zabel-xyz/plsql-language/issues/4)
+[#6](https://github.com/zabel-xyz/plsql-language/pull/6)
+* Edit README to include a note about running SQLPlus in a task [#5](https://github.com/zabel-xyz/plsql-language/issues/5)
+
 ## 0.0.8
-* Ignoring names of methods in single-comments
+* Ignoring names of methods in single-comments [#2](https://github.com/zabel-xyz/plsql-language/issues/2)
 
 ## 0.0.7
 * Colorize DECLARE keyword [#1](https://github.com/zabel-xyz/plsql-language/issues/1)

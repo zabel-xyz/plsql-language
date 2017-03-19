@@ -36,6 +36,16 @@ You can compile a PLSQL package with sqlplus, create a task like this:
 
             // Run sqlplus
             "command": "sqlplus",
+            // Alternative (see below)
+            // "command": "run_sqlplus.bat",
 
             "args": ["username/password@sid", "@\"${file}\""]
         }
+
+To force sqlplus to complete, it is better to use a batch file like this:
+
+        run_sqlplus.bat
+                echo exit | echo show errors | sqlplus %1 %2
+
+This will run sqlplus, output any errors, and then exit cleanly back to VS Code.  
+Thanks to @mortenbra (issue [#5](https://github.com/zabel-xyz/plsql-language/issues/5))
