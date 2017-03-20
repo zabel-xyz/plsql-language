@@ -263,13 +263,13 @@
         </dict>
         <dict>
             <key>match</key>
-            <string>(?i)\b(end|then|deterministic|exception|when|declare|begin|in|out|nocopy|is|as|exit|open|fetch|into|close|subtype|type|rowtype|default|exclusive|mode|lock|record|index\s+by|result_cache|constant|\.(nextval|currval))\b</string>
+            <string>(?i)\b(end|then|deterministic|exception|when|declare|begin|in|out|nocopy|is|as|exit|open|fetch|into|close|subtype|type|rowtype|default|exclusive|mode|lock|record|index\s+by|result_cache|constant|comment|\.(nextval|currval))\b</string>
             <key>name</key>
             <string>keyword.other.oracle</string>
         </dict>
         <dict>
             <key>match</key>
-            <string>(?i)\b(grant|revoke|alter|drop|force|add|check|constraint|primary key|foreign key|references|unique index|column|sequence|increment by|cache)|(materialized)? view|trigger\b</string>
+            <string>(?i)\b(grant|revoke|alter|drop|force|add|check|constraint|primary key|foreign key|references|unique index|column|sequence|increment by|cache|(materialized)? view|trigger)\b</string>
             <key>name</key>
             <string>keyword.other.ddl.oracle</string>
         </dict>
