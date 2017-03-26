@@ -1,3 +1,6 @@
+## 0.0.12
+* Correct syntax highlighting
+
 ## 0.0.10 / 0.0.11
 * Correct syntax highlighting, some keywords are too greedy (add,in,...) [#7](https://github.com/zabel-xyz/plsql-language/issues/7)
 * Colorize COMMENT keyword

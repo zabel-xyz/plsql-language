@@ -177,9 +177,7 @@
         </dict>
         <dict>
             <key>match</key>
-            <string>(?i)\b(ascii|asciistr|chr|compose|concat|convert|decompose|dump|initcap|
-            instr|instrb|instrc|instr2|instr4|unistr|length|lengthb|lengthc|length2|length4|
-            lower|lpad|ltrim|nchr|replace|rpad|rtrim|soundex|substr|translate|trim|upper|vsize)\b</string>
+            <string>(?i)\b(ascii|asciistr|chr|compose|concat|convert|decompose|dump|initcap|instr|instrb|instrc|instr2|instr4|unistr|length|lengthb|lengthc|length2|length4|lower|lpad|ltrim|nchr|replace|rpad|rtrim|soundex|substr|translate|trim|upper|vsize)\b</string>
             <key>name</key>
             <string>support.function.builtin.char.oracle</string>
         </dict>
@@ -209,7 +207,7 @@
         </dict>
         <dict>
             <key>match</key>
-            <string>(?i)\b(abs|acos|asin|atan|atan2|bit_(and|or|xor)|ceil|cos|cosh|covar_pop|covar_samp|exp|extract|floor|greatest|least|ln|log|mod|power|remainder|round|sign|sin|sinh|sqrt|tan|tanh|trunc)\b</string>
+            <string>(?i)\b(abs|acos|asin|atan|atan2|bit_(and|or|xor)|ceil|cos|cosh|exp|extract|floor|greatest|least|ln|log|mod|power|remainder|round|sign|sin|sinh|sqrt|tan|tanh|trunc)\b</string>
             <key>name</key>
             <string>support.function.builtin.math.oracle</string>
         </dict>
@@ -227,7 +225,7 @@
         </dict>
         <dict>
             <key>match</key>
-            <string>(?i)\b(appendchildxml|deletexml|depth|extract (xml)|existsnode|extractvalue|insertchildxml|insertxmlbefore|xmlcast|xmldiff|xmlelement|xmlexists|xmlisvalid|insertchildxmlafter|insertchildxmlbefore|path|sys_dburigen|sys_xmlagg|sys_xmlgen|updatexml|xmlagg|xmlcdata|xmlcolattval|xmlcomment|xmlconcat|xmlforest|xmlparse|xmlpi|xmlquery|xmlroot|xmlsequence|xmlserialize|xmltable|xmltransform)\b</string>
+            <string>(?i)\b(appendchildxml|deletexml|depth|extract|existsnode|extractvalue|insertchildxml|insertxmlbefore|xmlcast|xmldiff|xmlelement|xmlexists|xmlisvalid|insertchildxmlafter|insertchildxmlbefore|path|sys_dburigen|sys_xmlagg|sys_xmlgen|updatexml|xmlagg|xmlcdata|xmlcolattval|xmlcomment|xmlconcat|xmlforest|xmlparse|xmlpi|xmlquery|xmlroot|xmlsequence|xmlserialize|xmltable|xmltransform)\b</string>
             <key>name</key>
             <string>support.function.builtin.xml.oracle</string>
         </dict>
@@ -275,7 +273,7 @@
         </dict>
            <dict>
             <key>match</key>
-            <string>(?i)\b(with|select|from|where|order\s+(siblings\s+)?by|group\s+by|rollup|cube|((left|right|cross)\s+(outer\s+)?)?join|on|asc|desc|update|set|insert|into|values|delete|distinct|union|minus|intersect|having|limit|table|between|like|of|row|(range|rows)\s+between|nulls\s+first|nulls\s+last|before|after|all|any|exists|rownum|cursor|returning|over|partition\s+by|merge|using|matched|pivot|unpivot)\b</string>
+            <string>(?i)\b(with|select|from|where|order\s+(siblings\s+)?by|group\s+by|rollup|cube|((left|right|cross|natural)\s+(outer\s+)?)?join|on|asc|desc|update|set|insert|into|values|delete|distinct|union|minus|intersect|having|limit|table|between|like|of|row|(range|rows)\s+between|nulls\s+first|nulls\s+last|before|after|all|any|exists|rownum|cursor|returning|over|partition\s+by|merge|using|matched|pivot|unpivot)\b</string>
             <key>name</key>
             <string>keyword.other.sql.oracle</string>
         </dict>
@@ -343,7 +341,7 @@
         </dict>
         <dict>
             <key>match</key>
-            <string>(?i)\b(char|varchar|varchar2|nchar|nvarchar2|boolean|date|timestamp(\s+with(\s+local)?\s+time\s+zone)?|interval\s+(year\s+to\s+month|day\s+to\s+second)|xmltype|blob|clob|nclob|bfile|long|long\s+raw|raw|number|integer|decimal|smallint|float|binary_(float|double|integer)|pls_(float|double|integer)|rowid|urowid|vararray|natural|naturaln|positive|positiven|signtype|simple_(float|double|integer))\b</string>
+            <string>(?i)\b(char|varchar|varchar2|nchar|nvarchar2|boolean|date|timestamp(\s+with(\s+local)?\s+time\s+zone)?|interval\s*day(\(\d*\))?\s*to\s*month|interval\s*year(\(\d*\))?\s*to\s*second(\(\d*\))?|xmltype|blob|clob|nclob|bfile|long|long\s+raw|raw|number|integer|decimal|smallint|float|binary_(float|double|integer)|pls_(float|double|integer)|rowid|urowid|vararray|natural|naturaln|positive|positiven|signtype|simple_(float|double|integer))\b</string>
             <key>name</key>
             <string>storage.type.oracle</string>
         </dict>
