@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>fileTypes</key>
+    <array>
+        <string>sql</string>
+        <string>ddl</string>
+        <string>dml</string>
+        <string>pks</string>
+        <string>pkb</string>
+    </array>
+    <key>name</key>
+    <string>PL/SQL Custom (Oracle)</string>
+    <key>patterns</key>
+    <array>
+        <!--begin customization-->
+        <!--<dict>
+            <key>captures</key>
+            <dict>
+                <key>3</key>
+                <dict>
+                    <key>name</key>
+                    <string>support.class.user-defined.oracle</string>
+                </dict>
+            </dict>
+            <key>match</key>
+            <string>(?i)\b((xyz_\w+)\.(\w+))\b</string>
+            <key>name</key>
+            <string>support.function.user-defined.oracle</string>
+        </dict>-->
+        <!--end customization-->
+        <dict>
+            <key>include</key>
+            <string>source.plsql.oracle</string>
+        </dict>
+    </array>
+    <key>scopeName</key>
+    <string>source.plsql.oracle.custom</string>
+    <key>uuid</key>
+    <string>B0F1D9EB-BB16-4999-8A67-21400A86471C</string>
+</dict>
+</plist>

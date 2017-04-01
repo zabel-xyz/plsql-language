@@ -1,0 +1,24 @@
+{
+	"name": "plsql-language-custom",
+	"displayName": "Language PL/SQL (custom)",
+	"description": "Some customization for Language PL/SQL",
+	"version": "0.0.1",
+	"publisher": "xyz",
+	"engines": {
+		"vscode": "^1.7.0"
+	},
+	"icon": "plsql-language-custom.png",
+	"extensionDependencies": [
+		"xyz.plsql-language"
+	],
+	"contributes": {
+		"grammars": [
+			{
+				"language": "plsql",
+				"scopeName": "source.plsql.oracle.custom",
+				"path": "./syntaxes/plsql-custom.tmLanguage"
+			}
+		]
+	},
+	"__metadata": null
+}
