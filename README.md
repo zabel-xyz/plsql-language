@@ -1,18 +1,18 @@
-## PL/SQL (Oracle) for Visual Studio Code
+# PL/SQL (Oracle) for Visual Studio Code
 
 This extension adds support for the PL/SQL (Oracle) to Visual Studio Code.
 
-# Colorization
+## Colorization
 Full syntax highlight for PL/SQL files based on oracle-textmate-bundle
 
 An advanced customization can be done by using an **extensionDependencies**, [follow this exemple](plsql-language-custom/xyz.plsql-language-custom-0.0.1)
 
-# Go to Symbol
+## Go to Symbol
 Navigate to methods (procedures and functions) inside a package file
 
 ![Image of Symbol](images/DocumentSymbol.gif)
 
-# Go to Definition
+## Go to Definition
 Navigate to methods (procedures and functions) with some limitations :
 - Go to a method in the same file
 - Go to a method in another file whose name includes the package or method name.
@@ -20,14 +20,14 @@ Navigate to methods (procedures and functions) with some limitations :
 
 ![Image of Definition](images/Definition.gif)
 
-# Note
+## Note
 For this extension works with .sql files you must change your settings (user or workspace) like this:
 
         "files.associations": {
            	"*.sql": "plsql"
         }
 
-# Compile / Task
+## Compile / Task
 You can compile a PLSQL package with sqlplus, create a task like this:
 
         {
