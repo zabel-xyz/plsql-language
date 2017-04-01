@@ -1,3 +1,7 @@
+## 0.0.13
+* Add/Correct syntax highlighting
+* Add an exemple for advanced custom colorization
+
 ## 0.0.12
 * Correct syntax highlighting
 

@@ -2,7 +2,7 @@
     "name": "plsql-language",
     "displayName": "Language PL/SQL",
     "description": "PL/SQL language (Oracle) support",
-    "version": "0.0.12",
+    "version": "0.0.13",
     "publisher": "xyz",
     "engines": {
         "vscode": "^1.7.0"
@@ -15,7 +15,7 @@
     "bugs": {
         "url": "https://github.com/zabel-xyz/plsql-language/issues"
     },
-    "icon": "plsql-language.png",
+    "icon": "images/plsql-language.png",
     "categories": [
         "Languages"
     ],

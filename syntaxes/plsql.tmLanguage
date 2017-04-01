@@ -161,7 +161,8 @@
             <key>match</key>
             <string>(?i)\b(or|and|not|like)\b</string>
             <key>name</key>
-            <string>keyword.operator.oracle</string>
+            <!--<string>keyword.operator.oracle</string>  => No color for some themes (light+) -->
+            <string>keyword.other.oracle</string>
         </dict>
         <dict>
             <key>match</key>
@@ -299,7 +300,7 @@
                 </dict>
             </dict>
             <key>match</key>
-            <string>(?i)\b((dbms|utl|owa|apex)_\w+.(\w+))\b</string>
+            <string>(?i)\b((dbms|utl|owa|apex)_\w+\.(\w+))\b</string>
             <key>name</key>
             <string>support.function.oracle</string>
         </dict>
@@ -313,9 +314,23 @@
                 </dict>
             </dict>
             <key>match</key>
-            <string>(?i)\b((htf|htp).(\w+))\b</string>
+            <string>(?i)\b((htf|htp)\.(\w+))\b</string>
             <key>name</key>
             <string>support.function.oracle</string>
+        </dict>
+        <dict>
+            <key>captures</key>
+            <dict>
+                <key>3</key>
+                <dict>
+                    <key>name</key>
+                    <string>support.class.user-defined.oracle</string>
+                </dict>
+            </dict>
+            <key>match</key>
+            <string>(?i)\b((\w+_pkg)\.(\w+))\b</string>
+            <key>name</key>
+            <string>support.function.user-defined.oracle</string>
         </dict>
         <dict>
             <key>match</key>

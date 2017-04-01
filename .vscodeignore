@@ -9,4 +9,5 @@ test/**
 .gitattributes
 tsconfig.json
 tslint.json
+plsql-language-custom/**
 todo.*
