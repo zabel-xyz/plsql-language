@@ -2,7 +2,7 @@
     "name": "plsql-language",
     "displayName": "Language PL/SQL",
     "description": "PL/SQL language (Oracle) support",
-    "version": "0.0.13",
+    "version": "0.0.14",
     "publisher": "xyz",
     "engines": {
         "vscode": "^1.7.0"
@@ -62,12 +62,12 @@
                 "plsql-language.replaceSearch": {
                     "type": "string",
                     "default": null,
-                    "description": "Regular expression that will be replaced into methodname to build filename"
+                    "description": "Regular expression used to transform methodname => filename"
                 },
                 "plsql-language.replaceValue": {
                     "type": "string",
                     "default": null,
-                    "description": "String value to replace into methodname to build filename"
+                    "description": "String value used to transform methodname => filename"
                 }
             }
         }

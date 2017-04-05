@@ -26,10 +26,19 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
 
             let line = document.lineAt(position),
                 lineText = line.text,
-                currentWord = document.getText(document.getWordRangeAtPosition(position)),
+                range = document.getWordRangeAtPosition(position),
+                currentWord = document.getText(range),
                 documentText = document.getText(),
                 infos: PLSQLInfos,
                 offset: number;
+
+            // find current procedure or function name
+            if (currentWord === 'function' || currentWord === 'procedure') {
+                const regexp = new RegExp(/(?:^\s+)?(\w+)/i);
+                const found = regexp.exec(lineText.substr(range.end.character));
+                if (found)
+                    currentWord = found[1];
+            }
 
             // Get infos of current package
             infos = this.getPackageInfos(documentText);
@@ -167,7 +176,9 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                     ignore.push(key);
 
             let cwd = <string>vscode.workspace.getConfiguration('plsql-language').get('searchFolder');
-            if (!cwd)
+            if (cwd)
+                cwd = cwd.replace('${workspaceRoot}', vscode.workspace.rootPath);
+            else
                 cwd = vscode.workspace.rootPath;
 
             const replaceSearch = <string>vscode.workspace.getConfiguration('plsql-language').get('replaceSearch');

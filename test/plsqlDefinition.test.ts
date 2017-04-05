@@ -51,6 +51,8 @@ suite('PLSQL Definition', () => {
         let testCases: ICase[] = [
             buildCase([25,13], 'get_myValue', [5,2], 'xyz_myPackage.sql'),    // body to spec
             buildCase([14,16], 'set_myValue', [32,2], 'xyz_myPackage.sql'),   // spec to body
+            buildCase([25,6], 'function', [5,2], 'xyz_myPackage.sql'),    // body to spec
+            buildCase([14,6], 'procedure', [32,2], 'xyz_myPackage.sql'),   // spec to body
             buildCase([35,16], 'myCall', [41,2], 'xyz_myPackage.sql'),        // body to body
             buildCase([36,16], 'pCallInternal', [48,2], 'xyz_myPackage.sql'), // body to body
             buildCase([52,16], 'myCall', [19,2], 'xyz_myPackage2.pkb'),       // body to body in another package
