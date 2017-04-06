@@ -196,7 +196,7 @@
         </dict>
         <dict>
             <key>match</key>
-            <string>(?i)\b(bfilename|cardinality|coalesce|decode|empty_(blob|clob)|lag|lead|listagg|lnnvl|nanvl|nullif|nvl|nvl2|sys_(context|guid|typeid|connect_by_path|extract_utc)|uid|user|userenv|cardinality|collect|powermultiset(_by_cardinality)?|ora_hash|standard_hash)|(execute\s+immediate|alter\s+session)\b</string>
+            <string>(?i)\b(bfilename|cardinality|coalesce|decode|empty_(blob|clob)|lag|lead|listagg|lnnvl|nanvl|nullif|nvl|nvl2|sys_(context|guid|typeid|connect_by_path|extract_utc)|uid|user|userenv|cardinality|collect|powermultiset(_by_cardinality)?|ora_hash|standard_hash|execute\s+immediate|alter\s+session)\b</string>
             <key>name</key>
             <string>support.function.builtin.advanced.oracle</string>
         </dict>
