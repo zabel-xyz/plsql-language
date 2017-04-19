@@ -36,19 +36,13 @@
         </dict>
         <dict>
             <key>match</key>
-            <string>Rem.*$</string>
+            <string>\b(?i)rem(?:$|\s.*$)</string>
             <key>name</key>
             <string>comment.line.sqlplus.oracle</string>
         </dict>
         <dict>
             <key>match</key>
-            <string>rem.*$</string>
-            <key>name</key>
-            <string>comment.line.sqlplus-lowercase.oracle</string>
-        </dict>
-        <dict>
-            <key>match</key>
-            <string>prompt.*$</string>
+            <string>\b(?i)prompt(?:$|\s.*$)</string>
             <key>name</key>
             <string>comment.line.sqlplus-prompt.oracle</string>
         </dict>
@@ -328,7 +322,7 @@
                 </dict>
             </dict>
             <key>match</key>
-            <string>(?i)\b((\w+_pkg)\.(\w+))\b</string>
+            <string>(?i)\b((\w+_pkg|pkg_\w+)\.(\w+))\b</string>
             <key>name</key>
             <string>support.function.user-defined.oracle</string>
         </dict>
