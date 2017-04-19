@@ -1,41 +1,33 @@
-'use strict';
-
-import vscode = require('vscode');
+import * as vscode from 'vscode';
 
 export class PLSQLDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
 
     public provideDocumentSymbols(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.SymbolInformation[] {
         const regComment = `(\\/\\*[\\s\\S]*?\\*\\/)|(--.*)`;
-        const regFind = `${regComment}|(\\b(function|procedure|((create)(\\s*or\\s+replace)?\\s*package)(\\s*body)?)\\s*\\w+\\b)`;
+        const regFind = `${regComment}|(?:create(?:\\s+or\\s+replace)?\\s+)?((function|procedure|package(?:\\s+body)?)\\s+(?:\\w+\\.)?\\w+)`;
         const regexp = new RegExp(regFind, 'gi');
 
         const symbols: vscode.SymbolInformation[] = [],
               text = document.getText();
 
         let found;
-
-        do {
-            found = regexp.exec(text);
-            if (found && found[3] /*!found[0].startsWith('/*') && !found[0].startsWith('--')*/) {
-
+        while (found = regexp.exec(text)) {
+            if (found[3]) {
                 let line = document.lineAt(document.positionAt(found.index));
                 let symbolInfo = new vscode.SymbolInformation(
-                    found[0].replace(/(create)(\s*or\s+replace)?/, ''),
-                    this.getSymbolKind(found[0].toLowerCase()),
+                    found[3], this.getSymbolKind(found[4].toLowerCase()),
                     new vscode.Range(line.range.start, line.range.end));
                 symbols.push(symbolInfo);
             }
         }
-        while (found);
-
         return symbols;
     }
 
-    private getSymbolKind(text: string): vscode.SymbolKind {
+    private getSymbolKind(type: string): vscode.SymbolKind {
 
-        if (text.startsWith('function'))
+        if (type === 'function')
             return vscode.SymbolKind.Function;
-        else if (text.startsWith('procedure'))
+        else if (type === 'procedure')
             return vscode.SymbolKind.Method;
         else
             return vscode.SymbolKind.Package; // Specification or Body
