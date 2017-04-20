@@ -1,3 +1,14 @@
+## 1.0.0
+* Correct list of symbols with schema in package name [#11](https://github.com/zabel-xyz/plsql-language/issues/11)
+* Correct syntax highlighting (rem, prompt) [#10](https://github.com/zabel-xyz/plsql-language/issues/10)
+* Add automatic documentation (above functions and procedures)
+* Add some snippets
+* Use new version of TypeScript, VSCode...
+
+## 0.0.14
+* Correct syntax highlighting (user) [#7](https://github.com/zabel-xyz/plsql-language/issues/7)
+* Allow to navigate when the cursor is on the keyword function or procedure
+
 ## 0.0.13
 * Add/Correct syntax highlighting
 * Add an exemple for advanced custom colorization
