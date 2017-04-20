@@ -1,0 +1,234 @@
+{
+    "package..spec": {
+        "prefix": "pkg",
+        "body": [
+            "create or replace package ${1:name}",
+            "as",
+            "  $0",
+            "end $1;"
+        ],
+        "description": "package spec"
+    },
+    "package..body": {
+        "prefix": "pkg",
+        "body": [
+            "create or replace package body ${1:name}",
+            "as",
+            "  $0",
+            "end $1;"
+        ],
+        "description": "package body"
+    },
+
+    "func..spec": {
+        "prefix": "func",
+        "body": [
+            "function ${1:name}(",
+            "  ${2:param} in ${3:param_type}",
+            ") return ${4:return_type};"
+        ],
+        "description": "function spec"
+    },
+    "func": {
+        "prefix": "func",
+        "body": [
+            "function ${1:name}(",
+            "  ${2:param} in ${3:param_type}",
+            ") return ${4:return_type}",
+            "is",
+            "begin",
+            "  $0",
+            "end $1;"
+        ],
+        "description": "function"
+    },
+
+    "proc..spec": {
+        "prefix": "proc",
+        "body": [
+            "procedure ${1:name}(",
+            "  ${2:param} in ${3:param_type}",
+            ");"
+        ],
+        "description": "procedure spec"
+    },
+    "proc": {
+        "prefix": "proc",
+        "body": [
+            "procedure ${1:name}(",
+            "  ${2:param} in ${3:param_type}",
+            ")",
+            "is",
+            "begin",
+            "  $0",
+            "end $1;"
+        ],
+        "description": "procedure"
+    },
+
+    "begin..end": {
+        "prefix": "begin",
+        "body": [
+            "begin",
+            "  $0",
+            "end;"
+        ],
+        "description": "begin..end"
+    },
+
+    "if..end": {
+        "prefix": "ifthen",
+        "body": [
+            "if ${1:condition} then",
+            "  $0",
+            "end if;"
+        ],
+        "description": "if..end"
+    },
+    "if..else..end": {
+        "prefix": "ifelse",
+        "body": [
+            "if ${1:condition} then",
+            "  $2",
+            "else",
+            "  $3",
+            "end if;"
+        ],
+        "description": "if..else..end"
+    },
+    "elsif..": {
+        "prefix": "elsif",
+        "body": [
+            "elsif ${1:condition} then",
+            "  $0"
+        ],
+        "description": "elsif.."
+    },
+
+    "case..when..end": {
+        "prefix": "case",
+        "body": [
+            "case $1",
+            "  when ${2:condition} then $3",
+            "  else $4",
+            "end;"
+        ],
+        "description": "case..when..end"
+    },
+    "when..then": {
+        "prefix": "when",
+        "body": [
+            "when ${1:condition} then $2"
+        ],
+        "description": "when..then"
+    },
+
+    "loop..end": {
+        "prefix": "loop",
+        "body": [
+            "loop",
+            "  $0",
+            "end loop"
+        ],
+        "description": "loop..end"
+    },
+
+    "for..in": {
+        "prefix": "for",
+        "body": [
+            "for $1 in $2 loop",
+            "  $0",
+            "end loop"
+        ],
+        "description": "for..in"
+    },
+
+    "for..in..collection": {
+        "prefix": "for",
+        "body": [
+            "for i in 1..${1:collection}.count loop",
+            "  $0",
+            "end loop"
+        ],
+        "description": "for..in..collection"
+    },
+
+    "exception_no_data": {
+        "prefix": "exception",
+        "body": [
+            "exception",
+            "  when no_data_found then",
+            "    $1;"
+        ],
+        "description": "exception no_data_found"
+    },
+    "exception_too_many": {
+        "prefix": "exception",
+        "body": [
+            "exception",
+            "  when too_many_rows then",
+            "    $1;"
+        ],
+        "description": "exception too_many_rows"
+    },
+    "exception_others": {
+        "prefix": "exception",
+        "body": [
+            "exception",
+            "  when ${1:others} then",
+            "    ${2:null};"
+        ],
+        "description": "exception others"
+    },
+
+    "raise_application_error": {
+        "prefix": "raise",
+        "body": [
+            "raise_application_error(${1:-20000}, '${2:message}');"
+        ],
+        "description": "raise application error"
+    },
+    "dbms_output.put_line": {
+        "prefix": "output",
+        "body": [
+            "dbms_output.put_line('${1:message}');"
+        ],
+        "description": "dbms_output.put_line"
+    },
+
+    "select": {
+        "prefix": "select",
+        "body": [
+            "select ${1:field}",
+            "  ${2:into ${3:variable}}",
+            "  from ${4:table}",
+            " where ${5:condition}"
+        ],
+        "description": "select"
+    },
+    "insert": {
+        "prefix": "insert",
+        "body": [
+            "insert into ${1:table} ${2:(${3:column})}",
+            "values ${4:(${5:values})}"
+        ],
+        "description": "insert"
+    },
+    "update": {
+        "prefix": "update",
+        "body": [
+            "update ${1:table}",
+            "   set ${2:field}=${3:value}",
+            " where ${4:condition}"
+        ],
+        "description": "update"
+    },
+    "delete": {
+        "prefix": "delete",
+        "body": [
+            "delete from ${1:table}",
+            " where ${2:condition}"
+        ],
+        "description": "delete"
+    }
+}

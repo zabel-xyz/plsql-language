@@ -1,0 +1,45 @@
+{
+    /*
+        This is the default definition for your function or procedure.
+        You can create your own file and specify his location with the setting
+        The definition is like snippets with some specific variables:
+            ${PLDOC_TYPE}: function or procedure
+            ${PLDOC_OBJECT}: name of function or procedure
+            ${PLDOC_PARAM}: name of parameter
+            ${PLDOC_AUTHOR}: author (see setting)
+            ${PLDOC_DATE}: current date
+            ${PLDOC_DATE|dd/mm/yyyy}: current date with format according to https://www.npmjs.com/package/dateformat
+    */
+	"pldoc": {
+        "prefix": "__doc", // '__' for first position in snippet list
+		"body": [
+            "/**",
+            " * Description: ${0:Description}",
+            " *",
+            " * Author: ${PLDOC_AUTHOR}",
+            " * Created: ${PLDOC_DATE}",
+            " *",
+			" * Param: ${PLDOC_PARAM} ${1:Description}",
+            " * Return: ${2:Description}",
+            "*/"
+		],
+		"description": "Documentation for your function or procedure"
+	}
+
+    /*
+      You can also define custom snippet
+      The available variables are
+            ${PLDOC_AUTHOR}: author (see setting)
+            ${PLDOC_DATE}: current date
+            ${PLDOC_DATE|dd/mm/yyyy}: current date with format according to https://www.npmjs.com/package/dateformat
+    */
+    /*
+    "pllastUpdate": {
+        "prefix": "last",
+        "body": [
+            "${PLDOC_AUTHOR} ${PLDOC_DATE}"
+        ],
+        "description": "Author and date"
+    }
+    */
+}
