@@ -129,6 +129,8 @@ export class PLDocController {
         let location: string = vscode.workspace.getConfiguration('plsql-language').get<string>('pldoc.path');
         if (!location)
             location = path.join(__dirname, '../../snippets/pldoc.json');
+        else
+            location = path.join(location, 'pldoc.json');
         try {
             parsedJSON = json5.parse(fs.readFileSync(location).toString()); // invalid JSON or permission issue can happen here
         } catch (error) {

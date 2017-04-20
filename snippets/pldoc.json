@@ -21,7 +21,7 @@
             " *",
 			" * Param: ${PLDOC_PARAM} ${1:Description}",
             " * Return: ${2:Description}",
-            "*/"
+            " */"
 		],
 		"description": "Documentation for your function or procedure"
 	}
@@ -35,7 +35,7 @@
     */
     /*
     "pllastUpdate": {
-        "prefix": "last",
+        "prefix": "__last",
         "body": [
             "${PLDOC_AUTHOR} ${PLDOC_DATE}"
         ],
