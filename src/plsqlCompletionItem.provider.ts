@@ -16,7 +16,9 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
             const completeItems: vscode.CompletionItem[] = [];
 
             const lineText = document.lineAt(position.line).text,
-                  text = document.getText();
+                  text = document.getText(),
+                  wordRange = document.getWordRangeAtPosition(position),
+                  word = wordRange && document.getText(wordRange);
 
             // PLDOC
             const plDocItem = this.getPlDocItem(document, position, lineText, text);
@@ -26,12 +28,12 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
             // PLDOC - custom items
             if (!this.plDocCustomItems)
                 this.plDocCustomItems = this.getPlDocCustomItems();
-            Array.prototype.push.apply(completeItems, this.plDocCustomItems);
+            Array.prototype.push.apply(completeItems, this.filterCompletion(this.plDocCustomItems, word));
 
             // PLSQL - snippets
             if (!this.plsqlSnippets)
                 this.plsqlSnippets = this.getSnippets();
-            Array.prototype.push.apply(completeItems, this.plsqlSnippets);
+            Array.prototype.push.apply(completeItems, this.filterCompletion(this.plsqlSnippets, word));
 
             // TODO...
             // Other completion
@@ -43,6 +45,7 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
             if (found = regEx.exec(lineTillCurrentPosition)) {
                 Array.prototype.push.apply(completeItems, this.getPackageItems(found[1], found[2]));
             } else {
+                // TODO: limit the suggestions useful for the context...
                 const wordAtPosition = document.getWordRangeAtPosition(position);
                 if (wordAtPosition) {
                     // currentWord = document.getText(wordAtPosition);
@@ -51,8 +54,21 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
             }
             */
 
-            resolve(completeItems);
+            // completionItems must be filtered and if empty return undefined
+            // otherwise word suggestion are lost ! (https://github.com/Microsoft/vscode/issues/21611)
+            if (completeItems.length > 0)
+                resolve(completeItems);
+            else
+                resolve();
         });
+    }
+
+    private filterCompletion(items: vscode.CompletionItem[], word: string) {
+        // completionItems must be filtered and if empty return undefined
+        // otherwise word suggestion are lost ! (https://github.com/Microsoft/vscode/issues/21611)
+        if (items && word)
+            return items.filter(item => item.label.startsWith(word));
+        else return [];
     }
 
     private createSnippetItem(snippet, origin = ''): vscode.CompletionItem {
