@@ -1,5 +1,5 @@
 ## 1.0.1
-* Fix documentation generation not always working #13
+* Fix documentation generation not always working [#13](https://github.com/zabel-xyz/plsql-language/issues/13)
 * Fix word based suggestions not working
 
 ## 1.0.0
