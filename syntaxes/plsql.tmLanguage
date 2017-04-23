@@ -36,13 +36,13 @@
         </dict>
         <dict>
             <key>match</key>
-            <string>\b(?i)rem(?:$|\s.*$)</string>
+            <string>(?i)(?:^\s*)rem(?:\s+.*$)</string>
             <key>name</key>
             <string>comment.line.sqlplus.oracle</string>
         </dict>
         <dict>
             <key>match</key>
-            <string>\b(?i)prompt(?:$|\s.*$)</string>
+            <string>(?i)(?:^\s*)prompt(?:\s+.*$)</string>
             <key>name</key>
             <string>comment.line.sqlplus-prompt.oracle</string>
         </dict>

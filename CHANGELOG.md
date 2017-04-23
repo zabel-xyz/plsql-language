@@ -1,3 +1,7 @@
+## 1.0.1
+* Fix documentation generation not always working #13
+* Fix word based suggestions not working
+
 ## 1.0.0
 * Correct list of symbols with schema in package name [#11](https://github.com/zabel-xyz/plsql-language/issues/11)
 * Correct syntax highlighting (rem, prompt) [#10](https://github.com/zabel-xyz/plsql-language/issues/10)
