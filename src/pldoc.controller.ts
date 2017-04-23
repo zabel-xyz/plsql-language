@@ -98,24 +98,24 @@ export class PLDocController {
 
     private getInfo(text: string): IPlDocObject {
         let plDocObj: IPlDocObject;
-        const regex = /(?:^\s*(?:create(?:\s+or\s+replace)?)?\s*)((function|procedure)\s+(\w+))\s*(\(.*\))?\s*(return|is|as|;)/i;
+        const regex = /(function|procedure)\s*(\w+)\s*(\([\s\S]*?\))?(?:\s*(return))?/i;
         let found = regex.exec(text);
-        if (found && found.length > 2) {
+        if (found && found.length > 0) {
 
             // Function or Procedure
             plDocObj = {
-                type: found[2].toLowerCase(),
-                name: found[3],
+                type: found[1].toLowerCase(),
+                name: found[2],
                 params: []
             };
 
             // Params
-            const params = found[4],
-                  regexParams = /(\(|,)\s*(\w+)/g;
+            const params = found[3],
+                  regexParams = /(?:\(|,)\s*(\w+)/g;
             if (params !== '') {
                 while (found = regexParams.exec(params)) {
-                    if (found.length > 1 && found[2])
-                        plDocObj.params.push({name: found[2]});
+                    if (found.length > 0)
+                        plDocObj.params.push({name: found[1]});
                 }
             }
         }
