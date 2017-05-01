@@ -130,7 +130,7 @@ export class PLDocController {
         if (!location)
             location = path.join(__dirname, '../../snippets/pldoc.json');
         else
-            location = path.join(location, 'pldoc.json');
+            location = path.join(location.replace('${workspaceRoot}', vscode.workspace.rootPath), 'pldoc.json');
         try {
             parsedJSON = json5.parse(fs.readFileSync(location).toString()); // invalid JSON or permission issue can happen here
         } catch (error) {

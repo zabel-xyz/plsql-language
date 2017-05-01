@@ -27,7 +27,7 @@
 	}
 
     /*
-      You can also define custom snippet
+      You can also define custom snippet (warning only in pldoc.json, not in regular snippet plsql.json)
       The available variables are
             ${PLDOC_AUTHOR}: author (see setting)
             ${PLDOC_DATE}: current date

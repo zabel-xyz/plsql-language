@@ -19,7 +19,6 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
                   text = document.getText(),
                   wordRange = document.getWordRangeAtPosition(position),
                   word = wordRange && document.getText(wordRange);
-
             // PLDOC
             const plDocItem = this.getPlDocItem(document, position, lineText, text);
             if (plDocItem)
@@ -68,6 +67,8 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
         // otherwise word suggestion are lost ! (https://github.com/Microsoft/vscode/issues/21611)
         if (items && word)
             return items.filter(item => item.label.startsWith(word));
+        else if (items)
+            return items;
         else return [];
     }
 
