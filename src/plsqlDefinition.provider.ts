@@ -64,10 +64,10 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                 }
             } else {
                 // It's a link to another function
-                let regExp = new RegExp('\\b\\w+\\.'+ currentWord, 'i'),
+                let regExp = new RegExp(`\\b(\\w+)\\.${currentWord}`, 'i'),
                     found;
                 if (found = regExp.exec(lineText)) {
-                    let packageName = found[0].split('.', 1)[0].toLowerCase();
+                    let packageName = found[1].toLowerCase();
                     // In the same package
                     if (infos && (infos.packageName === packageName)) {
                         if (offset = this.findPkgMethod(currentWord, documentText, {start: infos.bodyOffset, end: Number.MAX_VALUE}))
@@ -79,7 +79,14 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                         // Search in another file (after body) with filename
                         this.findFile(packageName, currentWord, PLSQLFindKind.PkgBody)
                         .then (value => {
-                            resolve(value);
+                            if (value)
+                                return value;
+                            else
+                                // Search in another file and it's not a package ! (perhaps a function or a method with shema)
+                                return this.findFile(currentWord, currentWord, PLSQLFindKind.Method);
+                        })
+                        .then (value => {
+                            return resolve(value);
                         });
                     }
                 } else {
@@ -100,57 +107,47 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
     }
 
     private getPackageInfos(text: string): PLSQLInfos {
-        let regexp = /\b((create)(\s*or\s+replace)?\s*package)(\s*body)?\s*\w*/gi,
+        let regexp = /\b(?:create(?:\s*or\s+replace)?\s*package)(?:\s*(body))?\s*(?:\w+\.)?(\w*)/gi,
             infos: PLSQLInfos,
             found;
 
-        do {
-            found = regexp.exec(text);
-            if (found) {
-                found[0] = found[0].toLowerCase();
-                // last word = package name
-                if (!infos)
-                    infos = {packageName: found[0].split(/\s+/ig).slice(-1)[0].toLowerCase()};
-                if (found[0].indexOf('body') < 0)
-                    infos.specOffset = found.index;
-                else
-                    infos.bodyOffset = found.index;
-            }
+        while (found = regexp.exec(text)) {
+            if (!infos)
+                infos = {packageName: found[2].toLowerCase()};
+            if (!found[1])  // body
+                infos.specOffset = found.index;
+            else
+                infos.bodyOffset = found.index;
         }
-        while (found);
 
         return infos;
     }
 
     private findPkgMethod(name, text: string, searchRange?: PLSQLRange): number {
-        const regComment = `(\\/\\*[\\s\\S]*?\\*\\/)|(--.*)`;
-        const regFind = `${regComment}|(\\b(function|procedure)\\s*${name}\\b)`;
+        const regComment = `(?:\\/\\*[\\s\\S]*?\\*\\/)|(?:--.*)`;
+        const regFind = `${regComment}|(\\b(?:function|procedure)\\s*${name}\\b)`;
         const regexp = new RegExp(regFind, 'gi');
         let   found;
 
-        do {
-            found = regexp.exec(text);
-            if (found && found[3] && //!(found[0].startsWith('/*')) && !(found[0].startsWith('--')) &&
+        while (found = regexp.exec(text)) {
+            if (found[1] &&
                 (!searchRange || ((found.index > searchRange.start) && (found.index < searchRange.end)) ))
                 return found.index;
         }
-        while (found);
 
         return null;
     }
 
     private findMethod(name, text: string): number {
-        const regComment = `(\\/\\*[\\s\\S]*?\\*\\/)|(--.*)`;
-        const regFind = `${regComment}|(\\b(create)(\\s*or\\s+replace)?\\s*(function|procedure)\\s*${name}\\b)`;
+        const regComment = `(?:\\/\\*[\\s\\S]*?\\*\\/)|(?:--.*)`;
+        const regFind = `${regComment}|(\\bcreate(?:\\s*or\\s+replace)?\\s*(?:function|procedure)\\s*(?:\\w+\\.)?${name}\\b)`;
         const regexp = new RegExp(regFind, 'gi');
         let   found;
 
-        do {
-            found = regexp.exec(text);
-            if (found && found[3]) //!(found[0].startsWith('/*')) && !(found[0].startsWith('--')))
+        while (found = regexp.exec(text)) {
+            if (found[1])
                 return found.index;
         }
-        while (found);
 
         return null;
     }
