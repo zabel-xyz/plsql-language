@@ -1,3 +1,7 @@
+## 1.0.2
+* Fix navigation with schema
+* Improve documentation about pldoc
+
 ## 1.0.1
 * Fix documentation generation not always working [#13](https://github.com/zabel-xyz/plsql-language/issues/13)
 * Fix word based suggestions not working
