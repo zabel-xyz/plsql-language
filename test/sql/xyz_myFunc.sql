@@ -14,5 +14,6 @@ is
 
 begin
   myPackage.myCall(param1);
+  schema.MyProc(param1);
   return myNestedFunc(param1);
 end;

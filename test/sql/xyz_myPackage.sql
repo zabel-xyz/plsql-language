@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE MyPackage
+CREATE OR REPLACE PACKAGE schema.MyPackage
 as
   /**
    * Comment
@@ -19,7 +19,7 @@ as
 end;
 /
 
-create or replace package body MyPackage
+create or replace package body schema.MyPackage
 as
 
   -- function get_myValue
@@ -34,7 +34,8 @@ as
   is
   begin
     MyPackage.myCall('test');
-    pCallInternal('test2');
+    schema.MyPackage.myCall('test2');
+    pCallInternal('test3');
     -- some other code to execute
     return;
   end;

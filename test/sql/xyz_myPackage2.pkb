@@ -25,11 +25,12 @@ as
   end;
 
   procedure pCallInternal(param1 in varchar2)
-  is
   begin
     -- some code to execute
     MyPackage.myCall('Test');
     MyFunc('Test');
+    MyProc('Test');
+    schema.MyProc('Test');
     return;
   end;
 
