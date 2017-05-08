@@ -1,3 +1,6 @@
+## 1.0.3
+* Fix case of module dateformat [#15](https://github.com/zabel-xyz/plsql-language/issues/15)
+
 ## 1.0.2
 * Fix navigation with schema
 * Improve documentation about pldoc
