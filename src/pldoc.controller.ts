@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as json5 from 'json5';
-import * as dateFormat from 'dateFormat';
+import * as dateFormat from 'dateformat';
 
 interface IPlDocObject {
     type: string;
