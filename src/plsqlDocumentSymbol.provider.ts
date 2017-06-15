@@ -4,7 +4,7 @@ export class PLSQLDocumentSymbolProvider implements vscode.DocumentSymbolProvide
 
     public provideDocumentSymbols(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.SymbolInformation[] {
         const regComment = `(?:\\/\\*[\\s\\S]*?\\*\\/)|(?:--.*)`;
-        const regFind = `${regComment}|(?:create(?:\\s+or\\s+replace)?\\s+)?((function|procedure|package(?:\\s+body)?)\\s+(?:\\w+\\.)?\\w+)`;
+        const regFind = `${regComment}|(?:create(?:\\s+or\\s+replace)?\\s+)?((function|procedure|\\s+package(?:\\s+body)?)\\s+(?:\\w+\\.)?\\w+)`;
         const regexp = new RegExp(regFind, 'gi');
 
         const symbols: vscode.SymbolInformation[] = [],
