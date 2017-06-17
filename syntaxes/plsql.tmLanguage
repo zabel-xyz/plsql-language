@@ -232,7 +232,13 @@
         </dict>
         <dict>
             <key>match</key>
-            <string>(?i)\b(p(i|o|io)_[-a-z0-9_]+)\b</string>
+            <string>(?i)\b(p_[-a-z0-9_]+)\b</string>
+            <key>name</key>
+            <string>variable.parameter.oracle</string>
+        </dict>
+        <dict>
+            <key>match</key>
+            <string>(?i)(\b\w+\b)(?=\s*IN\s+|\s*IN\s+OUT\s+|(?<!IN\s)(?=\s*OUT\s+))</string>
             <key>name</key>
             <string>variable.parameter.oracle</string>
         </dict>
