@@ -244,7 +244,7 @@
         </dict>
         <dict>
             <key>match</key>
-            <string>(?i)(\b\w+\b)(?=\s*IN\s+|\s*IN\s+OUT\s+|(?<!IN\s)(?=\s*OUT\s+))</string>
+            <string>(?i)(\b\w+\b)(?=\s*IN\s+|\s*IN\s+OUT\s+|(?<!IN\b)(?=\s*OUT\s+))</string>
             <key>name</key>
             <string>variable.parameter.oracle</string>
         </dict>
