@@ -1,3 +1,7 @@
+## 1.0.4
+* Fix symbole list (package, procedure, function inside variable name) [#21](https://github.com/zabel-xyz/plsql-language/issues/21)
+* Add .pck file type [#18](https://github.com/zabel-xyz/plsql-language/issues/18)
+
 ## 1.0.3
 * Fix case of module dateformat [#15](https://github.com/zabel-xyz/plsql-language/issues/15)
 
