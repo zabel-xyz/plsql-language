@@ -5,7 +5,9 @@ export class PLSQLDocumentSymbolProvider implements vscode.DocumentSymbolProvide
     public provideDocumentSymbols(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.SymbolInformation[] {
         const regComment = `(?:\\/\\*[\\s\\S]*?\\*\\/)|(?:--.*)`;
         const regFind = `${regComment}|(?:create(?:\\s+or\\s+replace)?\\s+)?((\\b(?:function|procedure|package)\\b(?:\\s+body)?)\\s+(?:\\w+\\.)?\\w+)`;
+        const regConst = `${regComment}|(\\bbegin\\b)?\\s*(\\b\\w+\\b)\\s*(\\bconstant\\b)+\\s*(\\w*)`;
         const regexp = new RegExp(regFind, 'gi');
+        const regexpCons = new RegExp(regConst, 'gi');
 
         const symbols: vscode.SymbolInformation[] = [],
               text = document.getText();
@@ -20,6 +22,21 @@ export class PLSQLDocumentSymbolProvider implements vscode.DocumentSymbolProvide
                 symbols.push(symbolInfo);
             }
         }
+        let constant;
+        while (constant = regexpCons.exec(text)) {
+            if (constant[2]) {
+                if (constant[1]){
+                    null;
+                }
+                else{
+                    let line = document.lineAt(document.positionAt(constant.index));
+                    let symbolInfo = new vscode.SymbolInformation(
+                        constant[3]+" "+constant[2]+" "+constant[4], this.getSymbolKind(constant[3].toLowerCase()),
+                        new vscode.Range(line.range.start, line.range.end));
+                    symbols.push(symbolInfo);
+                }
+            }
+        }
         return symbols;
     }
 
@@ -29,6 +46,8 @@ export class PLSQLDocumentSymbolProvider implements vscode.DocumentSymbolProvide
             return vscode.SymbolKind.Function;
         else if (type === 'procedure')
             return vscode.SymbolKind.Method;
+        else if (type === 'constant')
+            return vscode.SymbolKind.Constant;
         else
             return vscode.SymbolKind.Package; // Specification or Body
     }
