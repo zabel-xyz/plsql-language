@@ -5,9 +5,9 @@ export class PLSQLDocumentSymbolProvider implements vscode.DocumentSymbolProvide
     public provideDocumentSymbols(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.SymbolInformation[] {
         const regComment = `(?:\\/\\*[\\s\\S]*?\\*\\/)|(?:--.*)`;
         const regFind = `${regComment}|(?:create(?:\\s+or\\s+replace)?\\s+)?((\\b(?:function|procedure|package)\\b(?:\\s+body)?)\\s+(?:\\w+\\.)?\\w+)`;
-        const regConst = `${regComment}|((\\bfunction|procedure\\b)\\s+\\w+)|((\\w*.)\\s+(constant)\\s+(\\w+))|((\\btype\\b)\\s+(\\b\\w+\\b))\\s*|(^\\s*(\\b\\w+.\\b)\\s+(\\b\\w+\\b)\\s*(\\(\\s*\\w*\\s*\\)\\s*;|;))`;
+        const regConst = `${regComment}|((\\bfunction|procedure\\b)\\s+\\w+)|((\\w*.)\\s+(constant)\\s+(\\w+))|((\\btype\\b)\\s+(\\b\\w+\\b))\\s*|((\\b\\w+.\\b)\\s+(\\b\\w+\\b)\\s*(\\(\\s*\\w*\\s*\\)\\s*;))`;
         const regexp = new RegExp(regFind, 'gi');
-        const regexpCons = new RegExp(regConst, 'gim');
+        const regexpCons = new RegExp(regConst, 'gi');
 
         const symbols: vscode.SymbolInformation[] = [],
               text = document.getText();
