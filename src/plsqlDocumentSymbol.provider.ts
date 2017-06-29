@@ -25,7 +25,7 @@ export class PLSQLDocumentSymbolProvider implements vscode.DocumentSymbolProvide
         let constant;
         while (constant = regexpCons.exec(text)) {
             if (constant[2]){
-                if(constant[2].toLowerCase() === "function" || constant[2].toLowerCase() === "procerdure" )
+                if(constant[2].toLowerCase() === "function" || constant[2].toLowerCase() === "procedure" )
                    break;
             }
             else if (constant[5]) {
