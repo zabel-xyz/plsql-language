@@ -238,7 +238,7 @@
         </dict>
         <dict>
             <key>match</key>
-            <string>(?i)(?<!FOR\s)(\b\w+\b)(?=\s*IN\b|\s*IN\bOUT\b|(?<!IN)\b(?=\s*OUT\b))</string>
+            <string>(?i)((?<!IF\s)(?<!\.)(?<!FOR\s)(?<!cursor\s\w\s\()(?<!and\s)(?<!where\s))(\b\w+\b)(?=\s*IN\b|\s*IN\bOUT\b|(?<!IN)\b(?=\s*OUT\b))</string>
             <key>name</key>
             <string>variable.parameter.oracle</string>
         </dict>
