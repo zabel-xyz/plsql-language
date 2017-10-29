@@ -10,6 +10,7 @@
         <string>pks</string>
         <string>pkb</string>
         <string>pck</string>
+        <string>pls</string>
     </array>
     <key>foldingStartMarker</key>
     <string>(?i)^\s*(begin|if|loop)\b</string>

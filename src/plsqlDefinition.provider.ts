@@ -250,7 +250,7 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
     private readFile(file, packageName, functionName, findKind: PLSQLFindKind) {
         return new Promise((resolve, reject) => {
 
-            let searchExt = ['.sql'];
+            let searchExt = ['.sql', '.pls', '.pck'];
             if (findKind === PLSQLFindKind.PkgSpec)
                 searchExt.push('.pkh','.pks');
             else if (findKind === PLSQLFindKind.PkgBody)
