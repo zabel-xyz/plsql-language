@@ -1,9 +1,10 @@
 import * as vscode from 'vscode';
 
 import * as fs from 'fs';
-import * as path from 'path';
 import * as json5 from 'json5';
 import * as dateFormat from 'dateformat';
+
+import PLSQLSettings from './plsql.settings';
 
 interface IPlDocObject {
     type: string;
@@ -60,8 +61,8 @@ export class PLDocController {
     constructor() {
     }
 
-    public getDocSnippet(text: string): IPlDocSnippet {
-        this.init();
+    public getDocSnippet(document: vscode.TextDocument, text: string): IPlDocSnippet {
+        this.init(document.uri);
 
         if (this.plDocEnable && this.plDocTemplate) {
             let plDocObj = this.getInfo(text);
@@ -70,16 +71,18 @@ export class PLDocController {
         }
     }
 
-    public getCustomSnippets(): IPlDocSnippet[] {
-        this.init();
+    public getCustomSnippets(document: vscode.TextDocument): IPlDocSnippet[] {
+        this.init(document.uri);
         return this.plDocSnippets;
     }
 
-    private init() {
+    private init(file: vscode.Uri) {
+        // TODO: different plDoc for different workspaceFolders ?
         if (this.plDocEnable == null) {
-            this.plDocEnable = vscode.workspace.getConfiguration('plsql-language').get<boolean>('pldoc.enable');
-            this.plDocAuthor = vscode.workspace.getConfiguration('plsql-language').get<string>('pldoc.author');
-            this.initTemplates();
+            const {enable, author, location} = PLSQLSettings.getDocInfos(file);
+            this.plDocEnable = enable;
+            this.plDocAuthor = author;
+            this.initTemplates(location);
         }
     }
 
@@ -123,14 +126,9 @@ export class PLDocController {
         return plDocObj;
     }
 
-    private initTemplates() {
+    private initTemplates(location) {
 
         let parsedJSON;
-        let location: string = vscode.workspace.getConfiguration('plsql-language').get<string>('pldoc.path');
-        if (!location)
-            location = path.join(__dirname, '../../snippets/pldoc.json');
-        else
-            location = path.join(location.replace('${workspaceRoot}', vscode.workspace.rootPath), 'pldoc.json');
         try {
             parsedJSON = json5.parse(fs.readFileSync(location).toString()); // invalid JSON or permission issue can happen here
         } catch (error) {

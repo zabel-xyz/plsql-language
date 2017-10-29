@@ -2,6 +2,8 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 
+import PLSQLSettings from './plsql.settings';
+
 interface PLSQLRange {
     start: number;
     end: number;
@@ -57,7 +59,7 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                         resolve(null);
                 } else {
                     // search in another file (spec and body are in separate files)
-                    this.findFile(infos.packageName, currentWord, infos.bodyOffset == null ? PLSQLFindKind.PkgBody : PLSQLFindKind.PkgSpec)
+                    this.findFile(document, infos.packageName, currentWord, infos.bodyOffset == null ? PLSQLFindKind.PkgBody : PLSQLFindKind.PkgSpec)
                     .then (value => {
                         resolve(value);
                     });
@@ -77,13 +79,13 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                     } else {
                         // In another package
                         // Search in another file (after body) with filename
-                        this.findFile(packageName, currentWord, PLSQLFindKind.PkgBody)
+                        this.findFile(document, packageName, currentWord, PLSQLFindKind.PkgBody)
                         .then (value => {
                             if (value)
                                 return value;
                             else
                                 // Search in another file and it's not a package ! (perhaps a function or a method with shema)
-                                return this.findFile(currentWord, currentWord, PLSQLFindKind.Method);
+                                return this.findFile(document, currentWord, currentWord, PLSQLFindKind.Method);
                         })
                         .then (value => {
                             return resolve(value);
@@ -96,7 +98,7 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                     else {
                         // TODO ? if it's not a keyword, string, number => resolve(null)
                         // Search in another file and it's not a package ! (perhaps a function or a method)
-                        this.findFile(currentWord, currentWord, PLSQLFindKind.Method)
+                        this.findFile(document, currentWord, currentWord, PLSQLFindKind.Method)
                         .then (value => {
                             resolve(value);
                         });
@@ -152,8 +154,9 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
         return null;
     }
 
-    private findFile(fileName, functionName: string, findKind: PLSQLFindKind): Thenable<vscode.Location> {
+    private findFile(document: vscode.TextDocument, searchName, functionName: string, findKind: PLSQLFindKind): Thenable<vscode.Location> {
         return new Promise((resolve, reject) => {
+
             if (!vscode.workspace) {
                 reject('No workspace');
                 return;
@@ -164,26 +167,8 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
             const glob = require('glob'),
                   me = this;
 
-            // ignore like search.exclude settings
             // TODO: not do that every time
-            let searchExclude = vscode.workspace.getConfiguration('search').get('exclude'),
-                ignore = [];
-            for (let key in searchExclude)
-                if (searchExclude[key])
-                    ignore.push(key);
-
-            let cwd = <string>vscode.workspace.getConfiguration('plsql-language').get('searchFolder');
-            if (cwd)
-                cwd = cwd.replace('${workspaceRoot}', vscode.workspace.rootPath);
-            else
-                cwd = vscode.workspace.rootPath;
-
-            const replaceSearch = <string>vscode.workspace.getConfiguration('plsql-language').get('replaceSearch');
-            if (replaceSearch) {
-                const regExp = new RegExp(replaceSearch, 'i');
-                const replaceValue = <string>vscode.workspace.getConfiguration('plsql-language').get('replaceValue') || '';
-                fileName = fileName.replace(regExp, replaceValue);
-            }
+            const {fileName, cwd, ignore} = PLSQLSettings.getSearchInfos(document.uri, searchName);
 
             // TODO : cache ? (createFileSystemWatcher)
             glob('**/*'+fileName+'*.*',
@@ -207,17 +192,17 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                 };
                 // read all files
                 me.readFiles(files, fileName, functionName, findKind)
-                .then (value => {
-                    resolve(value);
-                })
-                .catch(error => {
-                    resolve(null);
-                });
+                    .then (value => {
+                        resolve(value);
+                    })
+                    .catch(error => {
+                        resolve(null);
+                    });
             });
         });
     }
 
-    private readFiles(allFiles, packageName, functionName, findKind: PLSQLFindKind) {
+    private readFiles(allFiles, packageName, functionName, findKind: PLSQLFindKind): Promise<vscode.Location> {
         return new Promise((resolve, reject) => {
             let result = allFiles.next(),
                 me = this;
@@ -228,18 +213,18 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                 // if there's more to do
                 if (!result.done) {
                     me.readFile(result.value, packageName, functionName, findKind)
-                    .then(value => {
-                        if (value) {
-                            resolve(value);
-                        } else {
-                            // Read next file
-                            result = allFiles.next();
-                            step();
-                        }
-                    })
-                    .catch(error => {
-                        reject(error);
-                    });
+                        .then(value => {
+                            if (value) {
+                                resolve(value);
+                            } else {
+                                // Read next file
+                                result = allFiles.next();
+                                step();
+                            }
+                        })
+                        .catch(error => {
+                            reject(error);
+                        });
                 } else
                     resolve(null);
             };
@@ -247,7 +232,7 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
         });
     }
 
-    private readFile(file, packageName, functionName, findKind: PLSQLFindKind) {
+    private readFile(file, packageName, functionName, findKind: PLSQLFindKind): Promise<vscode.Location> {
         return new Promise((resolve, reject) => {
 
             let searchExt = ['.sql', '.pls', '.pck'];

@@ -26,7 +26,7 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
 
             // PLDOC - custom items
             if (!this.plDocCustomItems)
-                this.plDocCustomItems = this.getPlDocCustomItems();
+                this.plDocCustomItems = this.getPlDocCustomItems(document);
             Array.prototype.push.apply(completeItems, this.filterCompletion(this.plDocCustomItems, word));
 
             // PLSQL - snippets
@@ -95,14 +95,14 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
             const nextPos = new vscode.Position(position.line + 1, 0),
                   nextText = text.substr(document.offsetAt(nextPos));
 
-            const snippet = this.plDocController.getDocSnippet(nextText);
+            const snippet = this.plDocController.getDocSnippet(document, nextText);
             if (snippet)
                 return this.createSnippetItem(snippet, 'pldoc');
         };
     }
 
-    private getPlDocCustomItems(): vscode.CompletionItem[] {
-        const snippets = this.plDocController.getCustomSnippets();
+    private getPlDocCustomItems(document: vscode.TextDocument): vscode.CompletionItem[] {
+        const snippets = this.plDocController.getCustomSnippets(document);
         if (snippets)
             return snippets.map(snippet => this.createSnippetItem(snippet));
         return [];
