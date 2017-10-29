@@ -11,8 +11,7 @@
             ],
             "stopOnEntry": false,
             "sourceMaps": true,
-            "outDir": "${workspaceRoot}/out",
-            "preLaunchTask": "npm"
+            "outDir": "${workspaceRoot}/out"
         },
         {
             "name": "Launch Tests",
@@ -22,8 +21,7 @@
             "args": ["${workspaceRoot}/test/sql", "--extensionDevelopmentPath=${workspaceRoot}", "--extensionTestsPath=${workspaceRoot}/out/test" ],
             "stopOnEntry": false,
             "sourceMaps": true,
-            "outDir": "${workspaceRoot}/out/test",
-            "preLaunchTask": "npm"
+            "outDir": "${workspaceRoot}/out/test"
         }
     ]
 }

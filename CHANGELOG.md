@@ -1,3 +1,10 @@
+## 1.1.0
+* Fix configuration (brackets, autoClosingPairs) [#29](https://github.com/zabel-xyz/plsql-language/issues/29)
+* Add .pls file type [#27](https://github.com/zabel-xyz/plsql-language/issues/27)
+* Consider files.associations when search files to navigate
+* Support for multi-root workspace
+* The minimum supported version of VS Code is now 1.17.0
+
 ## 1.0.4
 * Fix symbole list (package, procedure, function inside variable name) [#21](https://github.com/zabel-xyz/plsql-language/issues/21)
 * Add .pck file type [#18](https://github.com/zabel-xyz/plsql-language/issues/18)
