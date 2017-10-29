@@ -92,6 +92,9 @@ export class PLDocController {
     private getRegFindVarParam(): RegExp {
         return new RegExp(`\\\${pldoc_${'param'}}`, 'i');
     }
+    private getRegFindVarParamType(): RegExp {
+        return new RegExp(`\\\${pldoc_${'param_type'}}`, 'i');
+    }
     private getRegFindVarDoc(key: string): RegExp {
         return new RegExp(`\\\${pldoc_(${key})(?:(?:\\s*\\|\\s*)([^}]*))?}`, 'i');
     }
@@ -114,11 +117,11 @@ export class PLDocController {
 
             // Params
             const params = found[3],
-                  regexParams = /(?:\(|,)\s*(\w+)/g;
+                  regexParams = /(?:\(|,)\s*(\w+)\s*((?:in\s*out|in|out)?(?:\s*)?\w*)/g;
             if (params !== '') {
                 while (found = regexParams.exec(params)) {
                     if (found.length > 0)
-                        plDocObj.params.push({name: found[1]});
+                        plDocObj.params.push({name: found[1], dataType: found[2]});
                 }
             }
         }
@@ -275,7 +278,8 @@ export class PLDocController {
 
     private replaceTextParam(param: IPlDocParam, text: string): string {
         // replace special variables values
-        return text.replace(this.getRegFindVarParam(), param.name);
+        return text.replace(this.getRegFindVarParam(), param.name)
+                   .replace(this.getRegFindVarParamType(), param.dataType);
     }
 
     private shiftParamVariables(variables: IPlDocVariablesDef, text: string): string {

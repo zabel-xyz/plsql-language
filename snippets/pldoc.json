@@ -6,6 +6,7 @@
             ${PLDOC_TYPE}: function or procedure
             ${PLDOC_OBJECT}: name of function or procedure
             ${PLDOC_PARAM}: name of parameter
+            ${PLDOC_PARAM_TYPE}: type of parameter
             ${PLDOC_AUTHOR}: author (see setting)
             ${PLDOC_DATE}: current date
             ${PLDOC_DATE|dd/mm/yyyy}: current date with format according to https://www.npmjs.com/package/dateformat
