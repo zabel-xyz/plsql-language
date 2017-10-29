@@ -7,17 +7,24 @@
     },
     // symbols used as brackets
     "brackets": [
+        ["(", ")"],
         ["{", "}"],
-        ["[", "]"],
-        ["(", ")"]
+        ["if", "end if"],
+        ["loop", "end loop"],
+        ["case", "end case"]
+        // ["begin", "end"]
     ],
     "autoClosingPairs": [
         ["(", ")"],
+        ["{", "}"],
+        ["/*", "*/"],
         ["\"", "\""],
         ["'", "'"]
     ],
     "surroundingPairs": [
         ["(", ")"],
+        ["{", "}"],
+        ["/*", "*/"],
         ["\"", "\""],
         ["'", "'"]
     ]
