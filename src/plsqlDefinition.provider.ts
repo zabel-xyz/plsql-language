@@ -170,8 +170,15 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
             // TODO: not do that every time
             const {fileName, cwd, ignore} = PLSQLSettings.getSearchInfos(document.uri, searchName);
 
+            let searchExt = ['sql', 'pls', 'pck'];
+            if (findKind === PLSQLFindKind.PkgSpec)
+                searchExt.push('pkh','pks');
+            else if (findKind === PLSQLFindKind.PkgBody)
+                searchExt.push('pkb');
+            searchExt = PLSQLSettings.getSearchExt(document.uri, searchExt);
+
             // TODO : cache ? (createFileSystemWatcher)
-            glob('**/*'+fileName+'*.*',
+            glob(`**/*${fileName}*.{${searchExt.join(',')}}`,
                     {nocase: true, cwd: cwd, ignore: ignore}, (err, files) => {
 
                 if (err || !files || !files.length) {
@@ -235,60 +242,50 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
     private readFile(file, packageName, functionName, findKind: PLSQLFindKind): Promise<vscode.Location> {
         return new Promise((resolve, reject) => {
 
-            let searchExt = ['.sql', '.pls', '.pck'];
-            if (findKind === PLSQLFindKind.PkgSpec)
-                searchExt.push('.pkh','.pks');
-            else if (findKind === PLSQLFindKind.PkgBody)
-                searchExt.push('.pkb');
+            let me = this;
+            fs.readFile(file, (err, data) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
 
-            if (searchExt.indexOf(path.extname(file).toLowerCase()) < 0) {
-                resolve(null);
-            } else {
-                let me = this;
-                fs.readFile(file, (err, data) => {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
+                let infos: PLSQLInfos,
+                    offset: number,
+                    text = data.toString();
 
-                    let infos: PLSQLInfos,
-                        offset: number,
-                        text = data.toString();
+                if (findKind !== PLSQLFindKind.Method) {
+                    // Get infos of current package
+                    infos = this.getPackageInfos(text);
 
-                    if (findKind !== PLSQLFindKind.Method) {
-                        // Get infos of current package
-                        infos = this.getPackageInfos(text);
-
-                        // if it's ok, find function
-                        if (!infos)
-                            // try with another file
-                            resolve(null);
-                        else if ((infos.bodyOffset != null) && (findKind === PLSQLFindKind.PkgBody) && (infos.packageName === packageName)) {
-                            offset = me.findPkgMethod(functionName, text, {start: infos.bodyOffset, end: Number.MAX_VALUE});
-                        } else if ((infos.specOffset != null) && (findKind === PLSQLFindKind.PkgSpec) && (infos.packageName === packageName)) {
-                            offset = me.findPkgMethod(functionName, text, {start: infos.specOffset, end: infos.bodyOffset != null ? infos.bodyOffset : Number.MAX_VALUE});
-                        } else {
-                            // try with another file
-                            resolve(null);
-                        }
+                    // if it's ok, find function
+                    if (!infos)
+                        // try with another file
+                        resolve(null);
+                    else if ((infos.bodyOffset != null) && (findKind === PLSQLFindKind.PkgBody) && (infos.packageName === packageName)) {
+                        offset = me.findPkgMethod(functionName, text, {start: infos.bodyOffset, end: Number.MAX_VALUE});
+                    } else if ((infos.specOffset != null) && (findKind === PLSQLFindKind.PkgSpec) && (infos.packageName === packageName)) {
+                        offset = me.findPkgMethod(functionName, text, {start: infos.specOffset, end: infos.bodyOffset != null ? infos.bodyOffset : Number.MAX_VALUE});
                     } else {
-                        offset = me.findMethod(functionName, text);
-                        if (offset == null)
-                            // try with another file
-                            resolve(null);
+                        // try with another file
+                        resolve(null);
                     }
+                } else {
+                    offset = me.findMethod(functionName, text);
+                    if (offset == null)
+                        // try with another file
+                        resolve(null);
+                }
 
-                    if (offset != null) {
-                        vscode.workspace.openTextDocument(file)
-                            .then(document => {
-                                resolve(me.getLocation(document, offset));
-                            });
-                    } else {
-                        // stop all search here
-                        reject('function not found');
-                    }
-                });
-            }
+                if (offset != null) {
+                    vscode.workspace.openTextDocument(file)
+                        .then(document => {
+                            resolve(me.getLocation(document, offset));
+                        });
+                } else {
+                    // stop all search here
+                    reject('function not found');
+                }
+            });
         });
     }
 

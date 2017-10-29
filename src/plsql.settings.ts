@@ -40,7 +40,19 @@ export default class PLSQLSettings {
         }
 
         return {fileName, ignore, cwd};
+    }
 
+    public static getSearchExt(file: vscode.Uri, searchExt: string[]) {
+        const config = vscode.workspace.getConfiguration('files', file),
+              assoc = <object>config.get('associations');
+        let   plassoc  = [];
+
+        if (assoc) {
+            plassoc = Object.keys(assoc)
+                .filter(key => assoc[key] === 'plsql')
+                .map(item => item.replace(/^\*./,''));
+        }
+        return [...new Set([...searchExt ,...plassoc])];
     }
 
     public static getDocInfos(file: vscode.Uri) {
