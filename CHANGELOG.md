@@ -1,3 +1,7 @@
+## 1.1.1
+* Fix issue with setting searchFolder
+* Add a specific variables in PLDoc ${PLDOC_PARAM_TYPE}: type of parameter [#17](https://github.com/zabel-xyz/plsql-language/issues/17)
+
 ## 1.1.0
 * Fix configuration (brackets, autoClosingPairs) [#29](https://github.com/zabel-xyz/plsql-language/issues/29)
 * Add .pls file type [#27](https://github.com/zabel-xyz/plsql-language/issues/27)

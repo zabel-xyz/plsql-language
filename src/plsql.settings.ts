@@ -24,11 +24,11 @@ export default class PLSQLSettings {
         // const wsFolder = vscode.workspace.getWorkspaceFolder(file);
         // temporary code to resolve bug https://github.com/Microsoft/vscode/issues/36221
         const wsFolder = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(file.fsPath));
-        let   cwd =  wsFolder ? wsFolder.uri.fsPath : '';
-        const searchFld = <string>config.get('searchFolder');
+        let   cwd =  wsFolder ? wsFolder.uri.fsPath : '',
+              searchFld = <string>config.get('searchFolder');
         if (searchFld) {
-            cwd = searchFld.replace('${workspaceRoot}', cwd); // deprecated
-            cwd = searchFld.replace('${workspaceFolder}', cwd);
+            cwd = searchFld.replace('${workspaceRoot}', cwd) // deprecated
+                           .replace('${workspaceFolder}', cwd);
         }
 
         // fileName = convert packageName
