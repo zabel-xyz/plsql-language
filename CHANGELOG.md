@@ -1,3 +1,6 @@
+## 1.1.2
+* Fix issue with quote character [#31](https://github.com/zabel-xyz/plsql-language/issues/31)
+
 ## 1.1.1
 * Fix issue with setting searchFolder
 * Add a specific variables in PLDoc ${PLDOC_PARAM_TYPE}: type of parameter [#17](https://github.com/zabel-xyz/plsql-language/issues/17)

@@ -109,7 +109,7 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
     }
 
     private getPackageInfos(text: string): PLSQLInfos {
-        let regexp = /\b(?:create(?:\s*or\s+replace)?\s*package)(?:\s*(body))?\s*(?:\w+\.)?(\w*)/gi,
+        let regexp = /\b(?:create(?:\s*or\s+replace)?\s*package)(?:\s*(body))?\s*(?:"?\w+"?\.)?(?:"?(\w*)"?)/gi,
             infos: PLSQLInfos,
             found;
 
@@ -142,7 +142,7 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
 
     private findMethod(name, text: string): number {
         const regComment = `(?:\\/\\*[\\s\\S]*?\\*\\/)|(?:--.*)`;
-        const regFind = `${regComment}|(\\bcreate(?:\\s*or\\s+replace)?\\s*(?:function|procedure)\\s*(?:\\w+\\.)?${name}\\b)`;
+        const regFind = `${regComment}|(\\bcreate(?:\\s*or\\s+replace)?\\s*(?:function|procedure)\\s*(?:\"?\\w+\"?\\.)?${name}\\b)`;
         const regexp = new RegExp(regFind, 'gi');
         let   found;
 

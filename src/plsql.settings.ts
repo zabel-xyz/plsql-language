@@ -18,7 +18,7 @@ export default class PLSQLSettings {
             ignore = Object.keys(searchExclude).filter(key => searchExclude[key]);
         }
 
-        const config = vscode.workspace.getConfiguration('plsql-language', file);
+        const config = vscode.workspace.getConfiguration('plsql-language');
 
         // search in specified folder or current workspace
         // const wsFolder = vscode.workspace.getWorkspaceFolder(file);
@@ -43,7 +43,7 @@ export default class PLSQLSettings {
     }
 
     public static getSearchExt(file: vscode.Uri, searchExt: string[]) {
-        const config = vscode.workspace.getConfiguration('files', file),
+        const config = vscode.workspace.getConfiguration('files'),
               assoc = <object>config.get('associations');
         let   plassoc  = [];
 
@@ -56,7 +56,7 @@ export default class PLSQLSettings {
     }
 
     public static getDocInfos(file: vscode.Uri) {
-        const config = vscode.workspace.getConfiguration('plsql-language', file),
+        const config = vscode.workspace.getConfiguration('plsql-language'),
               enable = <boolean>config.get('pldoc.enable'),
               author = <string>config.get('pldoc.author');
 
