@@ -20,6 +20,20 @@ Navigate to methods (procedures and functions) with some limitations :
 
 ![Image of Definition](images/Definition.gif)
 
+## Go to Symbol in workspace
+Navigate to methods (procedures and functions) available in your workspace folders with help of an external tool called [ctags](http://ctags.sourceforge.net).
+
+![Image of Symbol in workspace](images/SymbolInWorkspace.gif)
+
+You need to install the ctags tool by putting it somewhere on your local machine and tell the extension where you put it by writing the path to ctags.exe in the extenstion configuration (plsql-language.workspaceSymbols.ctags).
+
+Via extension configuration, you can disable workspace symbols (plsql-language.workspaceSymbols.enable) and configure which files should be scanned during workspace symbols searching phase (plsql-language.workspaceSymbols.extensions). By default files with these extensions will be scanned:
+* sql
+* pks
+* pkb
+
+Workspace symbols index file (used for generating symbols) will be regenerated during extension activation and after every save of a file inside visual studio code. It can also be manually invoked by clicking on the status bar info or by invoking command `Workspace Symbols: Rebuild`.
+
 ## Documentation
 Generate detailed documentation automatically for procedures and functions.
 ![Image of Documentation](images/Documentation.gif)

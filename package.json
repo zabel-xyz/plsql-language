@@ -2,7 +2,7 @@
     "name": "plsql-language",
     "displayName": "Language PL/SQL",
     "description": "PL/SQL language (Oracle) support",
-    "version": "1.1.2",
+    "version": "1.2.0",
     "publisher": "xyz",
     "engines": {
         "vscode": "^1.18.0"
@@ -92,9 +92,29 @@
                     "type": "string",
                     "default": "",
                     "description": "Define string to replace variable ${PLDOC_AUTHOR}"
+                },
+                "plsql-language.workspaceSymbols.enable": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable or disable workspace symbols"
+                },
+                "plsql-language.workspaceSymbols.ctags": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Path to ctags.exe used for workspace symbol generation"
+                },
+                "plsql-language.workspaceSymbols.extensions": {
+                    "type": "string",
+                    "default": ".sql.pks.pkb",
+                    "description": "File extenstions for which symbols will be generated"
                 }
             }
-        }
+        },
+        "commands": [{
+            "command": "extension.rebuildWorkspaceSymbols",
+            "title": "Rebuild",
+            "category": "Workspace Symbols"
+        }]
     },
     "scripts": {
         "vscode:prepublish": "tsc -p ./",
@@ -104,7 +124,9 @@
     "dependencies": {
         "glob": "7.1.2",
         "json5": "0.5.1",
-        "dateformat": "3.0.2"
+        "dateformat": "3.0.2",
+        "child_process": "^1.0.2",
+        "fuzzy": "^0.1.3"
     },
     "devDependencies": {
         "typescript": "2.5.3",
