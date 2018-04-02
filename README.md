@@ -8,14 +8,16 @@ Full syntax highlight for PL/SQL files based on oracle-textmate-bundle
 An advanced customization can be done by using an **extensionDependencies**, [follow this exemple](plsql-language-custom/xyz.plsql-language-custom-0.0.1)
 
 ## Go to Symbol
-Navigate to methods (procedures and functions) inside a package file
+Navigate
+  - to procedures, functions
+  - to constants, variables, type, subtype, cursor (declared in spec part of a package)
 
 ![Image of Symbol](images/DocumentSymbol.gif)
 
 ## Go to Definition
 Navigate to methods (procedures and functions) with some limitations :
-- Go to a method in the same file
-- Go to a method in another file whose name includes the package or method name.
+- Go to a symbol (see Go to Symbol) in the same file
+- Go to a symbol (see Go to Symbol) in another file whose name includes the package or method name.
   <br />e.g.: *XXX_MyPackage.pkb or XXX_MyFunction.sql*
 
 ![Image of Definition](images/Definition.gif)

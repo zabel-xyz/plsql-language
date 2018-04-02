@@ -1,3 +1,6 @@
+## 1.2.0
+* Refactor parser to consider global constant, variable, type [#8](https://github.com/zabel-xyz/plsql-language/issues/8)
+
 ## 1.1.2
 * Fix issue with quote character [#31](https://github.com/zabel-xyz/plsql-language/issues/31)
 

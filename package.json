@@ -2,7 +2,7 @@
     "name": "plsql-language",
     "displayName": "Language PL/SQL",
     "description": "PL/SQL language (Oracle) support",
-    "version": "1.1.2",
+    "version": "1.2.0",
     "publisher": "xyz",
     "engines": {
         "vscode": "^1.18.0"
@@ -21,7 +21,8 @@
     ],
     "keywords": [
         "plsql",
-        "oracle"
+        "oracle",
+        "multi-root ready"
     ],
     "activationEvents": [
         "onLanguage:plsql"
