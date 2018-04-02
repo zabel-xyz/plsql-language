@@ -1,5 +1,16 @@
 CREATE OR REPLACE PACKAGE schema.MyPackage
 as
+
+  type txyz_myType is record(
+      myChar varchar2
+    , myNumber number
+    , myField myTable.myField%type
+  );
+  type ttxyz_myType is table of txyz_myType;
+
+  myConst constant char(2) := '10';
+  myGlobalVar number := 10;
+
   /**
    * Comment
    */
@@ -49,10 +60,18 @@ as
 
   procedure pCallInternal(param1 in varchar2)
   is
+    xyz MyPackage2.txyz_myType;
+    abc ttxyz_myType;
   begin
     -- some code to execute
     MyPackage2.myCall('Test');
     MyFunc('Test');
+    MyProc('Test');
+    schema.MyProc('Test');
+
+    if x = schema.MyPackage.myConst
+    if y = myGlobalVar
+
     return;
   end;
 

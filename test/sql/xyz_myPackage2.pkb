@@ -25,12 +25,19 @@ as
   end;
 
   procedure pCallInternal(param1 in varchar2)
+  is
+    xyz MyPackage.txyz_myType;
+    abc ttxyz_myType;
   begin
     -- some code to execute
     MyPackage.myCall('Test');
     MyFunc('Test');
     MyProc('Test');
     schema.MyProc('Test');
+
+    if x = schema.MyPackage2.myConst
+    if y = myGlobalVar
+
     return;
   end;
 

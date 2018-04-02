@@ -1,5 +1,16 @@
 CREATE OR REPLACE PACKAGE MyPackage2
 as
+
+  type txyz_myType is record(
+      myChar varchar2
+    , myNumber number
+    , myField myTable.myField%type
+  );
+  type ttxyz_myType is table of txyz_myType;
+
+  myConst constant char(2) := '10';
+  myGlobalVar number := 10;
+
   /**
    * Comment
    */
