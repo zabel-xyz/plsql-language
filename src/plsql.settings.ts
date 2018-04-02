@@ -9,7 +9,7 @@ export default class PLSQLSettings {
     // constructor() {
     // }
 
-    public static getSearchInfos(file: vscode.Uri, searchText: string) {
+    public static getSearchInfos(file: vscode.Uri) {
 
         // ignore search.exclude settings
         let   ignore;
@@ -31,6 +31,12 @@ export default class PLSQLSettings {
                            .replace('${workspaceFolder}', cwd);
         }
 
+        return {ignore, cwd};
+    }
+
+    public static getSearchFile(searchText: string): string {
+        const config = vscode.workspace.getConfiguration('plsql-language');
+
         // fileName = convert packageName
         let   fileName = searchText;
         const replaceSearch = <string>config.get('replaceSearch');
@@ -38,11 +44,10 @@ export default class PLSQLSettings {
             const regExp = new RegExp(replaceSearch, 'i');
             fileName = fileName.replace(regExp, <string>config.get('replaceValue') || '');
         }
-
-        return {fileName, ignore, cwd};
+        return fileName;
     }
 
-    public static getSearchExt(file: vscode.Uri, searchExt: string[]) {
+    public static getSearchExt(searchExt: string[]) {
         const config = vscode.workspace.getConfiguration('files'),
               assoc = <object>config.get('associations');
         let   plassoc  = [];
