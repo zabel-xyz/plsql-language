@@ -105,7 +105,8 @@
     "dependencies": {
         "glob": "7.1.2",
         "json5": "0.5.1",
-        "dateformat": "3.0.2"
+        "dateformat": "3.0.2",
+        "antlr4": "4.7.1"
     },
     "devDependencies": {
         "typescript": "2.5.3",
