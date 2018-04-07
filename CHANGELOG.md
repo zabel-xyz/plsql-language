@@ -1,3 +1,7 @@
+## 1.2.1
+* Add a setting **commentInSymbols** in order to fix issue [#35](https://github.com/zabel-xyz/plsql-language/issues/35)
+* Add a setting **synonym** to use synonym of package name
+
 ## 1.2.0
 * Refactor parser to consider global constant, variable, type [#8](https://github.com/zabel-xyz/plsql-language/issues/8)
 

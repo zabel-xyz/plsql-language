@@ -2,7 +2,7 @@
     "name": "plsql-language",
     "displayName": "Language PL/SQL",
     "description": "PL/SQL language (Oracle) support",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "publisher": "xyz",
     "engines": {
         "vscode": "^1.18.0"
@@ -62,15 +62,16 @@
                     "default": null,
                     "description": "A folder to search plsql files (default is to search in workspace folder)"
                 },
-                "plsql-language.replaceSearch": {
-                    "type": "string",
-                    "default": null,
-                    "description": "Regular expression used to transform methodname => filename"
+                "plsql-language.synonym": {
+                    "type": "object",
+                    "default": {"replace": null, "by": null},
+                    "description": "Usage of synonmy for package name. To replace synonym by real package name when navigate. ('replace' could be a regular expression)"
                 },
-                "plsql-language.replaceValue": {
-                    "type": "string",
-                    "default": null,
-                    "description": "String value used to transform methodname => filename"
+
+                "plsql-language.commentInSymbols": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Use comments between symbol and name (e.g. create or replace package /** **/ name)"
                 },
 
                 "plsql-language.snippets.enable": {

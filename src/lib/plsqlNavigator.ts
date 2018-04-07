@@ -11,7 +11,7 @@ export interface PLSQLCursorInfos {
 
 export class PlSqlNavigator {
 
-    public static goto(cursorInfos: PLSQLCursorInfos, lineOffset: number, parserRoot: PLSQLRoot, search_cb): Promise<PLSQLSymbol> {
+    public static goto(cursorInfos: PLSQLCursorInfos, lineOffset: number, parserRoot: PLSQLRoot, pkgGetName_cb, search_cb): Promise<PLSQLSymbol> {
 
         return new Promise<PLSQLSymbol>((resolve, reject) => {
 
@@ -50,6 +50,9 @@ export class PlSqlNavigator {
                   return resolve(); // No navigation here we are in a spec
 
               packageName = cursorInfos.previousDot ? cursorInfos.previousWord : '';
+              // Use synonyme for package
+              if (pkgGetName_cb)
+                  packageName = pkgGetName_cb.call(this, packageName);
 
               // Search in current file
               if (rootSymbol && ((packageName === rootSymbol.name) || !packageName)) {

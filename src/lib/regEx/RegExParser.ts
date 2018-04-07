@@ -3,24 +3,42 @@
  */
 export default class RegExpParser {
 
+    public static regexp: RegExp;
+
     private static regComment = `(?:\\/\\*[\\s\\S]*?\\*\\/)|(?:--.*)`;
-    private static regSymbols = `${RegExpParser.regComment}|(?:(create)(?:\\s+or\\s+replace)?\\s+)?(?:(?:\\b(function|procedure|package)\\b(?:\\s+(body))?)\\s+(?:\"?\\w+\"?\\.)?\"?(\\w+)\"?)`;
+    private static regCommentInside = `(?:\\/\\*[\\s\\S]*?\\*\\/\\s*)?`; // a bit slower !
+
+    private static regSymbolsCreate = `(?:(create)(?:\\s+or\\s+replace)?\\s+)?`;
+    private static regSymbols = `(?:\\b(function|procedure|package)\\b(?:\\s+(body))?)\\s+`;
+    private static regSymbolsName = `(?:\"?\\w+\"?\\.)?\"?(\\w+)\"?`;
+
     private static regSpecSymbols = `${RegExpParser.regComment}|(?:(\\w+)\\s+(\\w+)(?:\\s*;|.[^;]*;))`;
 
+    public static initParser(commentInSymbols?: boolean)  {
+
+        const regExpParser =
+            `${RegExpParser.regComment}|${RegExpParser.regSymbolsCreate}(?:${RegExpParser.regSymbols}`+
+            `${commentInSymbols ? RegExpParser.regCommentInside: ''}`+
+            `${RegExpParser.regSymbolsName})`;
+
+        this.regexp = new RegExp(regExpParser, 'gi');
+    }
+
     public static getSymbols(text: string, fileName?: string): PLSQLRoot  {
+
+        if (!this.regexp)
+            this.initParser();
 
         const root: PLSQLRoot = {
             fileName: fileName,
             symbols: []
         };
 
-        const regexp = new RegExp(this.regSymbols, 'gi');
-
         let found,
             symbol: PLSQLSymbol,
             parent: PLSQLSymbol;
 
-        while (found = regexp.exec(text)) {
+        while (found = this.regexp.exec(text)) {
             if (found[2]) {
                 symbol = {
                     name: found[4],

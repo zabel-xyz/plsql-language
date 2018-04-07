@@ -14,6 +14,10 @@ interface PLSQLRange {
 
 export default class PlSqlParser {
 
+    public static initParser(symbolsComment?: boolean)  {
+        this.getParser().initParser(symbolsComment);
+    }
+
     public static parseFile(fileName: string, content: string): PLSQLRoot {
         const root = this.getParser().getSymbols(content);
         if (root)

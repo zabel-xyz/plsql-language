@@ -12,11 +12,14 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
 
         return new Promise<vscode.Location>((resolve, reject) => {
 
+            PlSqlParser.initParser(PLSQLSettings.getCommentInSymbols());
+
             const line = document.lineAt(position),
                   cursorInfos = this.getCursorInfos(document, line, position),
                   parserRoot = PlSqlParser.parseDocument(document);
 
-            PlSqlNavigator.goto(cursorInfos, document.offsetAt(line.range.start), parserRoot, this.getGlobCmdEx.bind(this, document))
+            PlSqlNavigator.goto(cursorInfos, document.offsetAt(line.range.start), parserRoot,
+                    this.translatePackageName.bind(this, document), this.getGlobCmdEx.bind(this, document))
                 .then(symbol => {
                     return this.getFileLocation(symbol);
                 })
@@ -38,13 +41,17 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
         return PlSqlNavigator.getCursorInfos(currentWord, range.end.character, lineText);
     }
 
+    private translatePackageName(document, packageName: string): string {
+        return PLSQLSettings.translatePackageName(packageName);
+    }
+
     private getGlobCmdEx(document, search) {
         const {cwd, ignore} = PLSQLSettings.getSearchInfos(document.uri);
         // Ignore current file
         ignore.push(path.relative(cwd, document.uri.fsPath));
 
         return {
-            files: search.files.map(file => PLSQLSettings.getSearchFile(file)),
+            files: search.files,
             ext: PLSQLSettings.getSearchExt(search.ext),
             params: {
                 nocase: true,

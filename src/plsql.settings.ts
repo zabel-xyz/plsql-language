@@ -1,6 +1,11 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 
+interface PLSQLSynonym {
+    replace: string;
+    by?: string;
+}
+
 /**
  * Settings for plsql.
  */
@@ -34,6 +39,7 @@ export default class PLSQLSettings {
         return {ignore, cwd};
     }
 
+    // DEPRECATED...
     public static getSearchFile(searchText: string): string {
         const config = vscode.workspace.getConfiguration('plsql-language');
 
@@ -45,6 +51,24 @@ export default class PLSQLSettings {
             fileName = fileName.replace(regExp, <string>config.get('replaceValue') || '');
         }
         return fileName;
+    }
+
+    public static translatePackageName(packageName: string): string {
+        const config = vscode.workspace.getConfiguration('plsql-language');
+
+        // packageName using synonym => real packageName
+        let   name = packageName;
+        const synonym = <PLSQLSynonym>config.get('synonym');
+        if (synonym) {
+            const regExp = new RegExp(synonym.replace, 'i');
+            name = name.replace(regExp, synonym.by || '');
+        }
+        return name;
+    }
+
+    public static getCommentInSymbols(): boolean {
+        const config = vscode.workspace.getConfiguration('plsql-language');
+        return <boolean>config.get('commentInSymbols');
     }
 
     public static getSearchExt(searchExt: string[]) {
