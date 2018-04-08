@@ -1,3 +1,7 @@
+## 1.2.2
+* Fix case issue in navigation explained here [#35](https://github.com/zabel-xyz/plsql-language/issues/35)
+* Fix variable detection explained here [#8](https://github.com/zabel-xyz/plsql-language/issues/8)
+
 ## 1.2.1
 * Add a setting **commentInSymbols** in order to fix issue [#35](https://github.com/zabel-xyz/plsql-language/issues/35)
 * Add a setting **synonym** to use synonym of package name

@@ -55,7 +55,7 @@ export class PlSqlNavigator {
                   packageName = pkgGetName_cb.call(this, packageName);
 
               // Search in current file
-              if (rootSymbol && ((packageName === rootSymbol.name) || !packageName)) {
+              if (rootSymbol && (!packageName || (packageName.toLowerCase() === rootSymbol.name.toLowerCase()))) {
                   // Search in current body of file
                   navigateSymbol = PlSqlParser.findSymbolByNameOffset(rootSymbol.symbols, cursorInfos.currentWord, 0, false);
                   if (navigateSymbol)

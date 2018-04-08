@@ -65,7 +65,7 @@ export default class RegExpParser {
                 const from = item.offset, // TODO not from => create package...as|is
                       to = index + 1 < root.symbols.length ? root.symbols[index + 1].offset : undefined,
                       search = text.substring(from, to),
-                      start = search.search(/(is|as)/i);
+                      start = search.search(/\b(is|as)\b/i); // TODO search without comment ?
                 if (start >= 0)
                     this.getSymbolsSpec(search.substring(start + 2), from + start + 2, item);
             }
@@ -101,7 +101,7 @@ export default class RegExpParser {
                 } else if (found[2] && ['constant', 'exception'].includes(found[2].toLowerCase())) {
                     kindName = found[2];
                     identifier = found[1];
-                } else if (!(['pragma', 'function', 'procedure', 'create'].includes(found[1].toLowerCase()))) {
+                } else if (!(['pragma', 'function', 'procedure', 'create', 'end'].includes(found[1].toLowerCase()))) {
                     kindName = 'variable';
                     identifier = found[1];
                 }
