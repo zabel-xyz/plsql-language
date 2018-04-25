@@ -1,3 +1,6 @@
+## 1.2.3
+* Fix case issue in order to work on Linux [#38](https://github.com/zabel-xyz/plsql-language/issues/38)
+
 ## 1.2.2
 * Fix case issue in navigation explained here [#35](https://github.com/zabel-xyz/plsql-language/issues/35)
 * Fix variable detection explained here [#8](https://github.com/zabel-xyz/plsql-language/issues/8)
