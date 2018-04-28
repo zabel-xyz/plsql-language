@@ -17,7 +17,7 @@ export default class RegExpParser {
     private static regSymbolsName = `(?:\"?\\w+\"?\\.)?\"?(\\w+)\"?`;
 
     private static regSpecSymbols = `(?:(\\w+)\\s+(\\w+)(?:\\s*;|.[^;]*;))`;
-    private static regBody = `(?:\\b(procedure|function)\\b\\s+(\\w+)[\\s\\S]*?(?:\\b(is|as)\\b[\\s\\S]*?\\b(begin)\\b|;))`;
+    private static regBody = `(?:\\b(procedure|function)\\b\\s+(\\w+)[\\s\\S]*?(?:\\b(is|as)?\\b[\\s\\S]*?\\b(begin)\\b|;))`;
 
     private static regJumpEnd = `(\\bbegin\\b)|(?:(\\bend\\b)\\s*(\\w*)?)`;
     private static regJumpAsIs = `\\b(is|as)\\b`;
@@ -31,12 +31,10 @@ export default class RegExpParser {
 
         this.regExp = new RegExp(regExpParser, 'gi');
         this.regExpS = new RegExp(`${this.regComment}|${`(\\b(?:end|create)\\b)`}|${this.regSpecSymbols}`, 'gi');
-        this.regExpB = new RegExp(`${this.regComment}|${this.regBody}|${this.regSpecSymbols}`, 'gi');
+        this.regExpB = new RegExp(`${this.regComment}|${this.regBody}|(\\bbegin\\b)|${this.regSpecSymbols}`, 'gi');
         this.regExpJumpEnd = new RegExp(`${this.regJumpEnd}`, 'gi'); // TODO not begin end in comment
         this.regExpJumpAsIs = new RegExp(`${this.regJumpAsIs}`, 'gi');
     }
-
-// TODO lastIndex == null =>  infinite loop ??? see why
 
     public static getSymbols(text: string, fileName?: string): PLSQLRoot  {
 
@@ -51,8 +49,9 @@ export default class RegExpParser {
         let found,
             symbol: PLSQLSymbol,
             parent: PLSQLSymbol,
-            offset = 0;
+            fromOffset, offset = 0;
 
+        // this.regExp.lastIndex = 0;
         while (found = this.regExp.exec(text)) {
             if (found[2]) {
                 symbol = {
@@ -72,15 +71,18 @@ export default class RegExpParser {
                     parent.symbols.push(symbol);
                 }
 
-                if ((symbol.kind === PLSQLSymbolKind.packageSpec) ||
-                    (symbol.kind === PLSQLSymbolKind.packageBody)) {
+                // level 1 (create package, proc or func)
+                if (parent === symbol) {
                     offset = this.regExp.lastIndex;
-                    offset = this.jumpAsIs(text, offset);
-                    if (symbol.kind === PLSQLSymbolKind.packageSpec)
-                        offset = this.getSymbolsSpec(text, offset, symbol);
-                    else // if (symbol.kind === PLSQLSymbolKind.packageSpec)
-                        offset = this.getSymbolsBody(text, offset, symbol);
-                    this.regExp.lastIndex = offset;
+                    fromOffset = this.jumpAsIs(text, offset);
+                    if (fromOffset !== offset) { // if equal => no is|as => continue on same level...
+                        offset = fromOffset;
+                        if (symbol.kind === PLSQLSymbolKind.packageSpec)
+                            offset = this.getSymbolsSpec(text, offset, symbol);
+                        else // symbol.kind in package_body / func / proc
+                            offset = this.getSymbolsBody(text, offset, symbol);
+                        this.regExp.lastIndex = offset;
+                    }
                 }
             }
         }
@@ -111,11 +113,11 @@ export default class RegExpParser {
 
         this.regExpS.lastIndex = lastIndex;
         while (found = this.regExpS.exec(text)) {
-            lastIndex = this.regExpS.lastIndex;
             if (found[2] && found[3])
                 this.createSymbolItem(found[2], found[3], found.index, parent);
             else if (found[1]) // end || create
                 break;
+            lastIndex = this.regExpS.lastIndex;
         }
         return lastIndex;
     }
@@ -127,12 +129,14 @@ export default class RegExpParser {
         this.regExpB.lastIndex = lastIndex;
         while (found = this.regExpB.exec(text)) {
             lastIndex = this.regExpB.lastIndex;
-            if (found[5] && found[6]) {
-                this.createSymbolItem(found[5], found[6], found.index, parent);
+            if (found[5])
+                break; // found begin without function or procedure => begin of packageBody (or func/proc)
+            else if (found[6] && found[7]) {
+                this.createSymbolItem(found[6], found[7], found.index, parent);
             } else if (found[1] && found[2]) {
                 // Declare function, procedure => add symbol
                 this.createSymbolItem(found[1], found[2], found.index, parent);
-                if (found[3]) {
+                if (found[4]) {
                     // Body => jump to end
                     lastIndex = this.jumpToEnd(text, lastIndex);
                     this.regExpB.lastIndex = lastIndex;
