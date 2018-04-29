@@ -19,6 +19,7 @@ export class PlSqlNavigator {
                 rootSymbol: PLSQLSymbol,
                 rootSymbol2: PLSQLSymbol,
                 navigateSymbol: PLSQLSymbol,
+                navigateSymbol2: PLSQLSymbol,
                 isDeclaration: boolean,
                 packageName: string;
 
@@ -29,6 +30,15 @@ export class PlSqlNavigator {
                     parserRoot.symbols, cursorInfos.currentWord, lineOffset);
 
                 if (cursorSymbol && cursorSymbol.parent) {
+
+                    // switch in body (spec and body are in body)
+                    if (cursorSymbol.parent.kind !== PLSQLSymbolKind.packageSpec) {
+                        navigateSymbol = PlSqlParser.findSymbolByNameKind(cursorSymbol.parent.symbols, cursorSymbol.name, PlSqlParser.switchSymbolKind(cursorSymbol.kind), false);
+                        if (navigateSymbol)
+                            return resolve(navigateSymbol);
+                    }
+
+                    // switch body <-> spec
                     rootSymbol = PlSqlParser.switchSymbol(cursorSymbol.parent);
                     if (rootSymbol && rootSymbol !== cursorSymbol.parent) {
                         navigateSymbol = PlSqlParser.findSymbolByNameKind(rootSymbol.symbols, cursorSymbol.name, PlSqlParser.switchSymbolKind(cursorSymbol.kind), false);
@@ -58,8 +68,11 @@ export class PlSqlNavigator {
                 if (rootSymbol && (!packageName || (packageName.toLowerCase() === rootSymbol.name.toLowerCase()))) {
                     // Search in current body of file
                     navigateSymbol = PlSqlParser.findSymbolByNameOffset(rootSymbol.symbols, cursorInfos.currentWord, 0, false);
-                    if (navigateSymbol)
-                        return resolve(navigateSymbol);
+                    if (navigateSymbol) {
+                        if (PlSqlParser.isSymbolSpec(navigateSymbol))
+                            navigateSymbol2 = PlSqlParser.findSymbolByNameKind(rootSymbol.symbols, navigateSymbol.name, PlSqlParser.switchSymbolKind(navigateSymbol.kind), false);
+                        return resolve(navigateSymbol2 || navigateSymbol);
+                    }
                     // Search in current spec (maybe a constant or type definition)
                     rootSymbol2 = PlSqlParser.switchSymbol(rootSymbol);
                     if (rootSymbol2 && rootSymbol2 !== rootSymbol) {

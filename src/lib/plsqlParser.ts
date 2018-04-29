@@ -80,6 +80,11 @@ export default class PlSqlParser {
             return symbolKind;
     }
 
+    public static isSymbolSpec(symbol: PLSQLSymbol): boolean {
+        return [PLSQLSymbolKind.packageSpec, PLSQLSymbolKind.procedureSpec, PLSQLSymbolKind.functionSpec]
+            .includes(symbol.kind);
+    }
+
     public static getSymbols(fileName: string, content: string): PLSQLSymbol[] {
         const root = this.parseFile(fileName, content),
               allSymbols: PLSQLSymbol[] = [];
