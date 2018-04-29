@@ -1,5 +1,6 @@
 /**
  * Parser using regExp
+ * (try to parse even with some errors (begin,end,is,as...missing or too much))
  */
 export default class RegExpParser {
 
@@ -46,19 +47,22 @@ export default class RegExpParser {
             symbols: []
         };
 
-        let found,
+        let found, isBody,
             symbol: PLSQLSymbol,
             parent: PLSQLSymbol,
             fromOffset, offset = 0;
 
-        // this.regExp.lastIndex = 0;
+        this.regExp.lastIndex = 0;
         while (found = this.regExp.exec(text)) {
             if (found[2]) {
+                // package body or create func or create proc
+                isBody = (found[3] != null) || (found[1] != null && found[2].toLowerCase() !== 'package');
+
                 symbol = {
                     name: found[4],
                     offset: found.index,
                     kindName: found[2] + (found[3] != null ? ' '+found[3] : ''),
-                    kind: this.getSymbolKind(found[2].toLowerCase(), found[3] != null)
+                    kind: this.getSymbolKind(found[2].toLowerCase(), isBody)
                 };
 
                 if (!parent || found[1]) {
@@ -114,7 +118,7 @@ export default class RegExpParser {
         this.regExpS.lastIndex = lastIndex;
         while (found = this.regExpS.exec(text)) {
             if (found[2] && found[3])
-                this.createSymbolItem(found[2], found[3], found.index, parent);
+                this.createSymbolItem(found[2], found[3], found.index, parent, false);
             else if (found[1]) // end || create
                 break;
             lastIndex = this.regExpS.lastIndex;
@@ -134,14 +138,14 @@ export default class RegExpParser {
             if (found[5])
                 break; // found begin without function or procedure => begin of packageBody (or func/proc)
             else if (found[6] && found[7]) {
-                if (!this.createSymbolItem(found[6], found[7], found.index, parent)) {
+                if (!this.createSymbolItem(found[6], found[7], found.index, parent, false)) {
                     // if it's not a symbol, something goes wrong => break
                     lastIndex = oldIndex;
                     break;
                 }
             } else if (found[1] && found[2]) {
                 // Declare function, procedure => add symbol
-                this.createSymbolItem(found[1], found[2], found.index, parent);
+                this.createSymbolItem(found[1], found[2], found.index, parent, found[4] != null);
                 if (found[4]) { // begin
                     // Body => jump to end
                     lastIndex = this.jumpToEnd(text, lastIndex);
@@ -152,7 +156,7 @@ export default class RegExpParser {
         return lastIndex;
     }
 
-    private static createSymbolItem(text1: string, text2: string, offset: number, parent: PLSQLSymbol): boolean {
+    private static createSymbolItem(text1: string, text2: string, offset: number, parent: PLSQLSymbol, isBody: boolean): boolean {
         let kindName: string,
             identifier: string,
             symbol: PLSQLSymbol;
@@ -175,7 +179,7 @@ export default class RegExpParser {
                     name: identifier,
                     offset: offset,
                     kindName: kindName,
-                    kind: this.getSymbolKind(kindName.toLowerCase(), false),
+                    kind: this.getSymbolKind(kindName.toLowerCase(), isBody),
                     parent: parent
                 };
                 parent.symbols.push(symbol);
@@ -219,15 +223,22 @@ export default class RegExpParser {
     };
 
     private static getSymbolKind(type: string, isBody: boolean): PLSQLSymbolKind  {
-        if (type === 'function')
-            return PLSQLSymbolKind.function;
-        else if (type === 'procedure')
-            return PLSQLSymbolKind.procedure;
-        else if (type === 'package') {
-            if (!isBody)
-                return PLSQLSymbolKind.packageSpec;
+        if (type === 'function') {
+            if (isBody)
+                return PLSQLSymbolKind.function;
             else
+                return PLSQLSymbolKind.functionSpec;
+        } else if (type === 'procedure') {
+            if (isBody)
+                return PLSQLSymbolKind.procedure;
+            else
+                return PLSQLSymbolKind.procedureSpec;
+        } else if (type === 'package') {
+            if (isBody)
                 return PLSQLSymbolKind.packageBody;
+            else
+                return PLSQLSymbolKind.packageSpec;
+
         } else if (type === 'constant')
             return PLSQLSymbolKind.constant;
         else if (type === 'type')

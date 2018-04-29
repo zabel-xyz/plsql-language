@@ -24,81 +24,81 @@ export class PlSqlNavigator {
 
             // Declaration
             if (/*!cursorInfos.previousDot &&*/ this.isPackageDeclaration(cursorInfos.previousWord)) {
-              isDeclaration = true;
-              cursorSymbol = PlSqlParser.findSymbolByNameOffset(
-                  parserRoot.symbols, cursorInfos.currentWord, lineOffset);
+                isDeclaration = true;
+                cursorSymbol = PlSqlParser.findSymbolByNameOffset(
+                    parserRoot.symbols, cursorInfos.currentWord, lineOffset);
 
-              if (cursorSymbol && cursorSymbol.parent) {
-                  rootSymbol = PlSqlParser.switchSymbol(cursorSymbol.parent);
-                  if (rootSymbol && rootSymbol !== cursorSymbol.parent) {
-                      navigateSymbol = PlSqlParser.findSymbolByNameKind(rootSymbol.symbols, cursorSymbol.name, cursorSymbol.kind, false);
-                      return resolve(navigateSymbol);
-                  } else if (rootSymbol === cursorSymbol.parent)
-                      return resolve(); // No navigation here we are not in a package
-                  else
-                      // search in another file (spec && body are in separate files)
-                      packageName = cursorSymbol.parent.name;
-              } else
-                  // No parent => a function or a procedure not in a package
-                  return resolve();
+                if (cursorSymbol && cursorSymbol.parent) {
+                    rootSymbol = PlSqlParser.switchSymbol(cursorSymbol.parent);
+                    if (rootSymbol && rootSymbol !== cursorSymbol.parent) {
+                        navigateSymbol = PlSqlParser.findSymbolByNameKind(rootSymbol.symbols, cursorSymbol.name, PlSqlParser.switchSymbolKind(cursorSymbol.kind), false);
+                        return resolve(navigateSymbol);
+                    } else if (rootSymbol === cursorSymbol.parent)
+                        return resolve(); // No navigation here we are not in a package
+                    else
+                        // search in another file (spec && body are in separate files)
+                        packageName = cursorSymbol.parent.name;
+                } else
+                    // No parent => a function or a procedure not in a package
+                    return resolve();
 
             // Call
             } else {
-              // Body => Body or Spec
-              rootSymbol = PlSqlParser.findSymbolNearOffset(parserRoot.symbols, lineOffset, false);
-              if (rootSymbol && rootSymbol.kind === PLSQLSymbolKind.packageSpec)
-                  return resolve(); // No navigation here we are in a spec
+                // Body => Body or Spec
+                rootSymbol = PlSqlParser.findSymbolNearOffset(parserRoot.symbols, lineOffset, false);
+                if (rootSymbol && rootSymbol.kind === PLSQLSymbolKind.packageSpec)
+                    return resolve(); // No navigation here we are in a spec
 
-              packageName = cursorInfos.previousDot ? cursorInfos.previousWord : '';
-              // Use synonyme for package
-              if (pkgGetName_cb)
-                  packageName = pkgGetName_cb.call(this, packageName);
+                packageName = cursorInfos.previousDot ? cursorInfos.previousWord : '';
+                // Use synonyme for package
+                if (pkgGetName_cb)
+                    packageName = pkgGetName_cb.call(this, packageName);
 
-              // Search in current file
-              if (rootSymbol && (!packageName || (packageName.toLowerCase() === rootSymbol.name.toLowerCase()))) {
-                  // Search in current body of file
-                  navigateSymbol = PlSqlParser.findSymbolByNameOffset(rootSymbol.symbols, cursorInfos.currentWord, 0, false);
-                  if (navigateSymbol)
-                      return resolve(navigateSymbol);
-                  // Search in current spec (maybe a constant or type definition)
-                  rootSymbol2 = PlSqlParser.switchSymbol(rootSymbol);
-                  if (rootSymbol2 && rootSymbol2 !== rootSymbol) {
-                      navigateSymbol = PlSqlParser.findSymbolByNameOffset(rootSymbol2.symbols, cursorInfos.currentWord, 0, false);
-                      if (navigateSymbol)
-                          return resolve(navigateSymbol);
-                  } else if (!packageName && !rootSymbol2 && rootSymbol.kind === PLSQLSymbolKind.packageBody) {
-                      // spec is in separeate file
-                      packageName = rootSymbol.name;
-                  }
-              }
+                // Search in current file
+                if (rootSymbol && (!packageName || (packageName.toLowerCase() === rootSymbol.name.toLowerCase()))) {
+                    // Search in current body of file
+                    navigateSymbol = PlSqlParser.findSymbolByNameOffset(rootSymbol.symbols, cursorInfos.currentWord, 0, false);
+                    if (navigateSymbol)
+                        return resolve(navigateSymbol);
+                    // Search in current spec (maybe a constant or type definition)
+                    rootSymbol2 = PlSqlParser.switchSymbol(rootSymbol);
+                    if (rootSymbol2 && rootSymbol2 !== rootSymbol) {
+                        navigateSymbol = PlSqlParser.findSymbolByNameOffset(rootSymbol2.symbols, cursorInfos.currentWord, 0, false);
+                        if (navigateSymbol)
+                           return resolve(navigateSymbol);
+                    } else if (!packageName && !rootSymbol2 && rootSymbol.kind === PLSQLSymbolKind.packageBody) {
+                        // spec is in separate file
+                        packageName = rootSymbol.name;
+                    }
+                }
             }
 
             // Search in external files
             const search = {
-              package: packageName,
-              cursorWord: cursorInfos.currentWord,
-              isDeclaration: isDeclaration
+                package: packageName,
+                cursorWord: cursorInfos.currentWord,
+                isDeclaration: isDeclaration
             };
             let files;
             this.getGlobFiles(this.getGlobCmd(search, search_cb))
-              .then(globFiles => {
-                  files = globFiles;
-                  return this.parseFiles(files, search);
-              })
-             .then(symbol => {
-                  // search without packageName (because it's perhaps only the name of the schema)
-                  if (!symbol && search.package) {
-                      search.package = null;
-                      return this.parseFiles(files, search);
-                  }
-                  return symbol;
-              })
-              .then(symbol => {
-                  resolve(symbol);
-              })
-              .catch(err => {
-                  reject(err);
-              });
+                .then(globFiles => {
+                    files = globFiles;
+                    return this.parseFiles(files, search);
+                })
+               .then(symbol => {
+                    // search without packageName (because it's perhaps only the name of the schema)
+                    if (!symbol && search.package) {
+                        search.package = null;
+                        return this.parseFiles(files, search);
+                    }
+                    return symbol;
+                })
+                .then(symbol => {
+                    resolve(symbol);
+                })
+                .catch(err => {
+                    reject(err);
+                });
         });
     }
 
@@ -222,7 +222,7 @@ export class PlSqlNavigator {
             if (navigateSymbol) {
                 // if function/procedure in spec => search in body
                 if (!searchInfos.isDeclaration && navigateSymbol.parent && navigateSymbol.parent.kind === PLSQLSymbolKind.packageSpec &&
-                    [PLSQLSymbolKind.function, PLSQLSymbolKind.procedure].includes(navigateSymbol.kind)) {
+                    [PLSQLSymbolKind.functionSpec, PLSQLSymbolKind.procedureSpec].includes(navigateSymbol.kind)) {
                     parentSymbol = PlSqlParser.switchSymbol(navigateSymbol.parent);
                     if (parentSymbol !== navigateSymbol.parent)
                         return PlSqlParser.findSymbolByNameOffset(parentSymbol.symbols, searchInfos.cursorWord, 0, false);
