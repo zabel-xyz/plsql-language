@@ -17,7 +17,7 @@ export default class RegExpParser {
     private static regSymbolsName = `(?:\"?\\w+\"?\\.)?\"?(\\w+)\"?`;
 
     private static regSpecSymbols = `(?:(\\w+)\\s+(\\w+)(?:\\s*;|.[^;]*;))`;
-    private static regBody = `(?:\\b(procedure|function)\\b\\s+(\\w+)[\\s\\S]*?(?:\\b(is|as)?\\b[\\s\\S]*?\\b(begin)\\b|;))`;
+    private static regBody = `(?:\\b(procedure|function)\\b\\s+(\\w+)[\\s\\S]*?(?:(?:\\b(is|as)\\b[\\s\\S]*?)?\\b(begin)\\b|;))`;
 
     private static regJumpEnd = `(\\bbegin\\b)|(?:(\\bend\\b)\\s*(\\w*)?)`;
     private static regJumpAsIs = `\\b(is|as)\\b`;
@@ -32,7 +32,7 @@ export default class RegExpParser {
         this.regExp = new RegExp(regExpParser, 'gi');
         this.regExpS = new RegExp(`${this.regComment}|${`(\\b(?:end|create)\\b)`}|${this.regSpecSymbols}`, 'gi');
         this.regExpB = new RegExp(`${this.regComment}|${this.regBody}|(\\bbegin\\b)|${this.regSpecSymbols}`, 'gi');
-        this.regExpJumpEnd = new RegExp(`${this.regJumpEnd}`, 'gi'); // TODO not begin end in comment
+        this.regExpJumpEnd = new RegExp(`${this.regComment}|${this.regJumpEnd}`, 'gi');
         this.regExpJumpAsIs = new RegExp(`${this.regJumpAsIs}`, 'gi');
     }
 
@@ -124,19 +124,25 @@ export default class RegExpParser {
 
     private static getSymbolsBody(text: string, fromOffset: number, parent: PLSQLSymbol): number  {
         let found,
-            lastIndex = fromOffset;
+            lastIndex = fromOffset,
+            oldIndex;
 
         this.regExpB.lastIndex = lastIndex;
         while (found = this.regExpB.exec(text)) {
+            oldIndex = lastIndex;
             lastIndex = this.regExpB.lastIndex;
             if (found[5])
                 break; // found begin without function or procedure => begin of packageBody (or func/proc)
             else if (found[6] && found[7]) {
-                this.createSymbolItem(found[6], found[7], found.index, parent);
+                if (!this.createSymbolItem(found[6], found[7], found.index, parent)) {
+                    // if it's not a symbol, something goes wrong => break
+                    lastIndex = oldIndex;
+                    break;
+                }
             } else if (found[1] && found[2]) {
                 // Declare function, procedure => add symbol
                 this.createSymbolItem(found[1], found[2], found.index, parent);
-                if (found[4]) {
+                if (found[4]) { // begin
                     // Body => jump to end
                     lastIndex = this.jumpToEnd(text, lastIndex);
                     this.regExpB.lastIndex = lastIndex;
@@ -146,7 +152,7 @@ export default class RegExpParser {
         return lastIndex;
     }
 
-    private static createSymbolItem(text1: string, text2: string, offset: number, parent: PLSQLSymbol) {
+    private static createSymbolItem(text1: string, text2: string, offset: number, parent: PLSQLSymbol): boolean {
         let kindName: string,
             identifier: string,
             symbol: PLSQLSymbol;
@@ -159,6 +165,7 @@ export default class RegExpParser {
                 kindName = text2;
                 identifier = text1;
             } else if (!(['pragma', 'create', 'end'].includes(text1.toLowerCase()))) {
+                // TODO other keyword to avoid variable return...
                 kindName = 'variable';
                 identifier = text1;
             }
@@ -172,6 +179,7 @@ export default class RegExpParser {
                     parent: parent
                 };
                 parent.symbols.push(symbol);
+                return true;
             }
         }
     }
@@ -188,7 +196,7 @@ export default class RegExpParser {
 
     private static jumpToEnd(text: string, fromOffset: number): number {
         let match,
-            openTokens = 0,
+            openTokens = 1, // begin was already found
             lastIndex = fromOffset;
 
         this.regExpJumpEnd.lastIndex = fromOffset;
@@ -196,7 +204,7 @@ export default class RegExpParser {
             lastIndex = this.regExpJumpEnd.lastIndex;
             if (match[1]) { // begin
                 openTokens++;
-            } else { //if (match[2]) // end
+            } else if (match[2]) { // end
                 if (!match[3] || !['case', 'loop', 'if'].includes(match[3].toLowerCase())) {
                     if (openTokens) {
                         openTokens--;
@@ -205,7 +213,7 @@ export default class RegExpParser {
                     } else
                         return lastIndex; // end without begin (error in file !)
                 } // else end case|loop|if
-            }
+            } // else comment => nothing todo
         }
         return lastIndex;
     };
