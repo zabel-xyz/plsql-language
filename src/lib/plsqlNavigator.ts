@@ -66,8 +66,8 @@ export class PlSqlNavigator {
 
                 // Search in current file
                 if (rootSymbol && (!packageName || (packageName.toLowerCase() === rootSymbol.name.toLowerCase()))) {
-                    // Search in current body of file
-                    navigateSymbol = PlSqlParser.findSymbolByNameOffset(rootSymbol.symbols, cursorInfos.currentWord, 0, false);
+                    // Search in current body of file  (recursive for subFunctions or subProcedure)
+                    navigateSymbol = PlSqlParser.findSymbolByNameOffset(rootSymbol.symbols, cursorInfos.currentWord, 0, true);
                     if (navigateSymbol) {
                         if (PlSqlParser.isSymbolSpec(navigateSymbol))
                             navigateSymbol2 = PlSqlParser.findSymbolByNameKind(rootSymbol.symbols, navigateSymbol.name, PlSqlParser.switchSymbolKind(navigateSymbol.kind), false);

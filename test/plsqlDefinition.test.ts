@@ -71,7 +71,7 @@ suite('PLSQL Definition', () => {
         };
     }
 
-    test('Package', (done) => {
+    test('Package I', (done) => {
         let testCases: ICase[] = [
             // body to spec
             buildCase(
@@ -124,8 +124,13 @@ suite('PLSQL Definition', () => {
                 'type txyz_myType is record', 0, 'xyz_myPackage2.pks'),
             // type in body to spec
             buildCase('abc ttxyz_myType;', 13, 'ttxyz_myType',
-                      'type ttxyz_myType is table of txyz_myType;', 0, 'xyz_myPackage.sql'),
+                      'type ttxyz_myType is table of txyz_myType;', 0, 'xyz_myPackage.sql')
+        ];
+        runTest('xyz_myPackage.sql', testCases, done);
+    });
 
+    test('Package II', (done) => {
+        let testCases: ICase[] = [
             // forward declaration body to body declaration
             buildCase(
                 'function pForward\\(param1 in varchar2\\)\\s*return varchar2\\s*is', 13, 'pForward',
@@ -146,6 +151,10 @@ suite('PLSQL Definition', () => {
             buildCase(
                 'pForward\\(\'test3\'\\);', 5, 'pForward',
                 'function pForward\\(param1 in varchar2\\)\\s*return varchar2\\s*is', 0, 'xyz_myPackage.sql'),
+            // call to subFunctions
+            buildCase(
+                'x = pSubFunction\\(2\\);', 8, 'pSubFunction',
+                'function pSubFunction\\(param1 in number\\)\\s*is', 0, 'xyz_myPackage.sql'),
 
             // constant in body to body declaration
             buildCase(
@@ -156,9 +165,9 @@ suite('PLSQL Definition', () => {
                 'if y = myGlobalVar2', 15, 'myGlobalVar2',
                 'myGlobalVar2 number := 10;', 0, 'xyz_myPackage.sql'),
             // type in body to body declaration
-            buildCase('abc ttxyz_myType2;', 13, 'ttxyz_myType2',
-                      'type ttxyz_myType2 is table of txyz_myType2;', 0, 'xyz_myPackage.sql')
-
+            buildCase(
+                'abc ttxyz_myType2;', 13, 'ttxyz_myType2',
+                'type ttxyz_myType2 is table of txyz_myType2;', 0, 'xyz_myPackage.sql')
         ];
         runTest('xyz_myPackage.sql', testCases, done);
     });

@@ -91,6 +91,24 @@ as
     return;
   end;
 
+  -- test with subfunction
+  procedure pMainProcedure(param1 in varchar2)
+  is
+    x number;
+
+    function pSubFunction(param1 in number)
+    is
+    begin
+      -- some code to execute
+      return 3;
+    end pSubFunction;
+  begin
+    -- some code to execute
+
+    -- call to subFunction
+    x = pSubFunction(2);
+  end pMainProcedure;
+
   function pForward(param1 in varchar2)
     return varchar2
   is
