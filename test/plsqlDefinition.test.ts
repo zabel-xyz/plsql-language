@@ -124,7 +124,41 @@ suite('PLSQL Definition', () => {
                 'type txyz_myType is record', 0, 'xyz_myPackage2.pks'),
             // type in body to spec
             buildCase('abc ttxyz_myType;', 13, 'ttxyz_myType',
-                      'type ttxyz_myType is table of txyz_myType;', 0, 'xyz_myPackage.sql')
+                      'type ttxyz_myType is table of txyz_myType;', 0, 'xyz_myPackage.sql'),
+
+            // forward declaration body to body declaration
+            buildCase(
+                'function pForward\\(param1 in varchar2\\)\\s*return varchar2\\s*is', 13, 'pForward',
+                'function pForward\\(param1 in varchar2\\)\\s*return varchar2;', 0, 'xyz_myPackage.sql'),
+            // forward declaration body declaration to body
+            buildCase(
+                'function pForward\\(param1 in varchar2\\)\\s*return varchar2;', 13, 'pForward',
+                'function pForward\\(param1 in varchar2\\)\\s*return varchar2\\s*is', 0, 'xyz_myPackage.sql'),
+            // forward declaration body to body declaration
+            buildCase(
+                'function pForward\\(param1 in varchar2\\)\\s*return varchar2\\s*is', 4, 'function',
+                'function pForward\\(param1 in varchar2\\)\\s*return varchar2;', 0, 'xyz_myPackage.sql'),
+            // forward declaration body declaration to body
+            buildCase(
+                'function pForward\\(param1 in varchar2\\)\\s*return varchar2;', 4, 'function',
+                'function pForward\\(param1 in varchar2\\)\\s*return varchar2\\s*is', 0, 'xyz_myPackage.sql'),
+            // call to forward declaration
+            buildCase(
+                'pForward\\(\'test3\'\\);', 5, 'pForward',
+                'function pForward\\(param1 in varchar2\\)\\s*return varchar2\\s*is', 0, 'xyz_myPackage.sql'),
+
+            // constant in body to body declaration
+            buildCase(
+                'if x = myConst2', 12, 'myConst2',
+                'myConst2 constant char\\(2\\) := \'10\';', 0, 'xyz_myPackage.sql'),
+            // variable in body to body declaration
+            buildCase(
+                'if y = myGlobalVar2', 15, 'myGlobalVar2',
+                'myGlobalVar2 number := 10;', 0, 'xyz_myPackage.sql'),
+            // type in body to body declaration
+            buildCase('abc ttxyz_myType2;', 13, 'ttxyz_myType2',
+                      'type ttxyz_myType2 is table of txyz_myType2;', 0, 'xyz_myPackage.sql')
+
         ];
         runTest('xyz_myPackage.sql', testCases, done);
     });

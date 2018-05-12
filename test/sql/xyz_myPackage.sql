@@ -33,6 +33,20 @@ end;
 create or replace package body schema.MyPackage
 as
 
+  type txyz_myType2 is record(
+      myChar varchar2
+    , myNumber number
+    , myField myTable.myField%type
+  );
+  type ttxyz_myType2 is table of txyz_myType2;
+
+  myConst2 constant char(2) := '10';
+  myGlobalVar2 number := 10;
+
+  -- forward declaration
+  function pForward(param1 in varchar2)
+    return varchar2;
+
   -- function get_myValue
   function get_myValue(param1 in varchar2)
     return varchar2
@@ -69,10 +83,25 @@ as
     MyProc('Test');
     schema.MyProc('Test');
 
+    pForward('Test3');
+
     if x = schema.MyPackage.myConst
     if y = myGlobalVar
 
     return;
+  end;
+
+  function pForward(param1 in varchar2)
+    return varchar2
+  is
+    xyz txyz_myType2;
+    abc ttxyz_myType2;
+  begin
+    -- some code to execute
+    if x = myConst2
+    if y = myGlobalVar2
+
+    return 'test';
   end;
 
 end;
