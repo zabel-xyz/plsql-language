@@ -86,8 +86,11 @@ export default class PlSqlParser {
     }
 
     public static getSymbols(fileName: string, content: string): PLSQLSymbol[] {
-        const root = this.parseFile(fileName, content),
-              allSymbols: PLSQLSymbol[] = [];
+        return this.getSymbolsFromRoot(this.parseFile(fileName, content));
+    }
+
+    public static getSymbolsFromRoot(root: PLSQLRoot): PLSQLSymbol[] {
+        const allSymbols: PLSQLSymbol[] = [];
 
         this.forEachSymbol(root.symbols, symbol => {
             allSymbols.push(symbol);

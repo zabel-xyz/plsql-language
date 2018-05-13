@@ -1,12 +1,12 @@
 import * as vscode from 'vscode';
 import { PLDocController } from './pldoc.controller';
+import PlSqlNavigator from './plSqlNavigator.vscode';
 
 export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvider {
 
     private plDocController = new PLDocController();
     private plDocCustomItems: vscode.CompletionItem[];
     private plsqlSnippets:  vscode.CompletionItem[];
-    // private plsqlKeyWordItems: vscode.CompletionItem[];
 
     public provideCompletionItems(document: vscode.TextDocument, position: vscode.Position,
         token: vscode.CancellationToken): Thenable<vscode.CompletionItem[]> {
@@ -19,6 +19,7 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
                   text = document.getText(),
                   wordRange = document.getWordRangeAtPosition(position),
                   word = wordRange && document.getText(wordRange);
+
             // PLDOC
             const plDocItem = this.getPlDocItem(document, position, lineText, text);
             if (plDocItem)
@@ -34,35 +35,28 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
                 this.plsqlSnippets = this.getSnippets();
             Array.prototype.push.apply(completeItems, this.filterCompletion(this.plsqlSnippets, word));
 
-            // TODO...
-            // Other completion
-            /*
-            const lineTillCurrentPosition = lineText.substr(0, position.character);
-            // TODO: collection with '.' !
-            const regEx = /((?:\w)*)\.((?:\w)*)$/i;
-            let found;
-            if (found = regEx.exec(lineTillCurrentPosition)) {
-                Array.prototype.push.apply(completeItems, this.getPackageItems(found[1], found[2]));
-            } else {
-                // TODO: limit the suggestions useful for the context...
-                const wordAtPosition = document.getWordRangeAtPosition(position);
-                if (wordAtPosition) {
-                    // currentWord = document.getText(wordAtPosition);
-                    Array.prototype.push.apply(completeItems, this.getKeyWordItems());
-                }
-            }
-            */
+            // Package member completion (spec)
+            this.getPackageItems(document, position)
+                .then(members => {
+                    Array.prototype.push.apply(completeItems, members);
+                    return completeItems;
+                })
+                .then(items => {
+                    // completionItems must be filtered and if empty return undefined
+                    // otherwise word suggestion are lost ! (https://github.com/Microsoft/vscode/issues/21611)
+                    if (completeItems.length > 0)
+                        resolve(completeItems);
+                    else
+                        resolve();
+                });
 
-            // completionItems must be filtered and if empty return undefined
-            // otherwise word suggestion are lost ! (https://github.com/Microsoft/vscode/issues/21611)
-            if (completeItems.length > 0)
-                resolve(completeItems);
-            else
-                resolve();
         });
     }
 
     private filterCompletion(items: vscode.CompletionItem[], word: string) {
+
+        // TODO: width . character don't propose snippets
+
         // completionItems must be filtered and if empty return undefined
         // otherwise word suggestion are lost ! (https://github.com/Microsoft/vscode/issues/21611)
         if (items && word)
@@ -116,19 +110,20 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
         return [];
     }
 
-/*
-    private getPackageItems(pkg, func): vscode.CompletionItem[] {
-        // TODO
-        return [];
-    }
+    private getPackageItems(document: vscode.TextDocument, position: vscode.Position): Promise<vscode.CompletionItem[]> {
 
-    private getKeyWordItems(): vscode.CompletionItem[] {
-        // TODO : Terminate...
-        if (!this.plsqlKeyWordItems) {
-            const parsedJSON = require('../../syntaxes/plsql.completion.json');
-            return parsedJSON.keywords.map(value => this.createCompleteItem(vscode.CompletionItemKind.Keyword, value));
-        }
-        return [];
+        return new Promise<vscode.CompletionItem[]>((resolve, reject) => {
+
+            PlSqlNavigator.complete(document, position)
+                .then(symbols => {
+                        if (symbols)
+                            return resolve(symbols.map(symbol =>
+                                this.createCompleteItem(vscode.CompletionItemKind.Method, symbol.name)
+                            ));
+                        else
+                            return resolve([]);
+                })
+                .catch(err => resolve([]));
+        });
     }
-*/
 }

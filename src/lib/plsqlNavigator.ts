@@ -96,13 +96,13 @@ export class PlSqlNavigator {
             this.getGlobFiles(this.getGlobCmd(search, search_cb))
                 .then(globFiles => {
                     files = globFiles;
-                    return this.parseFiles(files, search);
+                    return this.parseFiles(files, search, this.gotoFile);
                 })
                .then(symbol => {
                     // search without packageName (because it's perhaps only the name of the schema)
                     if (!symbol && search.package) {
                         search.package = null;
-                        return this.parseFiles(files, search);
+                        return this.parseFiles(files, search, this.gotoFile);
                     }
                     return symbol;
                 })
@@ -143,6 +143,29 @@ export class PlSqlNavigator {
         };
     }
 
+    public static complete(cursorInfos: PLSQLCursorInfos, pkgGetName_cb, search_cb): Promise<PLSQLSymbol[]> {
+
+        return new Promise<PLSQLSymbol[]>((resolve, reject) => {
+
+            const search = {
+                package: cursorInfos.previousWord,
+                cursorWord: cursorInfos.currentWord
+            };
+            let files;
+            this.getGlobFiles(this.getGlobCmd(search, search_cb))
+                .then(globFiles => {
+                    files = globFiles;
+                    return this.parseFiles(files, search, this.completeItem);
+                })
+                .then(symbols => {
+                    return resolve(symbols);
+                })
+                .catch(err => {
+                    reject(err);
+                });
+        });
+    }
+
     private static isPackageDeclaration(text) {
         return text && ['function', 'procedure'].includes(text.toLowerCase());
     }
@@ -165,7 +188,8 @@ export class PlSqlNavigator {
         let files: string[] = [];
         if (searchTexts.package)
             files.push(searchTexts.package);
-        files.push(searchTexts.cursorWord);
+        if (searchTexts.cursorWord)
+            files.push(searchTexts.cursorWord);
 
         let search = {
             files: files,
@@ -188,7 +212,7 @@ export class PlSqlNavigator {
         return search;
     }
 
-    private static parseFiles(files: string[], searchInfos): Promise<PLSQLSymbol> {
+    private static parseFiles(files: string[], searchInfos, func): Promise<any> {
 
         return new Promise((resolve, reject) => {
 
@@ -201,7 +225,7 @@ export class PlSqlNavigator {
 
                 me.readFile(files[index])
                     .then(rootSymbol => {
-                        const navigateSymbol = me.gotoFile(searchInfos, rootSymbol);
+                        const navigateSymbol = func.call(this, searchInfos, rootSymbol);
 
                         if (navigateSymbol === null)
                             process(index + 1);
@@ -216,6 +240,14 @@ export class PlSqlNavigator {
             })(0);
 
         });
+    }
+
+    private static completeItem(searchInfos, rootSymbol: PLSQLRoot): PLSQLSymbol[] {
+        let symbols;
+        const parentSymbol = PlSqlParser.findSymbolByNameKind(rootSymbol.symbols, searchInfos.package, [PLSQLSymbolKind.packageSpec], false);
+        if (parentSymbol)
+            symbols = parentSymbol.symbols;
+        return symbols;
     }
 
     private static gotoFile(searchInfos, rootSymbol: PLSQLRoot): PLSQLSymbol {
