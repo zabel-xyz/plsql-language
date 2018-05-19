@@ -1,9 +1,14 @@
 /**
  * Parser using regExp
+ * (try to parse even with some errors (begin,end,is,as...missing or too much))
  */
 export default class RegExpParser {
 
-    public static regexp: RegExp;
+    public static regExp: RegExp;
+    public static regExpS: RegExp;
+    public static regExpB: RegExp;
+    public static regExpJumpEnd: RegExp;
+    public static regExpJumpAsIs: RegExp;
 
     private static regComment = `(?:\\/\\*[\\s\\S]*?\\*\\/)|(?:--.*)`;
     private static regCommentInside = `(?:\\/\\*[\\s\\S]*?\\*\\/\\s*)?`; // a bit slower !
@@ -12,7 +17,11 @@ export default class RegExpParser {
     private static regSymbols = `(?:\\b(function|procedure|package)\\b(?:\\s+(body))?)\\s+`;
     private static regSymbolsName = `(?:\"?\\w+\"?\\.)?\"?(\\w+)\"?`;
 
-    private static regSpecSymbols = `${RegExpParser.regComment}|(?:(\\w+)\\s+(\\w+)(?:\\s*;|.[^;]*;))`;
+    private static regSpecSymbols = `(?:(\\w+)\\s+(\\w+)(?:\\s*;|.[^;]*;))`;
+    private static regBody = `(?:\\b(procedure|function)\\b\\s+(\\w+)[\\s\\S]*?(?:(?:\\b(is|as)\\b[\\s\\S]*?)?\\b(begin|procedure|function)\\b|;))`;
+
+    private static regJumpEnd = `(\\bbegin\\b)|(?:(\\bend\\b)\\s*(\\w*)?)`;
+    private static regJumpAsIs = `\\b(is|as)\\b`;
 
     public static initParser(commentInSymbols?: boolean)  {
 
@@ -21,12 +30,16 @@ export default class RegExpParser {
             `${commentInSymbols ? RegExpParser.regCommentInside: ''}`+
             `${RegExpParser.regSymbolsName})`;
 
-        this.regexp = new RegExp(regExpParser, 'gi');
+        this.regExp = new RegExp(regExpParser, 'gi');
+        this.regExpS = new RegExp(`${this.regComment}|${`(\\b(?:end|create)\\b)`}|${this.regSpecSymbols}`, 'gi');
+        this.regExpB = new RegExp(`${this.regComment}|${this.regBody}|(\\bbegin\\b)|${this.regSpecSymbols}`, 'gi');
+        this.regExpJumpEnd = new RegExp(`${this.regComment}|${this.regJumpEnd}`, 'gi');
+        this.regExpJumpAsIs = new RegExp(`${this.regJumpAsIs}`, 'gi');
     }
 
     public static getSymbols(text: string, fileName?: string): PLSQLRoot  {
 
-        if (!this.regexp)
+        if (!this.regExp)
             this.initParser();
 
         const root: PLSQLRoot = {
@@ -34,17 +47,22 @@ export default class RegExpParser {
             symbols: []
         };
 
-        let found,
+        let found, isBody,
             symbol: PLSQLSymbol,
-            parent: PLSQLSymbol;
+            parent: PLSQLSymbol,
+            fromOffset, offset = 0;
 
-        while (found = this.regexp.exec(text)) {
+        this.regExp.lastIndex = 0;
+        while (found = this.regExp.exec(text)) {
             if (found[2]) {
+                // package body or create func or create proc
+                isBody = (found[3] != null) || (found[1] != null && found[2].toLowerCase() !== 'package');
+
                 symbol = {
                     name: found[4],
                     offset: found.index,
                     kindName: found[2] + (found[3] != null ? ' '+found[3] : ''),
-                    kind: this.getSymbolKind(found[2].toLowerCase(), found[3] != null)
+                    kind: this.getSymbolKind(found[2].toLowerCase(), isBody)
                 };
 
                 if (!parent || found[1]) {
@@ -56,80 +74,187 @@ export default class RegExpParser {
                     symbol.parent = parent;
                     parent.symbols.push(symbol);
                 }
+
+                // level 1 (create package, proc or func)
+                if (parent === symbol) {
+                    offset = this.regExp.lastIndex;
+                    fromOffset = this.jumpAsIs(text, offset);
+                    if (fromOffset !== offset) { // if equal => no is|as => continue on same level...
+                        offset = fromOffset;
+                        if (symbol.kind === PLSQLSymbolKind.packageSpec)
+                            offset = this.getSymbolsSpec(text, offset, symbol);
+                        else // symbol.kind in package_body / func / proc
+                            offset = this.getSymbolsBody(text, offset, symbol);
+                        this.regExp.lastIndex = offset;
+                    }
+                }
             }
         }
-
-        // Extract variables, constants, types from spec part
-        root.symbols.forEach((item, index) => {
-            if (item.kind === PLSQLSymbolKind.packageSpec) {
-                const from = item.offset, // TODO not from => create package...as|is
-                      to = index + 1 < root.symbols.length ? root.symbols[index + 1].offset : undefined,
-                      search = text.substring(from, to),
-                      start = search.search(/\b(is|as)\b/i); // TODO search without comment ?
-                if (start >= 0)
-                    this.getSymbolsSpec(search.substring(start + 2), from + start + 2, item);
-            }
-        });
 
         return root;
     }
 
-    private static getSymbolsSpec(text: string, offset: number, parent: PLSQLSymbol)  {
+    /// (only for spec)
+    // PRAGMA
+    //
+    /// (for spec and body)
+    // SUBTYPE identifier
+    // identifier // variable
+    // identifier CONSTANT // constant
+    // CURSOR identifier
+    // identifier EXCEPTION
+    // TYPE identifier
+    // PROCEDURE identifier
+    // FUNCTION identifier
+    //
+    /// (only for body)
+    // PROCEDURE identifier Body
+    // FUNCTION identifier Body
 
-        const regexp = new RegExp(this.regSpecSymbols, 'gi');
-
+    private static getSymbolsSpec(text: string, fromOffset: number, parent: PLSQLSymbol): number  {
         let found,
+            lastIndex = fromOffset;
+
+        this.regExpS.lastIndex = lastIndex;
+        while (found = this.regExpS.exec(text)) {
+            if (found[2] && found[3])
+                this.createSymbolItem(found[2], found[3], found.index, parent, false);
+            else if (found[1]) // end || create
+                break;
+            lastIndex = this.regExpS.lastIndex;
+        }
+        return lastIndex;
+    }
+
+    private static getSymbolsBody(text: string, fromOffset: number, parent: PLSQLSymbol): number  {
+        let found, subMethod = 0, symbol: PLSQLSymbol,
+            lastIndex = fromOffset,
+            oldIndex;
+
+        this.regExpB.lastIndex = lastIndex;
+        while (found = this.regExpB.exec(text)) {
+            oldIndex = lastIndex;
+            lastIndex = this.regExpB.lastIndex;
+            if (found[5]) {
+                if (subMethod) {
+                    lastIndex = this.jumpToEnd(text, lastIndex);
+                    this.regExpB.lastIndex = lastIndex;
+                    --subMethod;
+                    parent = parent.parent;
+                } else
+                    break; // found begin without function or procedure => begin of packageBody (or func/proc)
+            } else if (found[6] && found[7]) {
+                if (!this.createSymbolItem(found[6], found[7], found.index, parent, false)) {
+                    // if it's not a symbol, something goes wrong => break
+                    lastIndex = oldIndex;
+                    break;
+                }
+            } else if (found[1] && found[2]) {
+                // Declare function, procedure => add symbol
+                symbol = this.createSymbolItem(found[1], found[2], found.index, parent, found[4] != null);
+                if (found[4]) {
+                    // subFunction or subProcedure
+                    if (['function', 'procedure'].includes(found[4].toLowerCase())) {
+                        // hierarchically must be under parent method
+                        this.regExpB.lastIndex = lastIndex - found[4].length;
+                        ++subMethod;
+                        parent = symbol;
+                        parent.symbols = [];
+                    } else {
+                        // begin
+                        // Body => jump to end
+                        lastIndex = this.jumpToEnd(text, lastIndex);
+                        this.regExpB.lastIndex = lastIndex;
+                    }
+                }
+            }
+        }
+        return lastIndex;
+    }
+
+    private static createSymbolItem(text1: string, text2: string, offset: number, parent: PLSQLSymbol, isBody: boolean): PLSQLSymbol | undefined {
+        let kindName: string,
+            identifier: string,
             symbol: PLSQLSymbol;
 
-        // PRAGMA
-        // SUBTYPE identifier
-        // identifier // variable
-        // identifier CONSTANT // constant
-        // CURSOR identifier
-        // identifier EXCEPTION
-        // TYPE identifier
-        // PROCEDURE identifier
-        // FUNCTION identifier
+        if (text1 && text2) {
+            if (['subtype', 'cursor', 'type', 'function', 'procedure'].includes(text1.toLowerCase())) {
+                kindName = text1;
+                identifier = text2;
+            } else if (text2 && ['constant', 'exception'].includes(text2.toLowerCase())) {
+                kindName = text2;
+                identifier = text1;
+            } else if (!(['pragma', 'create', 'end'].includes(text1.toLowerCase()))) {
+                // TODO other keyword to avoid variable return...
+                kindName = 'variable';
+                identifier = text1;
+            }
 
-        let kindName, identifier;
-        while (found = regexp.exec(text)) {
-            kindName = null;
-            if (found[1] && found[2]) {
-                if (['subtype', 'cursor', 'type'].includes(found[1].toLowerCase())) {
-                    kindName = found[1];
-                    identifier = found[2];
-                } else if (found[2] && ['constant', 'exception'].includes(found[2].toLowerCase())) {
-                    kindName = found[2];
-                    identifier = found[1];
-                } else if (!(['pragma', 'function', 'procedure', 'create', 'end'].includes(found[1].toLowerCase()))) {
-                    kindName = 'variable';
-                    identifier = found[1];
-                }
-
-                if (kindName) {
-                    symbol = {
-                        name: identifier,
-                        offset: found.index + offset,
-                        kindName: kindName,
-                        kind: this.getSymbolKind(kindName.toLowerCase(), false),
-                        parent: parent
-                    };
-                    parent.symbols.push(symbol);
-                }
+            if (kindName) {
+                symbol = {
+                    name: identifier,
+                    offset: offset,
+                    kindName: kindName,
+                    kind: this.getSymbolKind(kindName.toLowerCase(), isBody),
+                    parent: parent
+                };
+                parent.symbols.push(symbol);
+                return symbol;
             }
         }
     }
 
+    private static jumpAsIs(text: string, fromOffset: number): number {
+        let match;
+
+        this.regExpJumpAsIs.lastIndex = fromOffset;
+        match = this.regExpJumpAsIs.exec(text);
+        if (match)
+            return this.regExpJumpAsIs.lastIndex;
+        return fromOffset;
+    }
+
+    private static jumpToEnd(text: string, fromOffset: number): number {
+        let match,
+            openTokens = 1, // begin was already found
+            lastIndex = fromOffset;
+
+        this.regExpJumpEnd.lastIndex = fromOffset;
+        while (match = this.regExpJumpEnd.exec(text)) {
+            lastIndex = this.regExpJumpEnd.lastIndex;
+            if (match[1]) { // begin
+                openTokens++;
+            } else if (match[2]) { // end
+                if (!match[3] || !['case', 'loop', 'if'].includes(match[3].toLowerCase())) {
+                    if (openTokens) {
+                        openTokens--;
+                        if (!openTokens)
+                            return lastIndex;
+                    } else
+                        return lastIndex; // end without begin (error in file !)
+                } // else end case|loop|if
+            } // else comment => nothing todo
+        }
+        return lastIndex;
+    };
+
     private static getSymbolKind(type: string, isBody: boolean): PLSQLSymbolKind  {
-        if (type === 'function')
-            return PLSQLSymbolKind.function;
-        else if (type === 'procedure')
-            return PLSQLSymbolKind.procedure;
-        else if (type === 'package') {
-            if (!isBody)
-                return PLSQLSymbolKind.packageSpec;
+        if (type === 'function') {
+            if (isBody)
+                return PLSQLSymbolKind.function;
             else
+                return PLSQLSymbolKind.functionSpec;
+        } else if (type === 'procedure') {
+            if (isBody)
+                return PLSQLSymbolKind.procedure;
+            else
+                return PLSQLSymbolKind.procedureSpec;
+        } else if (type === 'package') {
+            if (isBody)
                 return PLSQLSymbolKind.packageBody;
+            else
+                return PLSQLSymbolKind.packageSpec;
+
         } else if (type === 'constant')
             return PLSQLSymbolKind.constant;
         else if (type === 'type')

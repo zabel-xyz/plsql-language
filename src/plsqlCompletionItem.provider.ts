@@ -1,12 +1,14 @@
 import * as vscode from 'vscode';
 import { PLDocController } from './pldoc.controller';
 
+import { PlSqlNavigatorVSC as  PlSqlNavigator } from './plsqlNavigator.vscode';
+import { PLSQLCursorInfosVSC as PLSQLCursorInfos } from './plsqlNavigator.vscode';
+
 export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvider {
 
     private plDocController = new PLDocController();
     private plDocCustomItems: vscode.CompletionItem[];
     private plsqlSnippets:  vscode.CompletionItem[];
-    // private plsqlKeyWordItems: vscode.CompletionItem[];
 
     public provideCompletionItems(document: vscode.TextDocument, position: vscode.Position,
         token: vscode.CancellationToken): Thenable<vscode.CompletionItem[]> {
@@ -18,48 +20,44 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
             const lineText = document.lineAt(position.line).text,
                   text = document.getText(),
                   wordRange = document.getWordRangeAtPosition(position),
-                  word = wordRange && document.getText(wordRange);
-            // PLDOC
-            const plDocItem = this.getPlDocItem(document, position, lineText, text);
-            if (plDocItem)
-                completeItems.push(plDocItem);
+                  word = wordRange && document.getText(wordRange),
+                  cursorInfos = PlSqlNavigator.getCursorInfos(document, position);
 
-            // PLDOC - custom items
-            if (!this.plDocCustomItems)
-                this.plDocCustomItems = this.getPlDocCustomItems(document);
-            Array.prototype.push.apply(completeItems, this.filterCompletion(this.plDocCustomItems, word));
+            if (!cursorInfos.previousDot) {
+                // PLDOC
+                const plDocItem = this.getPlDocItem(document, position, lineText, text);
+                if (plDocItem)
+                    completeItems.push(plDocItem);
 
-            // PLSQL - snippets
-            if (!this.plsqlSnippets)
-                this.plsqlSnippets = this.getSnippets();
-            Array.prototype.push.apply(completeItems, this.filterCompletion(this.plsqlSnippets, word));
+                // PLDOC - custom items
+                if (!this.plDocCustomItems)
+                    this.plDocCustomItems = this.getPlDocCustomItems(document);
+                Array.prototype.push.apply(completeItems, this.filterCompletion(this.plDocCustomItems, word));
 
-            // TODO...
-            // Other completion
-            /*
-            const lineTillCurrentPosition = lineText.substr(0, position.character);
-            // TODO: collection with '.' !
-            const regEx = /((?:\w)*)\.((?:\w)*)$/i;
-            let found;
-            if (found = regEx.exec(lineTillCurrentPosition)) {
-                Array.prototype.push.apply(completeItems, this.getPackageItems(found[1], found[2]));
+                // PLSQL - snippets
+                if (!this.plsqlSnippets)
+                    this.plsqlSnippets = this.getSnippets();
+                Array.prototype.push.apply(completeItems, this.filterCompletion(this.plsqlSnippets, word));
+
+                // TODO symbol in workspace
+
+                return resolve(this.processCompleteItems(completeItems));
             } else {
-                // TODO: limit the suggestions useful for the context...
-                const wordAtPosition = document.getWordRangeAtPosition(position);
-                if (wordAtPosition) {
-                    // currentWord = document.getText(wordAtPosition);
-                    Array.prototype.push.apply(completeItems, this.getKeyWordItems());
-                }
+                // Package member completion (spec)
+                this.getPackageItems(document, position, cursorInfos)
+                    .then(members => {
+                        Array.prototype.push.apply(completeItems, members);
+                        return resolve(this.processCompleteItems(completeItems));
+                    });
             }
-            */
-
-            // completionItems must be filtered and if empty return undefined
-            // otherwise word suggestion are lost ! (https://github.com/Microsoft/vscode/issues/21611)
-            if (completeItems.length > 0)
-                resolve(completeItems);
-            else
-                resolve();
         });
+    }
+
+    private processCompleteItems(completeItems) {
+        // completionItems must be filtered and if empty return undefined
+        // otherwise word suggestion are lost ! (https://github.com/Microsoft/vscode/issues/21611)
+        if (completeItems.length > 0)
+            return completeItems;
     }
 
     private filterCompletion(items: vscode.CompletionItem[], word: string) {
@@ -116,19 +114,20 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
         return [];
     }
 
-/*
-    private getPackageItems(pkg, func): vscode.CompletionItem[] {
-        // TODO
-        return [];
-    }
+    private getPackageItems(document: vscode.TextDocument, position: vscode.Position, cursorInfos: PLSQLCursorInfos): Promise<vscode.CompletionItem[]> {
 
-    private getKeyWordItems(): vscode.CompletionItem[] {
-        // TODO : Terminate...
-        if (!this.plsqlKeyWordItems) {
-            const parsedJSON = require('../../syntaxes/plsql.completion.json');
-            return parsedJSON.keywords.map(value => this.createCompleteItem(vscode.CompletionItemKind.Keyword, value));
-        }
-        return [];
+        return new Promise<vscode.CompletionItem[]>((resolve, reject) => {
+
+            PlSqlNavigator.complete(document, position, cursorInfos)
+                .then(symbols => {
+                        if (symbols)
+                            return resolve(symbols.map(symbol =>
+                                this.createCompleteItem(vscode.CompletionItemKind.Method, symbol.name)
+                            ));
+                        else
+                            return resolve([]);
+                })
+                .catch(err => resolve([]));
+        });
     }
-*/
 }

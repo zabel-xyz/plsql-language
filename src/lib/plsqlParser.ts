@@ -62,9 +62,35 @@ export default class PlSqlParser {
         return this.findSymbolByNameKind(symbol.root.symbols, symbol.name, kind, false);
     }
 
+    // Body to Spec and Spec to Body
+    public static switchSymbolKind(symbolKind: PLSQLSymbolKind): PLSQLSymbolKind {
+        if (symbolKind === PLSQLSymbolKind.functionSpec)
+            return PLSQLSymbolKind.function;
+        else if (symbolKind === PLSQLSymbolKind.function)
+            return PLSQLSymbolKind.functionSpec;
+        else if (symbolKind === PLSQLSymbolKind.procedureSpec)
+            return PLSQLSymbolKind.procedure;
+        else if (symbolKind === PLSQLSymbolKind.procedure)
+            return PLSQLSymbolKind.procedureSpec;
+        else if (symbolKind === PLSQLSymbolKind.packageSpec)
+            return PLSQLSymbolKind.packageBody;
+        else if (symbolKind === PLSQLSymbolKind.packageBody)
+            return PLSQLSymbolKind.packageSpec;
+        else
+            return symbolKind;
+    }
+
+    public static isSymbolSpec(symbol: PLSQLSymbol): boolean {
+        return [PLSQLSymbolKind.packageSpec, PLSQLSymbolKind.procedureSpec, PLSQLSymbolKind.functionSpec]
+            .includes(symbol.kind);
+    }
+
     public static getSymbols(fileName: string, content: string): PLSQLSymbol[] {
-        const root = this.parseFile(fileName, content),
-              allSymbols: PLSQLSymbol[] = [];
+        return this.getSymbolsFromRoot(this.parseFile(fileName, content));
+    }
+
+    public static getSymbolsFromRoot(root: PLSQLRoot): PLSQLSymbol[] {
+        const allSymbols: PLSQLSymbol[] = [];
 
         this.forEachSymbol(root.symbols, symbol => {
             allSymbols.push(symbol);

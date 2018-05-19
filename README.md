@@ -10,7 +10,7 @@ An advanced customization can be done by using an **extensionDependencies**, [fo
 ## Go to Symbol
 Navigate
   - to procedures, functions
-  - to constants, variables, type, subtype, cursor (declared in spec part of a package)
+  - to constants, variables, type, subtype, cursor (declared in spec/body part of a package)
 
 ![Image of Symbol](images/DocumentSymbol.gif)
 

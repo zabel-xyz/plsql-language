@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+
 import PlSqlParser from './lib/plsqlParser';
 
 export default class PlSqlParserVSC extends PlSqlParser {
@@ -31,8 +32,14 @@ export default class PlSqlParserVSC extends PlSqlParser {
                 return vscode.SymbolKind.Package;
             case PLSQLSymbolKind.function:
                 return vscode.SymbolKind.Function;
+            case PLSQLSymbolKind.functionSpec:
+                // return vscode.SymbolKind.Function;
+                return vscode.SymbolKind.Interface;
             case PLSQLSymbolKind.procedure:
                 return vscode.SymbolKind.Method;
+            case PLSQLSymbolKind.procedureSpec:
+                // return vscode.SymbolKind.Method;
+                return vscode.SymbolKind.Interface;
             case PLSQLSymbolKind.variable:
                 return vscode.SymbolKind.Variable;
             case PLSQLSymbolKind.constant:
