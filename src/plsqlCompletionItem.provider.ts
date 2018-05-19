@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import { PLDocController } from './pldoc.controller';
 
-import { PlSqlNavigatorVSC as  PlSqlNavigator } from './plSqlNavigator.vscode';
-import { PLSQLCursorInfosVSC as PLSQLCursorInfos } from './plSqlNavigator.vscode';
+import { PlSqlNavigatorVSC as  PlSqlNavigator } from './plsqlNavigator.vscode';
+import { PLSQLCursorInfosVSC as PLSQLCursorInfos } from './plsqlNavigator.vscode';
 
 export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvider {
 
