@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import PlSqlParser from './lib/plSqlParser';
+
+import PlSqlParser from './lib/plsqlParser';
 
 export default class PlSqlParserVSC extends PlSqlParser {
 
