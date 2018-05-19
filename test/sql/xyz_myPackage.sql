@@ -88,6 +88,11 @@ as
     if x = schema.MyPackage.myConst
     if y = myGlobalVar
 
+    -- complete
+    MyPackage2.
+    -- complete
+    MyPackage2.myV
+
     return;
   end;
 

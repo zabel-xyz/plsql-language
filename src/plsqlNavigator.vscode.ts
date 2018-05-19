@@ -6,24 +6,25 @@ import PlSqlParser from './plsqlParser.vscode';
 import { PlSqlNavigator } from './lib/PlSqlNavigator';
 import { PLSQLCursorInfos } from './lib/PlSqlNavigator';
 
-export default class PlSqlNavigatorVSC /*extends PlSqlNavigator*/ {
+
+export interface PLSQLCursorInfosVSC extends PLSQLCursorInfos {
+    line: vscode.TextLine;
+}
+
+export class PlSqlNavigatorVSC /*extends PlSqlNavigator*/ {
 
     public static goto(document: vscode.TextDocument, position: vscode.Position): Promise<PLSQLSymbol> {
 
         PlSqlParser.initParser(PLSQLSettings.getCommentInSymbols());
 
-        const line = document.lineAt(position),
-              cursorInfos = this.getCursorInfos(document, line, position),
+        const cursorInfos = this.getCursorInfos(document, position),
               parserRoot = PlSqlParser.parseDocument(document);
 
-        return PlSqlNavigator.goto(cursorInfos, document.offsetAt(line.range.start), parserRoot,
+        return PlSqlNavigator.goto(cursorInfos, document.offsetAt(cursorInfos.line.range.start), parserRoot,
                   this.translatePackageName.bind(this, document), this.getGlobCmdEx.bind(this, document));
     }
 
-    public static complete(document: vscode.TextDocument, position: vscode.Position): Promise<PLSQLSymbol[]> {
-
-        const line = document.lineAt(position),
-              cursorInfos = this.getCursorInfos(document, line, position);
+    public static complete(document: vscode.TextDocument, position: vscode.Position, cursorInfos: PLSQLCursorInfos): Promise<PLSQLSymbol[]> {
 
         if (!cursorInfos.previousWord)
             return Promise.resolve(null);
@@ -33,14 +34,16 @@ export default class PlSqlNavigatorVSC /*extends PlSqlNavigator*/ {
                    this.translatePackageName.bind(this, document), this.getGlobCmdEx.bind(this, document));
     }
 
-    public static getCursorInfos(document: vscode.TextDocument, line, position: vscode.Position): PLSQLCursorInfos {
+    public static getCursorInfos(document: vscode.TextDocument, position: vscode.Position): PLSQLCursorInfosVSC {
 
-        const lineText = line.text,
+        const line = document.lineAt(position),
+              lineText = line.text,
               range = document.getWordRangeAtPosition(position),
               endChar = range ? range.end.character : position.character,
-              currentWord = range ? document.getText(range) : '';  // 'pkg.'
+              currentWord = range ? document.getText(range) : '',  // 'pkg.'
+              cursorInfo = PlSqlNavigator.getCursorInfos(currentWord, endChar, lineText);
 
-        return PlSqlNavigator.getCursorInfos(currentWord, endChar, lineText);
+        return { ...cursorInfo, line};
     }
 
     private static translatePackageName(document, packageName: string): string {

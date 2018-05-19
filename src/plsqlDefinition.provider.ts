@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import PlSqlParser from './plsqlParser.vscode';
-import PlSqlNavigator from './plSqlNavigator.vscode';
+import { PlSqlNavigatorVSC as PlSqlNavigator }  from './plSqlNavigator.vscode';
 
 export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
 

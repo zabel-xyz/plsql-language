@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import { PLDocController } from './pldoc.controller';
-import PlSqlNavigator from './plSqlNavigator.vscode';
+
+import { PlSqlNavigatorVSC as  PlSqlNavigator } from './plSqlNavigator.vscode';
+import { PLSQLCursorInfosVSC as PLSQLCursorInfos } from './plSqlNavigator.vscode';
 
 export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvider {
 
@@ -18,45 +20,47 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
             const lineText = document.lineAt(position.line).text,
                   text = document.getText(),
                   wordRange = document.getWordRangeAtPosition(position),
-                  word = wordRange && document.getText(wordRange);
+                  word = wordRange && document.getText(wordRange),
+                  cursorInfos = PlSqlNavigator.getCursorInfos(document, position);
 
-            // PLDOC
-            const plDocItem = this.getPlDocItem(document, position, lineText, text);
-            if (plDocItem)
-                completeItems.push(plDocItem);
+            if (!cursorInfos.previousDot) {
+                // PLDOC
+                const plDocItem = this.getPlDocItem(document, position, lineText, text);
+                if (plDocItem)
+                    completeItems.push(plDocItem);
 
-            // PLDOC - custom items
-            if (!this.plDocCustomItems)
-                this.plDocCustomItems = this.getPlDocCustomItems(document);
-            Array.prototype.push.apply(completeItems, this.filterCompletion(this.plDocCustomItems, word));
+                // PLDOC - custom items
+                if (!this.plDocCustomItems)
+                    this.plDocCustomItems = this.getPlDocCustomItems(document);
+                Array.prototype.push.apply(completeItems, this.filterCompletion(this.plDocCustomItems, word));
 
-            // PLSQL - snippets
-            if (!this.plsqlSnippets)
-                this.plsqlSnippets = this.getSnippets();
-            Array.prototype.push.apply(completeItems, this.filterCompletion(this.plsqlSnippets, word));
+                // PLSQL - snippets
+                if (!this.plsqlSnippets)
+                    this.plsqlSnippets = this.getSnippets();
+                Array.prototype.push.apply(completeItems, this.filterCompletion(this.plsqlSnippets, word));
 
-            // Package member completion (spec)
-            this.getPackageItems(document, position)
-                .then(members => {
-                    Array.prototype.push.apply(completeItems, members);
-                    return completeItems;
-                })
-                .then(items => {
-                    // completionItems must be filtered and if empty return undefined
-                    // otherwise word suggestion are lost ! (https://github.com/Microsoft/vscode/issues/21611)
-                    if (completeItems.length > 0)
-                        resolve(completeItems);
-                    else
-                        resolve();
-                });
+                // TODO symbol in workspace
 
+                return resolve(this.processCompleteItems(completeItems));
+            } else {
+                // Package member completion (spec)
+                this.getPackageItems(document, position, cursorInfos)
+                    .then(members => {
+                        Array.prototype.push.apply(completeItems, members);
+                        return resolve(this.processCompleteItems(completeItems));
+                    });
+            }
         });
     }
 
+    private processCompleteItems(completeItems) {
+        // completionItems must be filtered and if empty return undefined
+        // otherwise word suggestion are lost ! (https://github.com/Microsoft/vscode/issues/21611)
+        if (completeItems.length > 0)
+            return completeItems;
+    }
+
     private filterCompletion(items: vscode.CompletionItem[], word: string) {
-
-        // TODO: width . character don't propose snippets
-
         // completionItems must be filtered and if empty return undefined
         // otherwise word suggestion are lost ! (https://github.com/Microsoft/vscode/issues/21611)
         if (items && word)
@@ -110,11 +114,11 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
         return [];
     }
 
-    private getPackageItems(document: vscode.TextDocument, position: vscode.Position): Promise<vscode.CompletionItem[]> {
+    private getPackageItems(document: vscode.TextDocument, position: vscode.Position, cursorInfos: PLSQLCursorInfos): Promise<vscode.CompletionItem[]> {
 
         return new Promise<vscode.CompletionItem[]>((resolve, reject) => {
 
-            PlSqlNavigator.complete(document, position)
+            PlSqlNavigator.complete(document, position, cursorInfos)
                 .then(symbols => {
                         if (symbols)
                             return resolve(symbols.map(symbol =>

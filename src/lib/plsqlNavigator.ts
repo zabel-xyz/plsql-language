@@ -247,6 +247,8 @@ export class PlSqlNavigator {
         const parentSymbol = PlSqlParser.findSymbolByNameKind(rootSymbol.symbols, searchInfos.package, [PLSQLSymbolKind.packageSpec], false);
         if (parentSymbol)
             symbols = parentSymbol.symbols;
+        else
+            symbols = null; // return null for continue search with next file
         return symbols;
     }
 
