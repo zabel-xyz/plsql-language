@@ -1,0 +1,51 @@
+{
+    /*
+        This is the default definition for your tables structure
+        This list is used for auto-completion.
+        You must create your own file and specify his location with the setting "plsql-language.completion.path"
+
+        e.g.:
+
+            "myTableName1": {
+                "kind": "struct", // https://code.visualstudio.com/docs/extensionAPI/vscode-api#CompletionItemKind
+                "documentation": "no comment",
+                "members": [
+                    {"label": "myFieldName1", "kind": "field", "documentation": "no comment"},
+                    {"label": "myFieldName2", "kind": "field"},
+                    {"label": "myFieldName3", "kind": "field"}
+                ]
+            },
+            "myTableNameN": {
+                "kind": "struct",
+                "members": [
+                    {"label": "myFieldNameA", "kind": "field"},
+                    {"label": "myFieldNameB", "kind": "field"},
+                    {"label": "myFieldNameC", "kind": "field"}
+                ]
+            }
+
+    */
+
+    "myTableName1": {
+        "kind": "struct",
+        "documentation": "no comment",
+        "members": [
+            {"label": "myFieldName1", "kind": "field", "documentation": "no comment"},
+            {"label": "myFieldName2", "kind": "field"},
+            {"label": "myFieldName3", "kind": "field"}
+        ]
+    },
+    "myTableNameN": {
+        "kind": "struct",
+        "members": [
+            {"label": "myFieldNameA", "kind": "field"},
+            {"label": "myFieldNameB", "kind": "field"},
+            {"label": "myFieldNameC", "kind": "field"}
+        ]
+    },
+    "myFuncForTest": {},
+    "myFuncForTest2": {
+        "kind": "function",
+        "documentation": "None"
+    }
+}

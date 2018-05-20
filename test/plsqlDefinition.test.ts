@@ -3,7 +3,6 @@ import * as vscode from 'vscode';
 
 import * as path from 'path';
 
-// import { PLSQLDefinitionProvider } from '../src/old/plsqlDefinition.provider';
 import { PLSQLDefinitionProvider } from '../src/plsqlDefinition.provider';
 
 interface ICase {

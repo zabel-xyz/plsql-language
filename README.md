@@ -31,6 +31,7 @@ above a function or a procedure declaration, a 'special' snippet is generated.
 (with prefix __doc by default)
 
 The default template is [here](snippets/pldoc.json).<br />
+(don't modify this file, it'll be overwritten with the update of the extension !)<br />
 
         plsql-language.pldoc.path:   to define your own snippet and specify its location
         plsql-language.pldoc.author: to define the author.
@@ -40,6 +41,14 @@ The default template is [here](snippets/pldoc.json).<br />
  - Create your own file pldoc.json.<br>
    Don't change the default file because it'll be overwritten the next time you update this extension
  - Define the path (folder only) to your custom file by using the setting *plsql-language.pldoc.path*
+
+## Custom completion
+You can define your own completion for tables/fields
+
+An exemple is [here](snippets/plsql.completion.json).<br />
+(don't use this file, it'll be overwritten with the update of the extension !)<br />
+
+        plsql-language.completion.path: to specify its location
 
 ## Snippets
 Some snippets available

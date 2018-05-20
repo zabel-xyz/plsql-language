@@ -1,7 +1,8 @@
 {
     /*
         This is the default definition for your function or procedure.
-        You can create your own file and specify his location with the setting
+        You can create your own file and specify his location with the setting "plsql-language.pldoc.path"
+        (don't modify this file, it'll be overwritten with the update of the extension !)
         The definition is like snippets with some specific variables:
             ${PLDOC_TYPE}: function or procedure
             ${PLDOC_OBJECT}: name of function or procedure

@@ -40,18 +40,18 @@ export default class PLSQLSettings {
     }
 
     // DEPRECATED...
-    public static getSearchFile(searchText: string): string {
-        const config = vscode.workspace.getConfiguration('plsql-language');
+    // public static getSearchFile(searchText: string): string {
+    //     const config = vscode.workspace.getConfiguration('plsql-language');
 
-        // fileName = convert packageName
-        let   fileName = searchText;
-        const replaceSearch = <string>config.get('replaceSearch');
-        if (replaceSearch) {
-            const regExp = new RegExp(replaceSearch, 'i');
-            fileName = fileName.replace(regExp, <string>config.get('replaceValue') || '');
-        }
-        return fileName;
-    }
+    //     // fileName = convert packageName
+    //     let   fileName = searchText;
+    //     const replaceSearch = <string>config.get('replaceSearch');
+    //     if (replaceSearch) {
+    //         const regExp = new RegExp(replaceSearch, 'i');
+    //         fileName = fileName.replace(regExp, <string>config.get('replaceValue') || '');
+    //     }
+    //     return fileName;
+    // }
 
     public static translatePackageName(packageName: string): string {
         const config = vscode.workspace.getConfiguration('plsql-language');
@@ -103,6 +103,20 @@ export default class PLSQLSettings {
         }
 
         return {enable, author, location};
+    }
+
+    public static getCompletionPath(wsFolder: vscode.Uri): string {
+        const config = vscode.workspace.getConfiguration('plsql-language');
+
+        let location = <string>config.get('completion.path');
+        if (location) {
+            const cwd =  wsFolder ? wsFolder.fsPath : '';
+            // location = location.replace('${workspaceRoot}', cwd); // deprecated
+            location = location.replace('${workspaceFolder}', cwd);
+            location = path.join(location, 'plsql.completion.json');
+        }
+
+        return location;
     }
 
 }

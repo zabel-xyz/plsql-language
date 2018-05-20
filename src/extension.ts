@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 
 import { PLSQLDefinitionProvider } from './plsqlDefinition.provider';
-// import { PLSQLDefinitionProvider as PLSQLDefinitionProviderOld } from './old/plsqlDefinition.provider';
 import { PLSQLDocumentSymbolProvider } from './plsqlDocumentSymbol.provider';
 import { PLSQLCompletionItemProvider } from './plsqlCompletionItem.provider';
 

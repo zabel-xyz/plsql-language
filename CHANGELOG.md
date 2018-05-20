@@ -1,6 +1,7 @@
 ## 1.3.0
 * Fix issues with regExp parser (forward declaration and body declaration) [#37](https://github.com/zabel-xyz/plsql-language/issues/37)
-* Add IntelliSense for package members (autocompletion from package files) [#32](https://github.com/zabel-xyz/plsql-language/issues/32)
+* Add intelliSense for package members (autocompletion from package files) [#32](https://github.com/zabel-xyz/plsql-language/issues/32)
+* Add custom intelliSense for tables members (autocompletion from plsql.completion.json) [#32](https://github.com/zabel-xyz/plsql-language/issues/32)
 
 ## 1.2.3
 * Fix case issue in order to work on Linux [#38](https://github.com/zabel-xyz/plsql-language/issues/38)

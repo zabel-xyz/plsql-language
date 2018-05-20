@@ -1,0 +1,27 @@
+{
+    /*
+        This is the default definition for your tables structure
+        This list is used for auto-completion.
+        You must create your own file and specify his location with the setting "plsql-language.completion.path"
+        (don't use this file, it'll be overwritten with the update of the extension !)
+        e.g.:
+
+            "myTableName1": {
+                "kind": "struct",
+                "members": [
+                    {"label": "myFieldName1", "kind": "field"},
+                    {"label": "myFieldName2", "kind": "field"},
+                    {"label": "myFieldName3", "kind": "field"}
+                ]
+            },
+            "myTableNameN": {
+                "kind": "struct",
+                "members": [
+                    {"label": "myFieldNameA", "kind": "field"},
+                    {"label": "myFieldNameB", "kind": "field"},
+                    {"label": "myFieldNameC", "kind": "field"}
+                ]
+            }
+
+    */
+}

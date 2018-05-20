@@ -3,10 +3,12 @@ import { PLDocController } from './pldoc.controller';
 
 import { PlSqlNavigatorVSC as  PlSqlNavigator } from './plsqlNavigator.vscode';
 import { PLSQLCursorInfosVSC as PLSQLCursorInfos } from './plsqlNavigator.vscode';
+import { PLSQLCompletionCustom } from './plsqlCompletionCustom';
 
 export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvider {
 
     private plDocController = new PLDocController();
+    private plsqlCompletionCustom = new PLSQLCompletionCustom();
     private plDocCustomItems: vscode.CompletionItem[];
     private plsqlSnippets:  vscode.CompletionItem[];
 
@@ -39,6 +41,10 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
                     this.plsqlSnippets = this.getSnippets();
                 Array.prototype.push.apply(completeItems, this.filterCompletion(this.plsqlSnippets, word));
 
+                // Custoom completion
+                const objects = this.getCompletionCustomItems(document);
+                Array.prototype.push.apply(completeItems, this.filterCompletion(objects, word));
+
                 // TODO symbol in workspace
 
                 return resolve(this.processCompleteItems(completeItems));
@@ -46,6 +52,8 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
                 // Package member completion (spec)
                 this.getPackageItems(document, position, cursorInfos)
                     .then(members => {
+                        if (!(members && members.length) && cursorInfos.previousWord)
+                            members = this.getCompletionCustomItems(document, cursorInfos.previousWord);
                         Array.prototype.push.apply(completeItems, members);
                         return resolve(this.processCompleteItems(completeItems));
                     });
@@ -130,4 +138,12 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
                 .catch(err => resolve([]));
         });
     }
+
+    private getCompletionCustomItems(document: vscode.TextDocument, text?: string): vscode.CompletionItem[] {
+        const items = this.plsqlCompletionCustom.getCompletion(document, text);
+        if (items)
+            return items.map(item => this.createCompleteItem(item.kind, item.label, item.documentation, item.label, 'plsql.completion'));
+        return [];
+    }
+
 }
