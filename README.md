@@ -42,9 +42,10 @@ The default template is [here](snippets/pldoc.json).<br />
    Don't change the default file because it'll be overwritten the next time you update this extension
  - Define the path (folder only) to your custom file by using the setting *plsql-language.pldoc.path*
 
-## Custom completion
-You can define your own completion for tables/fields
+## Completion
+There is intelliSense for package members (autocompletion from package files).
 
+You can also define your own completion for tables/fields.
 An exemple is [here](snippets/plsql.completion.json).<br />
 (don't use this file, it'll be overwritten with the update of the extension !)<br />
 
