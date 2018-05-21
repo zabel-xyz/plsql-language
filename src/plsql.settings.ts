@@ -113,7 +113,8 @@ export default class PLSQLSettings {
             const cwd =  wsFolder ? wsFolder.fsPath : '';
             // location = location.replace('${workspaceRoot}', cwd); // deprecated
             location = location.replace('${workspaceFolder}', cwd);
-            location = path.join(location, 'plsql.completion.json');
+            if (location)
+                location = path.join(location, 'plsql.completion.json');
         }
 
         return location;

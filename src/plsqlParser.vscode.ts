@@ -14,6 +14,13 @@ export default class PlSqlParserVSC extends PlSqlParser {
         );
     }
 
+    public static getSymbolsCompletion(symbol: PLSQLSymbol): any {
+        return {
+            label: symbol.name,
+            kind: this.convertToCompletionKind(symbol.kind)
+        };
+    }
+
     private static getSymbolInformation(document: vscode.TextDocument, symbol: PLSQLSymbol) {
         const line = symbol.offset != null ? document.lineAt(document.positionAt(symbol.offset)) : document.lineAt(symbol.line);
 
@@ -51,4 +58,33 @@ export default class PlSqlParserVSC extends PlSqlParser {
                 return vscode.SymbolKind.Struct;
         }
     }
+
+    private static convertToCompletionKind(kind: PLSQLSymbolKind): vscode.CompletionItemKind {
+        switch (kind) {
+            case PLSQLSymbolKind.packageSpec:
+                return vscode.CompletionItemKind.Unit; // Package;
+            case PLSQLSymbolKind.packageBody:
+                return vscode.CompletionItemKind.Unit; // Package;
+            case PLSQLSymbolKind.function:
+                return vscode.CompletionItemKind.Function;
+            case PLSQLSymbolKind.functionSpec:
+                return vscode.CompletionItemKind.Function;
+                // return vscode.CompletionItemKind.Interface;
+            case PLSQLSymbolKind.procedure:
+                return vscode.CompletionItemKind.Method;
+            case PLSQLSymbolKind.procedureSpec:
+                return vscode.CompletionItemKind.Method;
+                // return vscode.CompletionItemKind.Interface;
+            case PLSQLSymbolKind.variable:
+                return vscode.CompletionItemKind.Variable;
+            case PLSQLSymbolKind.constant:
+                return vscode.CompletionItemKind.Constant;
+            case PLSQLSymbolKind.type:
+            case PLSQLSymbolKind.subtype:
+            case PLSQLSymbolKind.cursor:
+            case PLSQLSymbolKind.exception:
+                return vscode.CompletionItemKind.Struct;
+        }
+    }
+
 }

@@ -3,7 +3,8 @@ import { PLDocController } from './pldoc.controller';
 
 import { PlSqlNavigatorVSC as  PlSqlNavigator } from './plsqlNavigator.vscode';
 import { PLSQLCursorInfosVSC as PLSQLCursorInfos } from './plsqlNavigator.vscode';
-import { PLSQLCompletionCustom } from './plsqlCompletionCustom';
+import PLSQLCompletionCustom from './plsqlCompletionCustom';
+import PlSqlParser from './plsqlParser.vscode';
 
 export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvider {
 
@@ -51,11 +52,19 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
             } else {
                 // Package member completion (spec)
                 this.getPackageItems(document, position, cursorInfos)
+                    .then(members => members)
+                    .catch(err => {
+                        console.log(err);
+                    })
                     .then(members => {
                         if (!(members && members.length) && cursorInfos.previousWord)
                             members = this.getCompletionCustomItems(document, cursorInfos.previousWord);
                         Array.prototype.push.apply(completeItems, members);
                         return resolve(this.processCompleteItems(completeItems));
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        return resolve(undefined);
                     });
             }
         });
@@ -81,6 +90,12 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
     private createSnippetItem(snippet, origin = ''): vscode.CompletionItem {
         return this.createCompleteItem(vscode.CompletionItemKind.Snippet,
                 snippet.prefix, snippet.description, snippet.body.join('\n'), origin);
+    }
+
+    private createSymbolItem(symbol: PLSQLSymbol): vscode.CompletionItem {
+        const symbolInfo = PlSqlParser.getSymbolsCompletion(symbol);
+        return this.createCompleteItem(symbolInfo.kind,
+            symbolInfo.label);
     }
 
     private createCompleteItem(type: vscode.CompletionItemKind, label: string, doc = '', text = label, origin = ''): vscode.CompletionItem {
@@ -128,12 +143,10 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
 
             PlSqlNavigator.complete(document, position, cursorInfos)
                 .then(symbols => {
-                        if (symbols)
-                            return resolve(symbols.map(symbol =>
-                                this.createCompleteItem(vscode.CompletionItemKind.Method, symbol.name)
-                            ));
-                        else
-                            return resolve([]);
+                    if (symbols)
+                        return resolve(symbols.map(symbol => this.createSymbolItem(symbol)));
+                    else
+                        return resolve([]);
                 })
                 .catch(err => resolve([]));
         });

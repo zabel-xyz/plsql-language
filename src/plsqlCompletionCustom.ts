@@ -14,13 +14,13 @@ interface PLSQLCompletionItem  {
 interface PLSQLCompletionDefinition {
     folder: vscode.Uri;
     members: any; // object of PLSQLCompletionItem[]
-    objects: PLSQLCompletionItem[];
+    objects?: PLSQLCompletionItem[];
 }
 
 /**
  * Controller for handling PLSQLCompletionCustom
  */
-export class PLSQLCompletionCustom {
+export default class PLSQLCompletionCustom {
 
     private plsqlCompletionDefs: PLSQLCompletionDefinition[] = [];
 
@@ -32,7 +32,7 @@ export class PLSQLCompletionCustom {
         const completion = this.init(document.uri);
         if (completion)
             if (text)
-                return completion.members[text];
+                return completion.members[text.toLowerCase()];
             else
                 return completion.objects;
     }
@@ -55,7 +55,10 @@ export class PLSQLCompletionCustom {
         });
         if (!completionDefs) {
             completionDefs = this.readJSONFile(folder);
-            this.plsqlCompletionDefs.push(completionDefs);
+            if (completionDefs)
+                this.plsqlCompletionDefs.push(completionDefs);
+            else
+                this.plsqlCompletionDefs.push({folder: folder, members: {}});
         }
         return completionDefs;
     }
@@ -77,18 +80,16 @@ export class PLSQLCompletionCustom {
         const objects = [];
         Object.keys(parsedJSON).forEach(item => {
             if (parsedJSON[item].members)
-                members[item] = parsedJSON[item].members.map(
+                members[item.toLowerCase()] = parsedJSON[item].members.map(
                     member => ({label: member.label, kind: this.convertToCompletionKind(member.kind), documentation: member.documentation}));
             objects.push({label: item, kind: this.convertToCompletionKind(parsedJSON[item].kind), documentation: parsedJSON[item].documentation});
         });
 
-        if (parsedJSON) {
-            return {
-                folder: workspacefolder,
-                objects: objects,
-                members: members
-            };
-        }
+        return {
+            folder: workspacefolder,
+            objects: objects,
+            members: members
+        };
     }
 
     private convertToCompletionKind(kind: string): vscode.CompletionItemKind {

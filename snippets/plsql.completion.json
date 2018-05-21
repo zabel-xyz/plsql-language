@@ -8,8 +8,9 @@
 
             "myTableName1": {
                 "kind": "struct",
+                "documentation": "no comment",
                 "members": [
-                    {"label": "myFieldName1", "kind": "field"},
+                    {"label": "myFieldName1", "kind": "field", "documentation": "no comment"},
                     {"label": "myFieldName2", "kind": "field"},
                     {"label": "myFieldName3", "kind": "field"}
                 ]

@@ -175,10 +175,13 @@ export class PlSqlNavigator {
 
         return new Promise((resolve, reject) => {
 
+            if (!globCmd.params.cwd)
+                return reject('No current directory for glob search !');
+
             glob(globCmd.glob, globCmd.params, (err, files) => {
                 if (err)
-                    reject(err);
-                resolve(files.map(file => path.join(globCmd.params.cwd, file)));
+                    return reject(err);
+                return resolve(files.map(file => path.join(globCmd.params.cwd, file)));
             });
         });
     }
