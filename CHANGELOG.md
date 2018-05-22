@@ -1,7 +1,11 @@
+## 1.3.3
+* Fix issues completion is case sensitive [#32](https://github.com/zabel-xyz/plsql-language/issues/32)
+* Change priority in auto-completion (1st search in plsql.completion.json) [#44](https://github.com/zabel-xyz/plsql-language/issues/44)
+
 ## 1.3.1
-* Fix issues completion is case sensitive [#32](https://github.com/zabel-xyz/plsql-language/issues/37)
-* Fix issues completion - different icon for symbols [#32](https://github.com/zabel-xyz/plsql-language/issues/37)
-* Fix issues completion with loading hangs [#32](https://github.com/zabel-xyz/plsql-language/issues/37)
+* Fix issues completion is case sensitive [#32](https://github.com/zabel-xyz/plsql-language/issues/32)
+* Fix issues completion - different icon for symbols [#32](https://github.com/zabel-xyz/plsql-language/issues/32)
+* Fix issues completion with loading hangs [#32](https://github.com/zabel-xyz/plsql-language/issues/32)
 
 ## 1.3.0
 * Fix issues with regExp parser (forward declaration and body declaration) [#37](https://github.com/zabel-xyz/plsql-language/issues/37)

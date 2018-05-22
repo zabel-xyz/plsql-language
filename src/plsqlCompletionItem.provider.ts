@@ -50,15 +50,17 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
 
                 return resolve(this.processCompleteItems(completeItems));
             } else {
-                // Package member completion (spec)
-                this.getPackageItems(document, position, cursorInfos)
-                    .then(members => members)
-                    .catch(err => {
-                        console.log(err);
-                    })
+                if (cursorInfos.previousWord) {
+                    // 1. Use plsql.completion.json
+                    const members = this.getCompletionCustomItems(document, cursorInfos.previousWord);
+                    if (members && members.length) {
+                        Array.prototype.push.apply(completeItems, members);
+                        return resolve(this.processCompleteItems(completeItems));
+                    }
+
+                    // 2. Use Package member completion (spec)
+                    this.getPackageItems(document, position, cursorInfos)
                     .then(members => {
-                        if (!(members && members.length) && cursorInfos.previousWord)
-                            members = this.getCompletionCustomItems(document, cursorInfos.previousWord);
                         Array.prototype.push.apply(completeItems, members);
                         return resolve(this.processCompleteItems(completeItems));
                     })
@@ -66,6 +68,7 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
                         console.log(err);
                         return resolve(undefined);
                     });
+                }
             }
         });
     }
@@ -80,9 +83,10 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
     private filterCompletion(items: vscode.CompletionItem[], word: string) {
         // completionItems must be filtered and if empty return undefined
         // otherwise word suggestion are lost ! (https://github.com/Microsoft/vscode/issues/21611)
-        if (items && word)
-            return items.filter(item => item.label.startsWith(word));
-        else if (items)
+        if (items && word) {
+            const wordL = word.toLowerCase();
+            return items.filter(item => item.label.toLowerCase().startsWith(wordL));
+        } else if (items)
             return items;
         else return [];
     }
