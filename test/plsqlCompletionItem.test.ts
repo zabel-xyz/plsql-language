@@ -59,19 +59,19 @@ suite('PLSQL Completion', () => {
             // Object.
             buildCase(
                 '-- complete\\s*MyPackage2.', false, [
-                    {text: 'txyz_myType', kind: vscode.CompletionItemKind.Method},
-                    {text: 'ttxyz_myType', kind: vscode.CompletionItemKind.Method},
-                    {text: 'myConst', kind: vscode.CompletionItemKind.Method},
-                    {text: 'myGlobalVar', kind: vscode.CompletionItemKind.Method},
-                    {text: 'get_myValue', kind: vscode.CompletionItemKind.Method},
+                    {text: 'txyz_myType', kind: vscode.CompletionItemKind.Struct},
+                    {text: 'ttxyz_myType', kind: vscode.CompletionItemKind.Struct},
+                    {text: 'myConst', kind: vscode.CompletionItemKind.Constant},
+                    {text: 'myGlobalVar', kind: vscode.CompletionItemKind.Variable},
+                    {text: 'get_myValue', kind: vscode.CompletionItemKind.Function},
                     {text: 'set_myValue', kind: vscode.CompletionItemKind.Method},
                     {text: 'myCall', kind: vscode.CompletionItemKind.Method}
                 ]),
             // Object.Partial member
             buildCase(
                 '-- complete\\s*MyPackage2.myV', false, [
-                    {text: 'myGlobalVar', kind: vscode.CompletionItemKind.Method},
-                    {text: 'get_myValue', kind: vscode.CompletionItemKind.Method},
+                    {text: 'myGlobalVar', kind: vscode.CompletionItemKind.Variable},
+                    {text: 'get_myValue', kind: vscode.CompletionItemKind.Function},
                     {text: 'set_myValue', kind: vscode.CompletionItemKind.Method},
                 ]),
             // PL_DOC
@@ -90,11 +90,11 @@ suite('PLSQL Completion', () => {
             buildCase(
                 '-- complete\\s*MyPackage.', false,
                 [
-                    {text: 'txyz_myType', kind: vscode.CompletionItemKind.Method},
-                    {text: 'ttxyz_myType', kind: vscode.CompletionItemKind.Method},
-                    {text: 'myConst', kind: vscode.CompletionItemKind.Method},
-                    {text: 'myGlobalVar', kind: vscode.CompletionItemKind.Method},
-                    {text: 'get_myValue', kind: vscode.CompletionItemKind.Method},
+                    {text: 'txyz_myType', kind: vscode.CompletionItemKind.Struct},
+                    {text: 'ttxyz_myType', kind: vscode.CompletionItemKind.Struct},
+                    {text: 'myConst', kind: vscode.CompletionItemKind.Constant},
+                    {text: 'myGlobalVar', kind: vscode.CompletionItemKind.Variable},
+                    {text: 'get_myValue', kind: vscode.CompletionItemKind.Function},
                     {text: 'set_myValue', kind: vscode.CompletionItemKind.Method},
                     {text: 'myCall', kind: vscode.CompletionItemKind.Method}
                 ]),
@@ -102,8 +102,8 @@ suite('PLSQL Completion', () => {
             buildCase(
                 '-- complete\\s*MyPackage.myV', false,
                 [
-                    {text: 'myGlobalVar', kind: vscode.CompletionItemKind.Method},
-                    {text: 'get_myValue', kind: vscode.CompletionItemKind.Method},
+                    {text: 'myGlobalVar', kind: vscode.CompletionItemKind.Variable},
+                    {text: 'get_myValue', kind: vscode.CompletionItemKind.Function},
                     {text: 'set_myValue', kind: vscode.CompletionItemKind.Method},
                 ]),
             // PL_DOC
