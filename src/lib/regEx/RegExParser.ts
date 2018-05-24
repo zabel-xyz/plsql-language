@@ -20,7 +20,7 @@ export default class RegExpParser {
     private static regSpecSymbols = `(?:(\\w+)\\s+(\\w+)\\s*(?:\\s*;|.[^;]*;))`;
     private static regBody = `(?:\\b(procedure|function)\\b\\s+(\\w+)[\\s\\S]*?(?:(?:\\b(is|as)\\b[\\s\\S]*?)?\\b(begin|procedure|function)\\b|;))`;
 
-    private static regJumpEnd = `(\\bbegin\\b)|(?:(\\bend\\b)\\s*(\\w*)?)`;
+    private static regJumpEnd = `(\\bbegin|case\\b)|(?:(\\bend\\b)\\s*(\\w*)?)`;
     private static regJumpAsIs = `\\b(is|as)\\b`;
 
     public static initParser(commentInSymbols?: boolean)  {
@@ -225,7 +225,7 @@ export default class RegExpParser {
             if (match[1]) { // begin
                 openTokens++;
             } else if (match[2]) { // end
-                if (!match[3] || !['case', 'loop', 'if'].includes(match[3].toLowerCase())) {
+                if (!match[3] || !['loop', 'if'].includes(match[3].toLowerCase())) {
                     if (openTokens) {
                         openTokens--;
                         if (!openTokens)
