@@ -17,7 +17,7 @@ export default class RegExpParser {
     private static regSymbols = `(?:\\b(function|procedure|package)\\b(?:\\s+(body))?)\\s+`;
     private static regSymbolsName = `(?:\"?\\w+\"?\\.)?\"?(\\w+)\"?`;
 
-    private static regSpecSymbols = `(?:(\\w+)\\s+(\\w+)(?:\\s*;|.[^;]*;))`;
+    private static regSpecSymbols = `(?:(\\w+)\\s+(\\w+)\\s*(?:\\s*;|.[^;]*;))`;
     private static regBody = `(?:\\b(procedure|function)\\b\\s+(\\w+)[\\s\\S]*?(?:(?:\\b(is|as)\\b[\\s\\S]*?)?\\b(begin|procedure|function)\\b|;))`;
 
     private static regJumpEnd = `(\\bbegin\\b)|(?:(\\bend\\b)\\s*(\\w*)?)`;
