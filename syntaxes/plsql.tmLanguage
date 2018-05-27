@@ -137,7 +137,7 @@
         </dict>
         <dict>
             <key>match</key>
-            <string>(?i)\b(true|false|null)\b</string>
+            <string>(?i)\b(true|false|null|is\s+(not\s+)?null)\b</string>
             <key>name</key>
             <string>constant.language.oracle</string>
         </dict>
@@ -192,7 +192,7 @@
         </dict>
         <dict>
             <key>match</key>
-            <string>(?i)\b(bfilename|cardinality|coalesce|decode|empty_(blob|clob)|lag|lead|listagg|lnnvl|nanvl|nullif|nvl|nvl2|sys_(context|guid|typeid|connect_by_path|extract_utc)|uid|user|userenv|cardinality|collect|powermultiset(_by_cardinality)?|ora_hash|standard_hash|execute\s+immediate|alter\s+session)\b</string>
+            <string>(?i)\b(bfilename|cardinality|coalesce|decode|empty_(blob|clob)|lag|lead|listagg|lnnvl|nanvl|nullif|nvl|nvl2|sys_(context|guid|typeid|connect_by_path|extract_utc)|uid|(current\s+)?user|userenv|cardinality|(bulk\s+)?collect|powermultiset(_by_cardinality)?|ora_hash|standard_hash|execute\s+immediate|alter\s+session)\b</string>
             <key>name</key>
             <string>support.function.builtin.advanced.oracle</string>
         </dict>
@@ -264,7 +264,7 @@
         </dict>
         <dict>
             <key>match</key>
-            <string>(?i)\b(grant|revoke|alter|drop|force|add|check|constraint|primary key|foreign key|references|unique index|column|sequence|increment by|cache|(materialized)? view|trigger)\b</string>
+            <string>(?i)\b(grant|revoke|alter|drop|force|add|check|constraint|primary\s+key|foreign\s+key|references|unique(\s+index)?|column|sequence|increment\s+by|cache|(materialized\s+)?view|trigger|storage|tablespace|pct(free|used)|(init|max)trans|logging)\b</string>
             <key>name</key>
             <string>keyword.other.ddl.oracle</string>
         </dict>
