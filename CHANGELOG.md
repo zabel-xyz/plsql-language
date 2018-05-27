@@ -3,7 +3,7 @@
 * Change priority in auto-completion (1st search in plsql.completion.json) [#44](https://github.com/zabel-xyz/plsql-language/issues/44)
 * Fix issue with parser and trimming last character[#45](https://github.com/zabel-xyz/plsql-language/issues/45)
 * Fix issue with parser and case...end [#37](https://github.com/zabel-xyz/plsql-language/issues/37)
-* Add some keywords in highlght syntax [#34](https://github.com/zabel-xyz/plsql-language/issues/34)
+* Add some keywords in highlight syntax [#34](https://github.com/zabel-xyz/plsql-language/issues/34)
 
 ## 1.3.1
 * Fix issues completion is case sensitive [#32](https://github.com/zabel-xyz/plsql-language/issues/32)
