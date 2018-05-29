@@ -61,6 +61,8 @@ as
     MyPackage.myCall('test');
     schema.MyPackage.myCall('test2');
     pCallInternal('test3');
+    case
+    end
     -- some other code to execute
     return;
   end;
@@ -112,6 +114,11 @@ as
 
     -- call to subFunction
     x = pSubFunction(2);
+
+    case
+      case
+      end
+    end
   end pMainProcedure;
 
   function pForward(param1 in varchar2)
