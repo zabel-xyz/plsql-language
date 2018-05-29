@@ -1,3 +1,6 @@
+## 1.3.4
+* Fix issue with parser and nested case...end [#47](https://github.com/zabel-xyz/plsql-language/issues/47)
+
 ## 1.3.3
 * Fix issues completion is case sensitive [#32](https://github.com/zabel-xyz/plsql-language/issues/32)
 * Change priority in auto-completion (1st search in plsql.completion.json) [#44](https://github.com/zabel-xyz/plsql-language/issues/44)
