@@ -129,11 +129,11 @@ export class PlSqlNavigator {
             } else
                 currentWord = null;
         } else {
-            const regexp = new RegExp(`(?:(\\w+)\\s+${currentWord})|(?:(\\w+)(\\.)${currentWord})`, 'i');
+            const regexp = new RegExp(`(\\w+)(\\s+|.)${currentWord}$`);
             const found = regexp.exec(line.substr(0, endOffset));
             if (found) {
-                previousWord = found[1] || found[2];
-                previousDot = found[3] != null;
+                previousWord = found[1];
+                previousDot = found[2] === '.';
             }
         }
         return {

@@ -69,7 +69,7 @@ suite('PLSQL Completion', () => {
                 ]),
             // Object.Partial member
             buildCase(
-                '-- complete\\s*MyPackage2.myV', false, [
+                '-- complete\\s*return MyPackage2.myV', false, [
                     {text: 'myGlobalVar', kind: vscode.CompletionItemKind.Variable},
                     {text: 'get_myValue', kind: vscode.CompletionItemKind.Function},
                     {text: 'set_myValue', kind: vscode.CompletionItemKind.Method},
