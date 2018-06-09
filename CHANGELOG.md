@@ -1,6 +1,8 @@
 ## 1.3.4
 * Fix issue with parser and nested case...end [#47](https://github.com/zabel-xyz/plsql-language/issues/47)
 * Fix issue with the detection of a bad word during auto-completion [#48](https://github.com/zabel-xyz/plsql-language/issues/48)
+* Fix issue with outline view [#49](https://github.com/zabel-xyz/plsql-language/issues/49)
+* Fix issue with regExParser [#46](https://github.com/zabel-xyz/plsql-language/issues/46)
 
 ## 1.3.3
 * Fix issues completion is case sensitive [#32](https://github.com/zabel-xyz/plsql-language/issues/32)
