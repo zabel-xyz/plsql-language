@@ -27,7 +27,8 @@ export default class PlSqlParserVSC extends PlSqlParser {
         return new vscode.SymbolInformation(
             symbol.kindName+' '+symbol.name,
             this.convertToSymbolKind(symbol.kind),
-            new vscode.Range(line.range.start, line.range.end)
+            symbol.parent ? symbol.parent.kindName+' '+symbol.parent.name : '',
+            new vscode.Location(document.uri, new vscode.Range(line.range.start, line.range.end))
         );
     }
 
