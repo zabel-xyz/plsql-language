@@ -1,0 +1,172 @@
+/* debug */
+
+/*
+  :root {
+    --vscode-button-background: #4b74cc;
+    --vscode-button-foreground: white;
+    --vscode-button-hoverBackground: #3a62b8;
+
+    --vscode-inputValidation-errorBorder: #cf1010;
+    --vscode-inputValidation-infoBorder: #4b74cc;
+    --vscode-input-placeholderForeground: #c6c6c6;
+
+    --vscode-foreground: black;
+  }
+*/
+
+:root {
+	--pl-text-foreground: var(--vscode-foreground);
+	--pl-label-focus: var(--vscode-inputValidation-infoBorder);
+	--pl-label-error: var(--vscode-inputValidation-errorBorder);
+	--pl-label: var(--vscode-input-placeholderForeground);
+	--pl-title: var(--vscode-foreground);
+	--pl-button-background: var(--vscode-button-background);
+	--pl-button-foreground: var(--vscode-button-foreground);
+	--pl-button-hover: var(--vscode-button-hoverBackground);
+}
+
+h1, input, button, label, .tooltip {
+	font-family: sans-serif;
+	font-size: 12px;
+}
+
+label {
+	color: var(--pl-label);
+}
+
+h1 {
+	font-size: 18px;
+	margin: 0px;
+	padding-bottom: 5px;
+	border-bottom: solid 1px var(--pl-title);
+}
+
+form {
+	margin: 30px 30px 0;
+}
+
+button {
+	border: none;
+	background: var(--pl-button-background);
+	cursor: pointer;
+	border-radius: 3px;
+	padding: 6px;
+	width: 100px;
+	color: var(--pl-button-foreground);
+}
+
+button:hover {
+	box-shadow: 0 3px 6px 0 var(--pl-button-hover);
+}
+
+.group {
+	position: relative;
+	margin: 20px 0;
+}
+
+.group-title {
+	padding-bottom: 10px;
+}
+
+.group-check {
+	padding-bottom: 20px;
+}
+
+/* textarea {
+     resize: none;
+   } */
+
+.group input, .group textarea {
+	background: none;
+	color: var(--pl-text-foreground);
+	padding: 4px 0px;
+	display: block;
+	width: 320px;
+	border: none;
+	border-radius: 0;
+	border-bottom: 1px solid var(--pl-label);
+}
+
+.group input:focus, .group textarea:focus {
+	outline: none;
+}
+
+.group input:focus~label, .group .notEmpty~label, .group textarea:focus~label {
+	top: -12px;
+	font-size: 10px;
+	color: var(--pl-label-focus);
+}
+
+.group .notEmpty~label {
+	color: var(--pl-label)
+}
+
+.group .error~label {
+	color: var(--pl-label-error) !important;
+}
+
+.group label {
+	color: var(--pl-label);
+	font-weight: normal;
+	position: absolute;
+	pointer-events: none;
+	left: 0px;
+	top: 6px;
+	transition: 300ms ease all;
+}
+
+.group-check label span {
+	top: -3px;
+	position: relative;
+}
+
+.group .error~.bar:before {
+	background: var(--pl-label-error);
+}
+
+.group input:focus~.bar:before, .group textarea:focus~.bar:before {
+	width: 320px;
+}
+
+.bar {
+	position: relative;
+	display: block;
+	width: 320px;
+}
+
+.bar:before {
+	content: '';
+	height: 2px;
+	width: 0;
+	bottom: 0px;
+	position: absolute;
+	background: var(--pl-label-focus);
+	transition: 300ms ease all;
+	left: 0%;
+}
+
+.tooltip {
+	display: none;
+}
+
+.group .error~.tooltip {
+	padding: 4px !important;
+	border-radius: 4px !important;
+	position: relative;
+	display: inline-block !important;
+	box-shadow: 4px 4px 4px #aaaaaa;
+	margin-top: 4px;
+	border: 2px solid var(--pl-label-error);
+	color: var(--pl-label-error);
+}
+
+.group .error~.tooltip:before {
+	content: '';
+	width: 0;
+	height: 0;
+	border-left: 8px solid transparent;
+	border-right: 8px solid transparent;
+	border-bottom: 8px solid var(--pl-label-error);
+	position: absolute;
+	top: -8px;
+}

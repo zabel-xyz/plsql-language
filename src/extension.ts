@@ -4,6 +4,10 @@ import { PLSQLDefinitionProvider } from './plsqlDefinition.provider';
 import { PLSQLDocumentSymbolProvider } from './plsqlDocumentSymbol.provider';
 import { PLSQLCompletionItemProvider } from './plsqlCompletionItem.provider';
 
+import { ConnectController }  from './connect.controller';
+import ConnectUIController  from './connectUI.controller';
+import { ConnectStatusBar } from './connect.statusBar';
+
 export function activate(context: vscode.ExtensionContext) {
 
     // language providers
@@ -20,6 +24,18 @@ export function activate(context: vscode.ExtensionContext) {
     // context.subscriptions.push(vscode.languages.registerRenameProvider('plsql', new PLSQLRenameProvider()));
     // context.subscriptions.push(vscode.languages.registerSignatureHelpProvider('plsql', new PLSQLSignatureHelpProvider(), '(', ','));
     // context.subscriptions.push(vscode.languages.registerCodeActionsProvider('plsql', new PLSQLCodeActionProvider()));
+
+    // Connection
+    const connectController = new ConnectController();
+    const connectStatusBar = new ConnectStatusBar(connectController);
+    const connectUIController = new ConnectUIController(context, connectController);
+    context.subscriptions.push(vscode.commands.registerCommand('plsql.activateConnection',
+            connectUIController.activateConnectionsList, connectUIController));
+
+    vscode.workspace.onDidChangeConfiguration(configChangedEvent => {
+        if (configChangedEvent.affectsConfiguration('plsql-language'))
+            connectController.configurationChanged();
+    });
 }
 
 // function deactivate() {

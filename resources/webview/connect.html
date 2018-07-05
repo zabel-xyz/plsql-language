@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+
+        <!--
+        Use a content security policy to only allow loading images from https or from our extension directory,
+        and only allow scripts that have a specific nonce.
+        -->
+
+        <!-- EXT -->
+        <meta http-equiv="Content-Security-Policy"
+              content="default-src 'none'; script-src 'nonce-${nonce}'; style-src 'nonce-${nonce}'; ">
+        <!-- -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>PLSQL - Connection</title>
+    </head>
+    <body>
+        <form id="connection" name="connection" action="#">
+            <div class="group-title">
+                <h1>New connection</h1>
+            </div>
+            <div class="group">
+                <input type="text" name="database" required>
+                <span class="bar"></span>
+                <label>Database (TNS)</label>
+                <div class="tooltip">Please enter the database (TNS)</div>
+            </div>
+            <div class="group">
+                <input type="text" name="user" required>
+                <span class="bar"></span>
+                <label>User</label>
+                <div class="tooltip">Please enter the user</div>
+            </div>
+            <div class="group">
+                <input type="password" name="password">
+                <span class="bar"></span>
+                <label>Password</label>
+            </div>
+            <div class="group">
+                <input type="text" name="schema">
+                <span class="bar"></span>
+                <label>Schema</label>
+            </div>
+            <div class="group-check">
+                <label for="active">
+                    <span>Active</span>
+                    <input class="checkbox" type="checkbox" name="active" id="active" checked>
+                </label>
+            </div>
+            <button id="create">Create</button>
+            <button id="cancel">Cancel</button>
+        </form>
+
+        <!-- DEBUG -->
+        <!-- <link rel="stylesheet" href="connect.css"></link>
+        <script src="connect.js"></script> -->
+        <!-- EXT -->
+        <link nonce="${nonce}" rel="stylesheet" href="${cssUri}"></link>
+        <script nonce="${nonce}" src="${scriptUri}"></script>
+        <!--  -->
+    </body>
+</html>

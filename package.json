@@ -100,10 +100,72 @@
                     "type": "string",
                     "default": "",
                     "description": "Define string to replace variable ${PLDOC_AUTHOR}"
+                },
+
+                "plsql-language.connections": {
+                    "type": "array",
+                    "title": "Connections",
+                    "default": [],
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "active": {
+                                "type": "boolean",
+                                "required": false,
+                                "description": "Define the active connection"
+                            },
+                            "database": {
+                                "type": "string",
+                                "required": true,
+                                "description": "Database name"
+                            },
+                            "username": {
+                                "type": "string",
+                                "required": true,
+                                "description": "User name"
+                            },
+                            "password": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ],
+                                "description": "User password",
+                                "required": false
+                            },
+                            "schema": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ],
+                                "description": "Schema name",
+                                "required": false
+                            }
+                        }
                 }
+                },
+                "plsql-language.connection.activeInfos": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Connection infos to be used in a task"
+                },
+                "plsql-language.connection.patternActiveInfos": {
+                    "type": "string",
+                    "default": "${username}/${password}@${database}",
+                    "description": "Pattern of connection infos to be used in a task"
+                },
+                "plsql-language.connection.patternName": {
+                    "type": "string",
+                    "default": "${username}@${database}",
+                    "description": "Pattern of connection name to be used for displaying"
             }
         }
     },
+        "commands": [{
+            "command": "plsql.activateConnection",
+            "title": "PLSQL - Activate connection"
+        }]
+    },
+
     "scripts": {
         "vscode:prepublish": "tsc -p ./",
         "compile": "tsc -p ./",
