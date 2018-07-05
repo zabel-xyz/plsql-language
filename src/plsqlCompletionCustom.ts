@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as json5 from 'json5';
 
-import PLSQLSettings from './plsql.settings';
+import { PLSQLSettings } from './plsql.settings';
 
 interface PLSQLCompletionItem  {
     label: string;

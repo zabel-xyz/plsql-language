@@ -6,10 +6,18 @@ interface PLSQLSynonym {
     by?: string;
 }
 
+export interface PLSQLConnection {
+    database: string;
+    username: string;
+    password?: string;
+    schema?: string;
+    active?: boolean;
+}
+
 /**
  * Settings for plsql.
  */
-export default class PLSQLSettings {
+export class PLSQLSettings {
 
     // constructor() {
     // }
@@ -120,4 +128,17 @@ export default class PLSQLSettings {
         return location;
     }
 
+    // global config
+    public static getConnections(): PLSQLConnection[] {
+        const config = vscode.workspace.getConfiguration('plsql-language');
+        return <PLSQLConnection[]>config.get('connections');
+    }
+
+    public static getConnectionPattern(): any {
+        const config = vscode.workspace.getConfiguration('plsql-language');
+        return {
+            patternName: <string>config.get('connection.patternName'),
+            patternActiveInfos: <string>config.get('connection.patternActiveInfos')
+        };
+    }
 }

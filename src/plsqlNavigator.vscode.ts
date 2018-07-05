@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 
-import PLSQLSettings from './plsql.settings';
+import { PLSQLSettings } from './plsql.settings';
 import PlSqlParser from './plsqlParser.vscode';
 import { PlSqlNavigator } from './lib/plsqlNavigator';
 import { PLSQLCursorInfos } from './lib/plsqlNavigator';

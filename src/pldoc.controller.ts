@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as json5 from 'json5';
 import * as dateFormat from 'dateformat';
 
-import PLSQLSettings from './plsql.settings';
+import { PLSQLSettings } from './plsql.settings';
 
 interface IPlDocObject {
     type: string;
