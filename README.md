@@ -63,21 +63,36 @@ For this extension works with .sql files you must change your settings (user or 
            	"*.sql": "plsql"
         }
 
+## Connection
+Currently there is **no automatic connection**.
+
+You can configure a list of connection in settings and use the active one in your tasks (see below).
+Use the command: `PLSQL - Activate connection`
+
+This is the first step, roadmap:
+- [X] List of connections in settings.
+- [ ] Complete fields list in settings (host, port, sid, connect as...)
+- [ ] Connect to DB
+- [ ] Execute SQL
+- [ ] Run as a script
+- [ ] Auto-complete
+
 ## Compile / Task
 You can compile a PLSQL package with sqlplus, create a task like this:
 
         {
-            "version": "0.1.0",
+                "version": "2.0.0",
+                "tasks": [{
+                        "label": "sqlplus",
+                        // Run sqlplus
+                        "command": "sqlplus",
+                        // Alternative (see below)
+                        // "command": "run_sqlplus.bat",
 
-            // The command is a shell script
-            "isShellCommand": true,
-
-            // Run sqlplus
-            "command": "sqlplus",
-            // Alternative (see below)
-            // "command": "run_sqlplus.bat",
-
-            "args": ["username/password@sid", "@\"${file}\""]
+                        "args": ["username/password@sid", "@\"${file}\""]
+                        // Alternative: use active connection defined in settings
+                        // "args": [${config:plsql-language.connection.activeInfos}, "@\"${file}\""]
+                }]
         }
 
 To force sqlplus to complete, it is better to use a batch file like this:
