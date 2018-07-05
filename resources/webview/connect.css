@@ -18,7 +18,8 @@
 	--pl-text-foreground: var(--vscode-foreground);
 	--pl-label-focus: var(--vscode-inputValidation-infoBorder);
 	--pl-label-error: var(--vscode-inputValidation-errorBorder);
-	--pl-label: var(--vscode-input-placeholderForeground);
+	/* --pl-label: var(--vscode-input-placeholderForeground); */
+	--pl-label: var(--vscode-foreground);
 	--pl-title: var(--vscode-foreground);
 	--pl-button-background: var(--vscode-button-background);
 	--pl-button-foreground: var(--vscode-button-foreground);
