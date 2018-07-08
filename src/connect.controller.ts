@@ -120,6 +120,9 @@ export class ConnectController {
     }
 
     public saveConnections() {
+        if (!(this.connections && this.connections.length))
+            return;
+
         const config = vscode.workspace.getConfiguration('plsql-language');
         // TODO if no workspace !...
         config.update('connections', this.connections, false);
