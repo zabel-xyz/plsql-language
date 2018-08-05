@@ -86,6 +86,9 @@ export default class RegExpParser {
                         else // symbol.kind in package_body / func / proc
                             offset = this.getSymbolsBody(text, offset, symbol);
                         this.regExp.lastIndex = offset;
+                        // jumptoend to find real offsetEnd
+                        offset = this.jumpToEnd(text, offset);
+                        symbol.offsetEnd = offset;
                     }
                 }
             }
@@ -113,13 +116,15 @@ export default class RegExpParser {
 
     private static getSymbolsSpec(text: string, fromOffset: number, parent: PLSQLSymbol): number  {
         let found,
-            lastIndex = fromOffset;
+            lastIndex = fromOffset,
+            symbol;
 
         this.regExpS.lastIndex = lastIndex;
         while (found = this.regExpS.exec(text)) {
-            if (found[2] && found[3])
-                this.createSymbolItem(found[2], found[3], found.index, parent, false);
-            else if (found[1]) // end || create
+            if (found[2] && found[3]) {
+                symbol = this.createSymbolItem(found[2], found[3], found.index, parent, false);
+                symbol.offsetEnd = this.regExpS.lastIndex;
+            } else if (found[1]) // end || create
                 break;
             lastIndex = this.regExpS.lastIndex;
         }
@@ -138,10 +143,15 @@ export default class RegExpParser {
             if (found[4]) // begin
                 break;
             else if (found[5] && found[6]) {
-                if (extractSymbol && !this.createSymbolItem(found[5], found[6], found.index, parent, false)) {
-                    // if it's not a symbol, something goes wrong => break
-                    lastIndex = oldIndex;
-                    break;
+                if (extractSymbol) {
+                    symbol = this.createSymbolItem(found[5], found[6], found.index, parent, false);
+                    if (symbol)
+                        symbol.offsetEnd = lastIndex;
+                    else {
+                        // if it's not a symbol, something goes wrong => break
+                        lastIndex = oldIndex;
+                        break;
+                    }
                 }
             } else if (found[1] && found[2]) { // function, procedure
                 // Declare function, procedure => add symbol
@@ -153,12 +163,14 @@ export default class RegExpParser {
                     if (found[3].toLowerCase() === 'begin') {
                         // begin => jump to end
                         lastIndex = this.jumpToEnd(text, lastIndex);
+                        symbol.offsetEnd = lastIndex;
                         this.regExpB.lastIndex = lastIndex;
                     } else { // is,as
                         // read between is and begin (subPro/subFunc)
                         lastIndex = this.getSymbolsBody(text, lastIndex, symbol, false);
                         // jump to end
                         lastIndex = this.jumpToEnd(text, lastIndex);
+                        symbol.offsetEnd = lastIndex;
                         this.regExpB.lastIndex = lastIndex;
                     }
                 }
@@ -230,7 +242,7 @@ export default class RegExpParser {
             } // else comment => nothing todo
         }
         return lastIndex;
-    };
+    }
 
     private static getSymbolKind(type: string, isBody: boolean): PLSQLSymbolKind  {
         if (type === 'function') {

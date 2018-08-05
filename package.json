@@ -2,7 +2,7 @@
     "name": "plsql-language",
     "displayName": "Language PL/SQL",
     "description": "PL/SQL language (Oracle) support",
-    "version": "1.4.1",
+    "version": "1.4.2",
     "publisher": "xyz",
     "engines": {
         "vscode": "^1.25.0"

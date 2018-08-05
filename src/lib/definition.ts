@@ -6,7 +6,7 @@ interface PLSQLRoot {
 interface PLSQLSymbol {
     name: string;
     offset?: number;
-    line?: number;
+    offsetEnd?: number;
     kind: PLSQLSymbolKind;
     kindName: string;
     symbols?: PLSQLSymbol[];

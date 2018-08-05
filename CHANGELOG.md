@@ -1,3 +1,6 @@
+## 1.4.2
+* Fix use of Breadcrumbs (add information for end of symbols)
+
 ## 1.4.0
 * Use new DocumentSymbolClass (according to vscode api documentation) to show hierarchie in outline
 

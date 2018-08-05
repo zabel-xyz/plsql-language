@@ -21,7 +21,8 @@ export default class PlSqlParserVSC extends PlSqlParser {
     }
 
     private static getSymbolInformation(document: vscode.TextDocument, symbol: PLSQLSymbol) {
-        const line = symbol.offset != null ? document.lineAt(document.positionAt(symbol.offset)) : document.lineAt(symbol.line);
+        const line = symbol.offset != null ? document.lineAt(document.positionAt(symbol.offset)) : document.lineAt(0)/*document.lineAt(symbol.line)*/;
+        const lineEnd = symbol.offsetEnd != null ? document.lineAt(document.positionAt(symbol.offsetEnd)) : line;
 
         const result = new vscode.DocumentSymbol(
             symbol.kindName+' '+symbol.name,
@@ -29,8 +30,8 @@ export default class PlSqlParserVSC extends PlSqlParser {
             this.convertToSymbolKind(symbol.kind),
             // symbol.parent ? symbol.parent.kindName+' '+symbol.parent.name : '',
             // new vscode.Location(document.uri, new vscode.Range(line.range.start, line.range.end))
-            new vscode.Range(line.range.start, line.range.end),
-            new vscode.Range(line.range.start, line.range.end)
+            new vscode.Range(line.range.start, lineEnd.range.end),
+            new vscode.Range(line.range.start, lineEnd.range.end)
         );
         if (symbol.symbols)
             result.children = symbol.symbols.map(item => this.getSymbolInformation(document, item));
