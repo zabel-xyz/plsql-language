@@ -11,7 +11,7 @@ export interface PLSQLCursorInfos {
 
 export class PlSqlNavigator {
 
-    public static goto(cursorInfos: PLSQLCursorInfos, lineOffset: number, parserRoot: PLSQLRoot, pkgGetName_cb, search_cb): Promise<PLSQLSymbol> {
+    public static goto(cursorInfos: PLSQLCursorInfos, lineOffset: number, parserRoot: PLSQLRoot, pkgGetName_cb, search_cb, findSpec?: boolean): Promise<PLSQLSymbol> {
 
         return new Promise<PLSQLSymbol>((resolve, reject) => {
 
@@ -30,6 +30,11 @@ export class PlSqlNavigator {
                     parserRoot.symbols, cursorInfos.currentWord, lineOffset);
 
                 if (cursorSymbol && cursorSymbol.parent) {
+
+                    if (findSpec &&
+                        ((cursorSymbol.parent.kind === PLSQLSymbolKind.packageSpec) ||
+                         [PLSQLSymbolKind.procedureSpec, PLSQLSymbolKind.functionSpec].includes(cursorSymbol.kind)))
+                            return resolve();
 
                     // switch in body (spec and body are in body)
                     if (cursorSymbol.parent.kind !== PLSQLSymbolKind.packageSpec) {
@@ -69,14 +74,18 @@ export class PlSqlNavigator {
                     // Search in current body of file  (recursive for subFunctions or subProcedure)
                     navigateSymbol = PlSqlParser.findSymbolByNameOffset(rootSymbol.symbols, cursorInfos.currentWord, 0, true);
                     if (navigateSymbol) {
-                        if (PlSqlParser.isSymbolSpec(navigateSymbol))
+                        if ((!findSpec && PlSqlParser.isSymbolSpec(navigateSymbol)) ||
+                            (findSpec && !PlSqlParser.isSymbolSpec(navigateSymbol)))
                             navigateSymbol2 = PlSqlParser.findSymbolByNameKind(rootSymbol.symbols, navigateSymbol.name, PlSqlParser.switchSymbolKind(navigateSymbol.kind), false);
-                        return resolve(navigateSymbol2 || navigateSymbol);
+                        if (!findSpec)
+                            return resolve(navigateSymbol2 || navigateSymbol);
+                        else
+                            navigateSymbol = navigateSymbol2 || navigateSymbol;
                     }
                     // Search in current spec (maybe a constant or type definition)
                     rootSymbol2 = PlSqlParser.switchSymbol(rootSymbol);
                     if (rootSymbol2 && rootSymbol2 !== rootSymbol) {
-                        navigateSymbol = PlSqlParser.findSymbolByNameOffset(rootSymbol2.symbols, cursorInfos.currentWord, 0, false);
+                        navigateSymbol = PlSqlParser.findSymbolByNameOffset(rootSymbol2.symbols, cursorInfos.currentWord, 0, false) || navigateSymbol;
                         if (navigateSymbol)
                            return resolve(navigateSymbol);
                     } else if (!packageName && !rootSymbol2 && rootSymbol.kind === PLSQLSymbolKind.packageBody) {
@@ -90,28 +99,12 @@ export class PlSqlNavigator {
             const search = {
                 package: packageName,
                 cursorWord: cursorInfos.currentWord,
-                isDeclaration: isDeclaration
+                isDeclaration: isDeclaration,
+                priority: isDeclaration ? null : (findSpec ? PLSQLSymbolKind.packageSpec : PLSQLSymbolKind.packageBody)
             };
-            let files;
-            this.getGlobFiles(this.getGlobCmd(search, search_cb))
-                .then(globFiles => {
-                    files = globFiles;
-                    return this.parseFiles(files, search, this.gotoFile);
-                })
-               .then(symbol => {
-                    // search without packageName (because it's perhaps only the name of the schema)
-                    if (!symbol && search.package) {
-                        search.package = null;
-                        return this.parseFiles(files, search, this.gotoFile);
-                    }
-                    return symbol;
-                })
-                .then(symbol => {
-                    resolve(symbol);
-                })
-                .catch(err => {
-                    reject(err);
-                });
+            this.searchExternal(search, search_cb, this.gotoFile)
+                .then(symbol => resolve(symbol))
+                .catch(err => reject(err));
         });
     }
 
@@ -149,25 +142,42 @@ export class PlSqlNavigator {
 
             const search = {
                 package: cursorInfos.previousWord,
-                cursorWord: cursorInfos.currentWord
+                cursorWord: cursorInfos.currentWord,
+                mode: 'complete'
             };
-            let files;
-            this.getGlobFiles(this.getGlobCmd(search, search_cb))
-                .then(globFiles => {
-                    files = globFiles;
-                    return this.parseFiles(files, search, this.completeItem);
-                })
-                .then(symbols => {
-                    return resolve(symbols);
-                })
-                .catch(err => {
-                    reject(err);
-                });
+            this.searchExternal(search, search_cb, this.completeItem)
+                .then(symbols => resolve(symbols))
+                .catch(err => reject(err));
         });
     }
 
     private static isPackageDeclaration(text) {
         return text && ['function', 'procedure'].includes(text.toLowerCase());
+    }
+
+    private static searchExternal(search, search_cb, parseFn): Promise<any> {
+        return new Promise<any>((resolve, reject) => {
+            let files;
+            this.getGlobFiles(this.getGlobCmd(search, search_cb))
+                .then(globFiles => {
+                    files = globFiles;
+                    return this.parseFiles(files, search, parseFn);
+                })
+               .then(symbol => {
+                    // search without packageName (because it's perhaps only the name of the schema)
+                    if (!symbol && search.package && search.mode !== 'complete') {
+                        search.package = null;
+                        return this.parseFiles(files, search, parseFn);
+                    }
+                    return symbol;
+                })
+                .then(symbol => {
+                    resolve(symbol);
+                })
+                .catch(err => {
+                    reject(err);
+                });
+        });
     }
 
     private static getGlobFiles(globCmd): Promise<string[]> {
@@ -220,6 +230,7 @@ export class PlSqlNavigator {
         return new Promise((resolve, reject) => {
 
             const me = this;
+            let   latestSymbol;
 
             (function process(index) {
                 if (index >= files.length) {
@@ -230,10 +241,11 @@ export class PlSqlNavigator {
                     .then(rootSymbol => {
                         const navigateSymbol = func.call(this, searchInfos, rootSymbol);
 
-                        if (navigateSymbol === null)
+                        if (navigateSymbol.continue) {
+                            latestSymbol = navigateSymbol.symbol;
                             process(index + 1);
-                        else
-                            resolve(navigateSymbol);
+                        } else
+                            resolve(navigateSymbol.symbol || latestSymbol);
                     })
                     .catch(errParse => {
                         // an error with this file
@@ -245,17 +257,16 @@ export class PlSqlNavigator {
         });
     }
 
-    private static completeItem(searchInfos, rootSymbol: PLSQLRoot): PLSQLSymbol[] {
-        let symbols;
+    private static completeItem(searchInfos, rootSymbol: PLSQLRoot): any {
+        // TODO: return current package body private func/proc/spec
         const parentSymbol = PlSqlParser.findSymbolByNameKind(rootSymbol.symbols, searchInfos.package, [PLSQLSymbolKind.packageSpec], false);
         if (parentSymbol)
-            symbols = parentSymbol.symbols;
+            return {symbol: parentSymbol.symbols};
         else
-            symbols = null; // return null for continue search with next file
-        return symbols;
+            return {continue: true}; // return null for continue search with next file
     }
 
-    private static gotoFile(searchInfos, rootSymbol: PLSQLRoot): PLSQLSymbol {
+    private static gotoFile(searchInfos, rootSymbol: PLSQLRoot): any {
         let parentSymbol, navigateSymbol,
             symbols: PLSQLSymbol[];
 
@@ -270,18 +281,24 @@ export class PlSqlNavigator {
         if (symbols) {
             navigateSymbol = PlSqlParser.findSymbolByNameOffset(symbols, searchInfos.cursorWord, 0, false);
             if (navigateSymbol) {
-                // if function/procedure in spec => search in body
-                if (!searchInfos.isDeclaration && navigateSymbol.parent && navigateSymbol.parent.kind === PLSQLSymbolKind.packageSpec &&
-                    [PLSQLSymbolKind.functionSpec, PLSQLSymbolKind.procedureSpec].includes(navigateSymbol.kind)) {
+
+                if (navigateSymbol.parent &&
+                    ((searchInfos.priority === PLSQLSymbolKind.packageSpec && navigateSymbol.parent.kind === PLSQLSymbolKind.packageBody &&
+                        [PLSQLSymbolKind.function, PLSQLSymbolKind.procedure].includes(navigateSymbol.kind)) ||
+                     (searchInfos.priority === PLSQLSymbolKind.packageBody && navigateSymbol.parent.kind === PLSQLSymbolKind.packageSpec &&
+                        [PLSQLSymbolKind.functionSpec, PLSQLSymbolKind.procedureSpec].includes(navigateSymbol.kind)))) {
+
                     parentSymbol = PlSqlParser.switchSymbol(navigateSymbol.parent);
-                    if (parentSymbol !== navigateSymbol.parent)
-                        return PlSqlParser.findSymbolByNameOffset(parentSymbol.symbols, searchInfos.cursorWord, 0, false);
-                    // else continue search, body is in a different file than spec
+                    if (parentSymbol && parentSymbol !== navigateSymbol.parent)
+                        return {symbol: PlSqlParser.findSymbolByNameOffset(parentSymbol.symbols, searchInfos.cursorWord, 0, false) || navigateSymbol};
+                    else
+                        return {symbol: navigateSymbol, continue: true}; // continue search, body and spec are in a different file
+
                 } else
-                    return navigateSymbol;
+                    return {symbol: navigateSymbol};
             }
         }
-        return null; // if we must continue return null else undefined
+        return {continue: true};
     }
 
     private static readFile(file: string): Promise<PLSQLRoot> {

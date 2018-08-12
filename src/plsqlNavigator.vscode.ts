@@ -24,6 +24,17 @@ export class PlSqlNavigatorVSC /*extends PlSqlNavigator*/ {
                   this.translatePackageName.bind(this, document), this.getGlobCmdEx.bind(this, document));
     }
 
+    public static getDeclaration(document: vscode.TextDocument, position: vscode.Position): Promise<PLSQLSymbol> {
+
+        PlSqlParser.initParser(PLSQLSettings.getCommentInSymbols());
+
+        const cursorInfos = this.getCursorInfos(document, position),
+              parserRoot = PlSqlParser.parseDocument(document);
+
+        return PlSqlNavigator.goto(cursorInfos, document.offsetAt(cursorInfos.line.range.start), parserRoot,
+                  this.translatePackageName.bind(this, document), this.getGlobCmdEx.bind(this, document), true);
+    }
+
     public static complete(document: vscode.TextDocument, position: vscode.Position, cursorInfos: PLSQLCursorInfos): Promise<PLSQLSymbol[]> {
 
         if (!cursorInfos.previousWord)

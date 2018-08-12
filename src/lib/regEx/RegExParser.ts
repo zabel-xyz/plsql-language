@@ -80,6 +80,7 @@ export default class RegExpParser {
                     offset = this.regExp.lastIndex;
                     fromOffset = this.jumpAsIs(text, offset);
                     if (fromOffset !== offset) { // if equal => no is|as => continue on same level...
+                        symbol.definition = found[0] + text.substring(offset, fromOffset);
                         offset = fromOffset;
                         if (symbol.kind === PLSQLSymbolKind.packageSpec)
                             offset = this.getSymbolsSpec(text, offset, symbol);
@@ -123,6 +124,7 @@ export default class RegExpParser {
         while (found = this.regExpS.exec(text)) {
             if (found[2] && found[3]) {
                 symbol = this.createSymbolItem(found[2], found[3], found.index, parent, false);
+                symbol.definition = found[0];
                 symbol.offsetEnd = this.regExpS.lastIndex;
             } else if (found[1]) // end || create
                 break;
@@ -145,9 +147,10 @@ export default class RegExpParser {
             else if (found[5] && found[6]) {
                 if (extractSymbol) {
                     symbol = this.createSymbolItem(found[5], found[6], found.index, parent, false);
-                    if (symbol)
+                    if (symbol) {
+                        symbol.definition = found[0];
                         symbol.offsetEnd = lastIndex;
-                    else {
+                    } else {
                         // if it's not a symbol, something goes wrong => break
                         lastIndex = oldIndex;
                         break;
@@ -159,21 +162,23 @@ export default class RegExpParser {
                     parent.symbols = [];
                 isBody = found[3].toLowerCase() !== ';';
                 symbol = this.createSymbolItem(found[1], found[2], found.index, parent, isBody);
-                if (isBody)
+                if (isBody) {
                     if (found[3].toLowerCase() === 'begin') {
                         // begin => jump to end
-                        lastIndex = this.jumpToEnd(text, lastIndex);
-                        symbol.offsetEnd = lastIndex;
-                        this.regExpB.lastIndex = lastIndex;
                     } else { // is,as
                         // read between is and begin (subPro/subFunc)
                         lastIndex = this.getSymbolsBody(text, lastIndex, symbol, false);
-                        // jump to end
-                        lastIndex = this.jumpToEnd(text, lastIndex);
-                        symbol.offsetEnd = lastIndex;
-                        this.regExpB.lastIndex = lastIndex;
                     }
+                    // jump to end
+                    lastIndex = this.jumpToEnd(text, lastIndex);
+                    symbol.offsetEnd = lastIndex;
+                    symbol.definition = found[0];
+                    this.regExpB.lastIndex = lastIndex;
+                } else if (symbol) {
+                    symbol.definition = found[0];
                 }
+            }
+
         }
         return lastIndex;
     }
