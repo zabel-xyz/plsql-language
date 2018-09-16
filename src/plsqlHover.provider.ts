@@ -1,14 +1,17 @@
 import * as vscode from 'vscode';
 
 import { PlSqlNavigatorVSC as PlSqlNavigator }  from './plsqlNavigator.vscode';
+import PlSqlParser from './plsqlParser.vscode';
 
 export class PLSQLHoverProvider implements vscode.HoverProvider {
+    public enable: boolean;
 
     public provideHover(document: vscode.TextDocument, position: vscode.Position,
         token: vscode.CancellationToken): vscode.ProviderResult<vscode.Hover> {
             return new Promise<vscode.Hover>((resolve, reject) => {
+                if (!this.enable)
+                    resolve();
 
-                // TODO use documentation (comment above function)
                 // TODO use cache
                 PlSqlNavigator.getDeclaration(document, position)
                 .then(symbol => {
@@ -20,8 +23,10 @@ export class PLSQLHoverProvider implements vscode.HoverProvider {
                         else
                             value = symbol.kindName;
                         hoverText.push({language: 'plsql', value: value});
-                        if (symbol.documentation)
-                            hoverText.push(symbol.documentation);
+                        if (symbol.documentation) {
+                            const symbolDoc = PlSqlParser.getFormatSymbolDocumentation(symbol);
+                            hoverText.push(symbolDoc);
+                        }
                         resolve(new vscode.Hover(hoverText));
                     } else
                         resolve();

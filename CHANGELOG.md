@@ -1,3 +1,8 @@
+## 1.5.0
+* New: add Signature help feature. (activated by default) `plsql-language.signatureHelp.enable`
+* New: add Hover feature. (desactivated by default) `plsql-language.hover.enable` [#24](https://github.com/zabel-xyz/plsql-language/issues/24)
+* Fix bug in regExpParser [#52](https://github.com/zabel-xyz/plsql-language/issues/52)
+
 ## 1.4.2
 * Fix use of Breadcrumbs (add information for end of symbols)
 

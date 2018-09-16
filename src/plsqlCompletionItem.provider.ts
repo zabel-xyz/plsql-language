@@ -42,9 +42,18 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
                     this.plsqlSnippets = this.getSnippets();
                 Array.prototype.push.apply(completeItems, this.filterCompletion(this.plsqlSnippets, word));
 
-                // Custoom completion
+                // Custom completion
                 const objects = this.getCompletionCustomItems(document);
                 Array.prototype.push.apply(completeItems, this.filterCompletion(objects, word));
+
+                // Current package completion
+                const items = PlSqlParser.getAllDeclaration(document);
+                if (items) {
+                    Array.prototype.push.apply(completeItems,
+                        this.filterCompletion(
+                            items.map(symbol => this.createSymbolItem(symbol)),
+                            word));
+                }
 
                 // TODO symbol in workspace
 
@@ -60,8 +69,8 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
 
                     // 2. Use Package member completion (spec)
                     this.getPackageItems(document, position, cursorInfos)
-                    .then(members => {
-                        Array.prototype.push.apply(completeItems, members);
+                    .then(items => {
+                        Array.prototype.push.apply(completeItems, items);
                         return resolve(this.processCompleteItems(completeItems));
                     })
                     .catch(err => {
@@ -99,7 +108,7 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
     private createSymbolItem(symbol: PLSQLSymbol): vscode.CompletionItem {
         const symbolInfo = PlSqlParser.getSymbolsCompletion(symbol);
         return this.createCompleteItem(symbolInfo.kind,
-            symbolInfo.label);
+            symbolInfo.label, symbolInfo.documentation, symbolInfo.label, symbolInfo.detail);
     }
 
     private createCompleteItem(type: vscode.CompletionItemKind, label: string, doc = '', text = label, origin = ''): vscode.CompletionItem {
@@ -123,7 +132,7 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
             const snippet = this.plDocController.getDocSnippet(document, nextText);
             if (snippet)
                 return this.createSnippetItem(snippet, 'pldoc');
-        };
+        }
     }
 
     private getPlDocCustomItems(document: vscode.TextDocument): vscode.CompletionItem[] {

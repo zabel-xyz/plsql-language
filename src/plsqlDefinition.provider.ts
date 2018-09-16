@@ -21,7 +21,7 @@ export class PLSQLDefinitionProvider implements vscode.DefinitionProvider {
                     reject(err);
                 });
         });
-    };
+    }
 
     private getFileLocation(navigateSymbol: PLSQLSymbol): Promise<vscode.Location> {
         return new Promise((resolve, reject) => {

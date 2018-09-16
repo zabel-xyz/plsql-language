@@ -1,4 +1,6 @@
 import RegExpParser from './regEx/RegExParser';
+import DocFormater from './docFormater';
+
 // import AntlrParser from './Antlr/AntlrParser';
 
 interface PLSQLInfos {
@@ -25,6 +27,10 @@ export default class PlSqlParser {
         return root;
     }
 
+    public static parseParams(symbol: PLSQLSymbol): PLSQLParam[] {
+        return this.getParser().parseParams(symbol);
+    }
+
     public static findSymbolByNameOffset(symbols: PLSQLSymbol[], name: string, offset = 0, recursive = true): PLSQLSymbol {
         // find first symbol after given offset
         const lower = name.toLowerCase();
@@ -48,6 +54,18 @@ export default class PlSqlParser {
         const lower = name.toLowerCase(),
               kindArray = Array.isArray(kind) ? kind : [kind];
         return this.findSymbol(symbols, symbol => (symbol.name.toLowerCase() === lower && kindArray.includes(symbol.kind)), recursive);
+    }
+
+    public static getSymbolsDeclaration(root: PLSQLRoot): PLSQLSymbol[] {
+        const allSymbols: PLSQLSymbol[] = [];
+
+        this.forEachSymbol(root.symbols, symbol => {
+            if (![PLSQLSymbolKind.function, PLSQLSymbolKind.procedure,
+                PLSQLSymbolKind.packageBody, PLSQLSymbolKind.packageSpec].includes(symbol.kind))
+                allSymbols.push(symbol);
+        });
+
+        return allSymbols;
     }
 
     // Body to Spec and Spec to Body
@@ -103,6 +121,15 @@ export default class PlSqlParser {
         while (symbol.parent)
             symbol = symbol.parent;
         return symbol.root.fileName;
+    }
+
+    public static formatSymbolDocumentation(symbol: PLSQLSymbol, useJSDoc: boolean) {
+        if (symbol.documentation && !symbol.formatedDoc) {
+            symbol.formatedDoc = {
+                text: DocFormater.format(symbol.documentation, useJSDoc),
+                isMarkdown: useJSDoc
+            };
+        }
     }
 
     private static forEachSymbol(symbols: PLSQLSymbol[], fn) {

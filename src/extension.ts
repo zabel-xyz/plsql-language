@@ -4,6 +4,9 @@ import { PLSQLDefinitionProvider } from './plsqlDefinition.provider';
 import { PLSQLDocumentSymbolProvider } from './plsqlDocumentSymbol.provider';
 import { PLSQLCompletionItemProvider } from './plsqlCompletionItem.provider';
 import { PLSQLHoverProvider } from './plsqlHover.provider';
+import { PLSQLSignatureProvider } from './plsqlSignature.provider';
+
+import { PLSQLSettings } from './plsql.settings';
 
 import { ConnectController }  from './connect.controller';
 import ConnectUIController  from './connectUI.controller';
@@ -11,10 +14,13 @@ import { ConnectStatusBar } from './connect.statusBar';
 
 export function activate(context: vscode.ExtensionContext) {
 
-    // language providers
-    context.subscriptions.push(vscode.languages.registerHoverProvider('plsql', new PLSQLHoverProvider()));
-    context.subscriptions.push(vscode.languages.registerCompletionItemProvider('plsql', new PLSQLCompletionItemProvider(), '.', '\"'));
+    let hoverProvider, signatureHelpProvider;
 
+    // language providers
+    activateHover();
+    activateSignatureHelp();
+
+    context.subscriptions.push(vscode.languages.registerCompletionItemProvider('plsql', new PLSQLCompletionItemProvider(), '.', '\"'));
     context.subscriptions.push(vscode.languages.registerDefinitionProvider('plsql', new PLSQLDefinitionProvider()));
 
     // context.subscriptions.push(vscode.languages.registerReferenceProvider('plsql', new PLSQLReferenceProvider()));
@@ -22,7 +28,6 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.languages.registerDocumentSymbolProvider('plsql', new PLSQLDocumentSymbolProvider()));
     // context.subscriptions.push(vscode.languages.registerWorkspaceSymbolProvider(new PLSQLWorkspaceSymbolProvider()));
     // context.subscriptions.push(vscode.languages.registerRenameProvider('plsql', new PLSQLRenameProvider()));
-    // context.subscriptions.push(vscode.languages.registerSignatureHelpProvider('plsql', new PLSQLSignatureHelpProvider(), '(', ','));
     // context.subscriptions.push(vscode.languages.registerCodeActionsProvider('plsql', new PLSQLCodeActionProvider()));
 
     // Connection
@@ -33,9 +38,39 @@ export function activate(context: vscode.ExtensionContext) {
             connectUIController.activateConnectionsList, connectUIController));
 
     vscode.workspace.onDidChangeConfiguration(configChangedEvent => {
-        if (configChangedEvent.affectsConfiguration('plsql-language'))
-            connectController.configurationChanged();
+        if (!configChangedEvent.affectsConfiguration('plsql-language'))
+            return;
+
+        connectController.configurationChanged();
+
+        if (configChangedEvent.affectsConfiguration('plsql-language.signatureHelp'))
+            activateSignatureHelp();
+        if (configChangedEvent.affectsConfiguration('plsql-language.hover'))
+            activateHover();
+
     });
+
+    function activateHover() {
+        const enable = PLSQLSettings.getHoverEnable();
+
+        if (!hoverProvider && enable) {
+            hoverProvider = new PLSQLHoverProvider();
+            context.subscriptions.push(vscode.languages.registerHoverProvider('plsql', hoverProvider));
+        }
+        if (hoverProvider)
+            hoverProvider.enable = enable;
+    }
+
+    function activateSignatureHelp() {
+        const enable = PLSQLSettings.getSignatureEnable();
+
+        if (!signatureHelpProvider && enable) {
+            signatureHelpProvider = new PLSQLSignatureProvider();
+            context.subscriptions.push(vscode.languages.registerSignatureHelpProvider('plsql', signatureHelpProvider, '(', ','));
+        }
+        if (signatureHelpProvider)
+            signatureHelpProvider.enable = enable;
+    }
 }
 
 // function deactivate() {
