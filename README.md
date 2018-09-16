@@ -42,6 +42,9 @@ The default template is [here](snippets/pldoc.json).<br />
    Don't change the default file because it'll be overwritten the next time you update this extension
  - Define the path (folder only) to your custom file by using the setting *plsql-language.pldoc.path*
 
+**Note**<br>
+If documentation begins with /** (double stars), it'll appear in Signature, Hover, Completion.
+
 ## Completion
 There is intelliSense for package members (autocompletion from package files).
 

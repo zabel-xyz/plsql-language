@@ -8,16 +8,42 @@ export default class PlSqlParserVSC extends PlSqlParser {
         return this.parseFile(document.fileName, document.getText());
     }
 
+    public static parseParams(symbol: PLSQLSymbol): PLSQLParam[] {
+        return PlSqlParser.parseParams(symbol);
+    }
+
     public static getAllSymbols(document: vscode.TextDocument): vscode.DocumentSymbol[] {
         const root = this.parseFile(document.fileName, document.getText());
         return root.symbols.map(symbol => this.getSymbolInformation(document, symbol));
     }
 
+    public static getAllDeclaration(document: vscode.TextDocument): PLSQLSymbol[] {
+        const root = this.parseFile(document.fileName, document.getText());
+        return PlSqlParser.getSymbolsDeclaration(root);
+    }
+
     public static getSymbolsCompletion(symbol: PLSQLSymbol): any {
         return {
             label: symbol.name,
-            kind: this.convertToCompletionKind(symbol.kind)
+            documentation: this.getFormatSymbolDocumentation(symbol),
+            kind: this.convertToCompletionKind(symbol.kind),
+            detail: symbol.definition
         };
+    }
+
+    public static getFormatSymbolDocumentation(symbol: PLSQLSymbol): string | vscode.MarkdownString {
+        if (!symbol.documentation)
+            return '';
+
+        const useJsDoc = symbol.documentation.indexOf('@') !== -1;
+        PlSqlParser.formatSymbolDocumentation(symbol, useJsDoc);
+
+        let symbolDoc: string | vscode.MarkdownString;
+        if (symbol.formatedDoc.isMarkdown)
+            symbolDoc = new vscode.MarkdownString(symbol.formatedDoc.text);
+        else
+            symbolDoc = symbol.formatedDoc.text;
+        return symbolDoc;
     }
 
     private static getSymbolInformation(document: vscode.TextDocument, symbol: PLSQLSymbol) {

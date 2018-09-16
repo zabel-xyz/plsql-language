@@ -2,10 +2,10 @@
     "name": "plsql-language",
     "displayName": "Language PL/SQL",
     "description": "PL/SQL language (Oracle) support",
-    "version": "1.4.2",
+    "version": "1.5.0",
     "publisher": "xyz",
     "engines": {
-        "vscode": "^1.25.0"
+        "vscode": "^1.27.0"
     },
     "homepage": "https://github.com/zabel-xyz/plsql-language",
     "repository": {
@@ -29,7 +29,8 @@
     ],
     "main": "./out/src/extension",
     "contributes": {
-        "languages": [{
+        "languages": [
+            {
                 "id": "plsql",
                 "aliases": [
                     "PLSQL",
@@ -47,12 +48,15 @@
                     ".pls"
                 ],
                 "configuration": "./syntaxes/plsql.configuration.json"
-        }],
-        "grammars": [{
+            }
+        ],
+        "grammars": [
+            {
                 "language": "plsql",
                 "scopeName": "source.plsql.oracle",
                 "path": "./syntaxes/plsql.tmLanguage"
-        }],
+            }
+        ],
         "configuration": {
             "type": "object",
             "title": "PL/SQL configuration",
@@ -64,28 +68,43 @@
                 },
                 "plsql-language.synonym": {
                     "type": "object",
-                    "default": {"replace": null, "by": null},
+                    "properties": {
+                        "plsql-language.replace": {
+                            "type": "string",
+                            "default": null
+                        },
+                        "plsql-language.by": {
+                            "type": "string",
+                            "default": null
+                        }
+                    },
                     "description": "Usage of synonmy for package name. To replace synonym by real package name when navigate. ('replace' could be a regular expression)"
                 },
-
                 "plsql-language.commentInSymbols": {
                     "type": "boolean",
                     "default": false,
                     "description": "Use comments between symbol and name (e.g. create or replace package /** **/ name)"
                 },
-
                 "plsql-language.snippets.enable": {
                     "type": "boolean",
                     "default": true,
                     "description": "Enable snippets"
                 },
-
+                "plsql-language.hover.enable": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable hover feature"
+                },
+                "plsql-language.signatureHelp.enable": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable signature help feature"
+                },
                 "plsql-language.completion.path": {
                     "type": "string",
                     "default": null,
                     "description": "Specify the folder location where to find plsql.completion.json (null: no custom completion)"
                 },
-
                 "plsql-language.pldoc.enable": {
                     "type": "boolean",
                     "default": true,
@@ -101,7 +120,6 @@
                     "default": "",
                     "description": "Define string to replace variable ${PLDOC_AUTHOR}"
                 },
-
                 "plsql-language.connections": {
                     "type": "array",
                     "title": "Connections",
@@ -160,27 +178,28 @@
                 }
             }
         },
-        "commands": [{
-            "command": "plsql.activateConnection",
-            "title": "PLSQL - Activate connection"
-        }]
+        "commands": [
+            {
+                "command": "plsql.activateConnection",
+                "title": "PLSQL - Activate connection"
+            }
+        ]
     },
-
     "scripts": {
         "vscode:prepublish": "tsc -p ./",
         "compile": "tsc -p ./",
         "postinstall": "node ./node_modules/vscode/bin/install"
     },
     "dependencies": {
-        "glob": "7.1.2",
-        "json5": "1.0.1",
+        "glob": "7.1.3",
+        "json5": "2.0.1",
         "dateformat": "3.0.3"
     },
     "devDependencies": {
-        "typescript": "2.9.2",
-        "vscode": "1.1.18",
+        "typescript": "3.0.3",
+        "vscode": "1.1.21",
         "mocha": "5.2.0",
-        "@types/node": "10.5.1",
-        "@types/mocha": "5.2.4"
+        "@types/node": "10.9.4",
+        "@types/mocha": "5.2.5"
     }
 }

@@ -12,6 +12,7 @@ as
   is
   begin
     -- some code to execute
+    PCK$1.my$procedure('test');
     return 4;
   end;
 

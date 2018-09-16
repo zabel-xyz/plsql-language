@@ -79,6 +79,15 @@ export class PLSQLSettings {
         return <boolean>config.get('commentInSymbols');
     }
 
+    public static getHoverEnable(): boolean {
+        const config = vscode.workspace.getConfiguration('plsql-language');
+        return <boolean>config.get('hover.enable');
+    }
+    public static getSignatureEnable(): boolean {
+        const config = vscode.workspace.getConfiguration('plsql-language');
+        return <boolean>config.get('signatureHelp.enable');
+    }
+
     public static getSearchExt(searchExt: string[]) {
         const config = vscode.workspace.getConfiguration('files'),
               assoc = <object>config.get('associations');
