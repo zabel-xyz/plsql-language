@@ -18,13 +18,14 @@ export default class RegExpParser {
     private static regJumpDoc = `(\\/\\*\\*[\\s\\S]*?\\*\\/)`;
 
     private static REG_WORD = "[\\w\\$#]";
+    private static REG_WORDTYPE = "[\\w\\$#%\\.]"; // param type on the form  xyztable.xyzfield%type
     private static regSymbolsCreate = `(?:(create)(?:\\s+or\\s+replace)?\\s+)?`;
     private static regSymbols = `(?:\\b(function|procedure|package)\\b(?:\\s+(body))?)\\s+`;
     private static regSymbolsName = `(?:\"?${RegExpParser.REG_WORD}+\"?\\.)?\"?(${RegExpParser.REG_WORD}+)\"?`;
 
     private static regSpecSymbols = `(?:(${RegExpParser.REG_WORD}+)\\s+(${RegExpParser.REG_WORD}+)\\s*(?:\\s*;|.[^;]*;))`;
     private static regBody = `(?:\\b(procedure|function)\\b\\s+(${RegExpParser.REG_WORD}+)[\\s\\S]*?(;|\\b(?:is|as|begin)\\b))`;
-    private static regParams = `(?:\\(|,)\\s*((${RegExpParser.REG_WORD}+)\\s*(in\\s+out|in|out)?\\s*(${RegExpParser.REG_WORD}*))|(?:\\breturn\\b\\s*(${RegExpParser.REG_WORD}*))`;
+    private static regParams = `(?:\\(|,)\\s*((${RegExpParser.REG_WORD}+)\\s*(in\\s+out|in|out)?\\s*(${RegExpParser.REG_WORDTYPE}*))|(?:\\breturn\\b\\s*(${RegExpParser.REG_WORDTYPE}*))`;
 
     private static regJumpEnd = `(\\bbegin|case\\b)|(?:(\\bend\\b)\\s*(?:\\b(if|loop|case)\\b)?)`;
     private static regJumpAsIs = `\\b(is|as)\\b`;
