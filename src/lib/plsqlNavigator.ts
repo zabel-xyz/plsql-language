@@ -114,7 +114,7 @@ export class PlSqlNavigator {
             previousDot = false;
 
         if (this.isPackageDeclaration(currentWord)) {
-            const regexp = new RegExp(/(?:^\s+)?(\w+)/i);
+            const regexp = new RegExp(/(?:^\s+)?([\w\$#]+)/i);
             const found = regexp.exec(line.substr(endOffset));
             if (found) {
                 previousWord = currentWord;
@@ -122,7 +122,7 @@ export class PlSqlNavigator {
             } else
                 currentWord = null;
         } else {
-            const regexp = new RegExp(`(\\w+)(\\s+|.)${currentWord}$`);
+            const regexp = new RegExp(`([\\w\\$#]+)(\\s+|.)${currentWord.replace(/[\$#]/g, '\\$&')}$`);
             const found = regexp.exec(line.substr(0, endOffset));
             if (found) {
                 previousWord = found[1];

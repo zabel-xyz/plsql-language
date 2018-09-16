@@ -10,20 +10,21 @@ export default class RegExpParser {
     public static regExpJumpEnd: RegExp;
     public static regExpJumpAsIs: RegExp;
     public static regExpJumpDoc: RegExp;
-    public static regExpParams: RegExp =
-            /(?:\(|,)\s*((\w+)\s*(in\s+out|in|out)?\s*(\w*))|(?:\breturn\b\s*(\w*))/gi;
+    public static regExpParams: RegExp;
 
     private static regComment = `(?:\\/\\*[\\s\\S]*?\\*\\/)|(?:--.*)`;
     private static regCommentDoc = `(?:\\/\\*(\\*)?[\\s\\S]*?\\*\\/)|(?:--.*)`;
     private static regCommentInside = `(?:\\/\\*[\\s\\S]*?\\*\\/\\s*)?`; // a bit slower !
     private static regJumpDoc = `(\\/\\*\\*[\\s\\S]*?\\*\\/)`;
 
+    private static REG_WORD = "[\\w\\$#]";
     private static regSymbolsCreate = `(?:(create)(?:\\s+or\\s+replace)?\\s+)?`;
     private static regSymbols = `(?:\\b(function|procedure|package)\\b(?:\\s+(body))?)\\s+`;
-    private static regSymbolsName = `(?:\"?\\w+\"?\\.)?\"?(\\w+)\"?`;
+    private static regSymbolsName = `(?:\"?${RegExpParser.REG_WORD}+\"?\\.)?\"?(${RegExpParser.REG_WORD}+)\"?`;
 
-    private static regSpecSymbols = `(?:(\\w+)\\s+(\\w+)\\s*(?:\\s*;|.[^;]*;))`;
-    private static regBody = `(?:\\b(procedure|function)\\b\\s+(\\w+)[\\s\\S]*?(;|\\b(?:is|as|begin)\\b))`;
+    private static regSpecSymbols = `(?:(${RegExpParser.REG_WORD}+)\\s+(${RegExpParser.REG_WORD}+)\\s*(?:\\s*;|.[^;]*;))`;
+    private static regBody = `(?:\\b(procedure|function)\\b\\s+(${RegExpParser.REG_WORD}+)[\\s\\S]*?(;|\\b(?:is|as|begin)\\b))`;
+    private static regParams = `(?:\\(|,)\\s*((${RegExpParser.REG_WORD}+)\\s*(in\\s+out|in|out)?\\s*(${RegExpParser.REG_WORD}*))|(?:\\breturn\\b\\s*(${RegExpParser.REG_WORD}*))`;
 
     private static regJumpEnd = `(\\bbegin|case\\b)|(?:(\\bend\\b)\\s*(?:\\b(if|loop|case)\\b)?)`;
     private static regJumpAsIs = `\\b(is|as)\\b`;
@@ -41,6 +42,7 @@ export default class RegExpParser {
         this.regExpJumpEnd = new RegExp(`${this.regComment}|${this.regJumpEnd}`, 'gi');
         this.regExpJumpAsIs = new RegExp(`${this.regJumpAsIs}`, 'gi');
         this.regExpJumpDoc = new RegExp(`${this.regJumpDoc}\\s*$`, 'gi');
+        this.regExpParams = new RegExp(`${this.regParams}`, 'gi');
     }
 
     public static getSymbols(text: string, fileName?: string): PLSQLRoot  {

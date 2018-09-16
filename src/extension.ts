@@ -14,6 +14,12 @@ import { ConnectStatusBar } from './connect.statusBar';
 
 export function activate(context: vscode.ExtensionContext) {
 
+    // Default without $# redefinded here
+    // because plsql.configuration.json don't work with getWordRangeAtPosition() according to issue #42649
+    vscode.languages.setLanguageConfiguration('plsql', {
+        wordPattern: /(-?\d*\.\d\w*)|([^\`\~\!\@\%\^\&\*\(\)\-\=\+\[\{\]\}\|\;\:\'\"\,\.\<\>\/\?\s]+)/
+    });
+
     let hoverProvider, signatureHelpProvider;
 
     // language providers

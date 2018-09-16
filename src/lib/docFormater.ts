@@ -21,14 +21,14 @@ export default class DocFormater {
     private static formatToMarkdown(doc: string): string {
         doc = this.formatToText(doc);
 
-        const regExpFormat = /([\r\n])?(@param|@return|@\w+)[\t ]*:?[\t ]*({\w+})?[\t ]*(\w*)[\t ]*(\w*)/gi;
+        const regExpFormat = /([\r\n])?(@param|@return|@\w+)[\t ]*:?[\t ]*({[\w%$#]+})?[\t ]*(\w*)[\t ]*(\w*)/gi;
         return doc.replace(regExpFormat, (match, br, name, type, desc1, desc2) => {
             let result = `_${name}_ `;
             if (br)
                 result = '\n\n'+result; //double \n to force new line
             if (type)
                 result += ` **${type}**`;
-            if (name === '@param') {
+            if (name && name.toLowerCase() === '@param') {
                 if (desc1) // param name
                     result += ` \`${desc1}\``;
                 if (desc2)
