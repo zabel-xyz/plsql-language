@@ -17,41 +17,76 @@
         <title>PLSQL - Connection</title>
     </head>
     <body>
-        <form id="connection" name="connection" action="#">
-            <div class="group-title">
-                <h1>New connection</h1>
+
+        <div id="navigator" class="column left">
+            <button id="new">New</button>
+            <div id="navigatorItems">
+                <ul></ul>
             </div>
-            <div class="group">
-                <input type="text" name="database" required>
-                <span class="bar"></span>
-                <label>Database (TNS)</label>
-                <div class="tooltip">Please enter the database (TNS)</div>
-            </div>
-            <div class="group">
-                <input type="text" name="user" required>
-                <span class="bar"></span>
-                <label>User</label>
-                <div class="tooltip">Please enter the user</div>
-            </div>
-            <div class="group">
-                <input type="password" name="password">
-                <span class="bar"></span>
-                <label>Password</label>
-            </div>
-            <div class="group">
-                <input type="text" name="schema">
-                <span class="bar"></span>
-                <label>Schema</label>
-            </div>
-            <div class="group-check">
-                <label for="active">
-                    <span>Active</span>
-                    <input class="checkbox" type="checkbox" name="active" id="active" checked>
-                </label>
-            </div>
-            <button id="create">Create</button>
-            <button id="cancel">Cancel</button>
-        </form>
+        </div>
+
+        <div id="form" class="column right">
+            <form id="connection" name="connection" action="#">
+                <div class="group-title">
+                    <h1 id="title">New connection</h1>
+                </div>
+                <div class="group">
+                    <input type="text" name="database" required>
+                    <span class="bar"></span>
+                    <label>Database (connectString)</label>
+                    <div class="tooltip">Please enter the database (connectString)</div>
+                </div>
+                <div class="group">
+                    <input type="text" name="user" required>
+                    <span class="bar"></span>
+                    <label>User</label>
+                    <div class="tooltip">Please enter the user</div>
+                </div>
+                <div class="group">
+                    <input type="password" name="password">
+                    <span class="bar"></span>
+                    <label>Password</label>
+                </div>
+                <div class="group">
+                    <select name="privilege">
+                        <option value=""></option>
+                        <option value="SYSDBA">SYSDBA</option>
+                        <option value="SYSOPER">SYSOPER</option>
+                        <option value="SYSASM">SYSASM</option>
+                        <option value="SYSBACKUP">SYSBACKUP</option>
+                        <option value="SYSDG">SYSDG</option>
+                        <option value="SYSKM">SYSKM</option>
+                        <option value="SYSRAC">SYSRAC</option>
+                    </select>
+                    <span class="bar"></span>
+                    <label>Privilege</label>
+                </div>
+                <div class="group">
+                    <input type="text" name="schema">
+                    <span class="bar"></span>
+                    <label>Schema</label>
+                </div>
+                <div class="group">
+                    <textarea type="text" name="loginScript" rows="5"></textarea>
+                    <span class="bar"></span>
+                    <label>Login script</label>
+                </div>
+                <div class="group">
+                    <input type="text" name="tag">
+                    <span class="bar"></span>
+                    <label>Tag</label>
+                </div>
+                <div class="group-check">
+                    <label for="active">
+                        <span>Active</span>
+                        <input class="checkbox" type="checkbox" name="active" id="active" checked>
+                    </label>
+                </div>
+                <button id="delete" type="button">Delete</button>
+                <button id="create" type="submit">Create</button>
+                <button id="cancel" type="button">Cancel</button>
+            </form>
+        </div>
 
         <!-- DEBUG -->
         <!-- <link rel="stylesheet" href="connect.css"></link>
@@ -62,3 +97,13 @@
         <!--  -->
     </body>
 </html>
+
+
+<!-- <div class="select-style">
+        <select>
+          <option value="volvo">Volvo</option>
+          <option value="saab">Saab</option>
+          <option value="mercedes">Mercedes</option>
+          <option value="audi">Audi</option>
+        </select>
+      </div> -->

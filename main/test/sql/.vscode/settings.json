@@ -1,0 +1,32 @@
+{
+    "plsql-language.connections": [
+        {
+            "active": false,
+            "database": "abcd",
+            "id": 3,
+            "username": "test",
+            "ID": 2,
+            "name": "test@abcd"
+        },
+        {
+            "ID": 3,
+            "active": true,
+            "database": "localhost:1521/xe",
+            "loginScript": "begin\n  login_pkg.setActive('HELLO');\nend;",
+            "password": "ZABEL",
+            "username": "ZABEL",
+            "name": "ZABEL@localhost:1521/xe"
+        },
+        {
+            "ID": 4,
+            "active": false,
+            "database": "localhost:1521/xe",
+            "password": "hr",
+            "tag": "hr",
+            "username": "hr",
+            "name": "hr@localhost:1521/xe"
+        }
+    ],
+    "plsql-language.connection.activeInfos": "ZABEL/ZABEL@localhost:1521/xe",
+    "plsql-language.oracleConnection.enable": true
+}

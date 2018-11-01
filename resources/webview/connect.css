@@ -28,7 +28,7 @@
     --pl-tooltip-foregound: var(--vscode-input-foreground);
 }
 
-h1, input, button, label, .tooltip {
+h1, input, textarea, select, button, label, .tooltip {
     font-family: sans-serif;
     font-size: 12px;
 }
@@ -80,7 +80,7 @@ button:hover {
      resize: none;
    } */
 
-.group input, .group textarea {
+.group input, .group textarea, .group select {
     background: none;
     color: var(--pl-text-foreground);
     padding: 4px 0px;
@@ -91,11 +91,12 @@ button:hover {
     border-bottom: 1px solid var(--pl-label);
 }
 
-.group input:focus, .group textarea:focus {
+.group input:focus, .group textarea:focus, .group select:focus {
     outline: none;
 }
 
-.group input:focus~label, .group .notEmpty~label, .group textarea:focus~label {
+.group .notEmpty~label,
+.group input:focus~label, .group textarea:focus~label, .group select:focus~label {
     top: -12px;
     font-size: 10px;
     color: var(--pl-label-focus);
@@ -128,7 +129,9 @@ button:hover {
     background: var(--pl-label-error);
 }
 
-.group input:focus~.bar:before, .group textarea:focus~.bar:before {
+.group input:focus~.bar:before,
+.group textarea:focus~.bar:before,
+.group select:focus~.bar:before {
     width: 320px;
 }
 
@@ -175,3 +178,46 @@ button:hover {
     position: absolute;
     top: -8px;
 }
+
+html {
+    height: 100%;
+    font-family: sans-serif;
+}
+
+body {
+    height: 100%;
+    overflow: hidden;
+    margin: 0px;
+    display: flex;
+}
+
+.column {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.left {
+    flex-shrink: 0;
+}
+
+.navigItem {
+    cursor: pointer;
+    padding: 6px 0px;
+}
+
+ul {
+    list-style-type: none;
+    padding-left: 0px;
+}
+
+.active {
+    font-weight: bold
+}
+
+#new {
+    margin-top: 10px;
+}
+

@@ -8,23 +8,60 @@
 
 // A task runner that calls a custom npm script that compiles the extension.
 {
-    "version": "0.1.0",
-
-    // we want to run npm
-    "command": "npm",
-
-    // the command is a shell script
-    "isShellCommand": true,
-
-    // show the output window only if unrecognized errors occur.
-    "showOutput": "silent",
-
-    // we run the custom script "compile" as defined in package.json
-    "args": ["run", "compile", "--loglevel", "silent"],
-
-    // The tsc compiler is started in watching mode
-    "isWatching": false,
-
-    // use the standard tsc in watch mode problem matcher to find compile problems in the output.
-    "problemMatcher": "$tsc"
+	"version": "2.0.0",
+	"tasks": [{
+        "label": "compile",
+        "dependsOn": [{
+                "type": "npm",
+                "script": "compile:main"
+            },{
+                "type": "npm",
+                "script": "compile:server-oracle"
+            }
+        ],
+        "group": {
+            "kind": "build",
+            "isDefault": true
+        },
+        "problemMatcher": []
+    },{
+        "type": "npm",
+        "script": "compile:main",
+        "group": "build",
+        "presentation": {
+            "panel": "dedicated",
+            "reveal": "never"
+        },
+        "isBackground": false,
+        "problemMatcher": [
+            "$tsc"
+        ]
+    },{
+        "type": "npm",
+        "script": "compile:server-oracle",
+        "group": "build",
+        "presentation": {
+            "panel": "dedicated",
+            "reveal": "never"
+        },
+        "isBackground": false,
+        "problemMatcher": [
+            "$tsc"
+        ]
+    },{
+        "type": "npm",
+        "script": "compile:test",
+        "group": {
+            "kind": "test",
+            "isDefault": true
+        },
+        "presentation": {
+            "panel": "dedicated",
+            "reveal": "never"
+        },
+        "isBackground": false,
+        "problemMatcher": [
+            "$tsc"
+        ]
+    }]
 }

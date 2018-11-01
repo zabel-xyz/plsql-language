@@ -67,17 +67,62 @@ For this extension works with .sql files you must change your settings (user or 
         }
 
 ## Connection
-Currently there is **no automatic connection**.
-
 You can configure a list of connection in settings and use the active one in your tasks (see below).
-Use the command: `PLSQL - Activate connection`
+Use the command: `PLSQL - Activate connection` or click on status bar.
+        ![Image of Connections](images/Connections.gif)
 
-This is the first step, roadmap:
+The oracle db connection feature is still under constuction, this is a preview version.
+To activate it
+        `plsql-language.oracleConnection.enable: true (false by default)`
+
+You can run the current SQL statement (CTRL+ENTER).
+If no selection, run current command delimited by character /
+        ![Image of RunCmd](images/RunCmd.gif)
+
+You can also run an SQL statement from another extension like this:
+
+        // To access db from another extension
+        // Use active connection
+        try {
+             const result = await vscode.commands.executeCommand('plsql.executeCommand', {sql: 'SELECT LAST_NAME FROM EMPLOYEES'})
+             vscode.window.showInformationMessage(JSON.stringify(result));
+        } catch(err) {
+             vscode.window.showErrorMessage(JSON.stringify(err));
+        }
+<BR>
+
+        // Or create a specific connection
+        try {
+            // with connection params
+            // let _connection = await vscode.commands.executeCommand('plsql.createConnection', {user: 'hr', password: 'hr', connectString: 'localhost:1521/xe' })
+            // or with a tag to find in setting of connections
+            let _connection = await vscode.commands.executeCommand('plsql.createConnection', {tag: 'hr'})
+            const result = await vscode.commands.executeCommand('plsql.executeCommand', {sql: 'SELECT LAST_NAME FROM EMPLOYEES', connection: _connection})
+            vscode.window.showInformationMessage(JSON.stringify(result));
+            await vscode.commands.executeCommand('plsql.removeConnection', {connection: _connection});
+            _connection = null;
+        } catch(err) {
+            vscode.window.showErrorMessage(JSON.stringify(err));
+        }
+
+Prerequiste:
+- Install Node.js from [nodejs.org](https://nodejs.org)
+
+Notes:
+- [node-oracledb](https://oracle.github.io/node-oracledb) is used externally to use pre-built [node-oracledb binary]
+(https://github.com/oracle/node-oracledb/releases)
+- `npm install oracledb` is automatically executed on the first activation (when using connection) and installed here:
+        `.../.vscode/extensions/xyz.plsql-language-_version_\server-oracle\node_modules\oracledb`
+- Please consult node-oracledb site to resolve issues when installation failed.
+- [vscode extensions](https://code.visualstudio.com/docs/extensionAPI/patterns-and-principles#_can-i-use-native-nodejs-modules-with-my-extension)
+don't supports binary node module. (This is the reason why command `npm install oracledb` is executed.)
+
+Roadmap:
 - [X] List of connections in settings.
-- [ ] Complete fields list in settings (host, port, sid, connect as...)
-- [ ] Connect to DB
-- [ ] Execute SQL
-- [ ] Run as a script
+- [X] Complete fields list in settings (connect as...)
+- [X] Connect to DB
+- [X] Execute SQL
+- [ ] Run file as a script
 - [ ] Auto-complete
 
 ## Compile / Task

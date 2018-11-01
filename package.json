@@ -2,7 +2,7 @@
     "name": "plsql-language",
     "displayName": "Language PL/SQL",
     "description": "PL/SQL language (Oracle) support",
-    "version": "1.5.0",
+    "version": "1.6.0",
     "publisher": "xyz",
     "engines": {
         "vscode": "^1.27.0"
@@ -25,9 +25,13 @@
         "multi-root ready"
     ],
     "activationEvents": [
-        "onLanguage:plsql"
+        "onLanguage:plsql",
+        "onCommand:plsql.activateConnection",
+        "onCommand:plsql.executeCommand",
+        "onCommand:plsql.createConnection",
+        "onCommand:plsql.removeConnection"
     ],
-    "main": "./out/src/extension",
+    "main": "./main/out/src/extension",
     "contributes": {
         "languages": [
             {
@@ -150,12 +154,33 @@
                                 "description": "User password",
                                 "required": false
                             },
+                            "privilege": {
+                                "type": "string",
+                                "description": "Privilege (SYSDBA, SYSOPER, SYSASM, SYSBACKUP, SYSDG, SYSKM, SYSRA)",
+                                "required": false
+                            },
                             "schema": {
                                 "type": [
                                     "string",
                                     "null"
                                 ],
                                 "description": "Schema name",
+                                "required": false
+                            },
+                            "loginScript": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ],
+                                "description": "Login script",
+                                "required": false
+                            },
+                            "tag": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ],
+                                "description": "Tag",
                                 "required": false
                             }
                         }
@@ -175,6 +200,11 @@
                     "type": "string",
                     "default": "${username}@${database}",
                     "description": "Pattern of connection name to be used for displaying"
+                },
+                "plsql-language.oracleConnection.enable": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Allow connect to Oracle DB"
                 }
             }
         },
@@ -182,24 +212,64 @@
             {
                 "command": "plsql.activateConnection",
                 "title": "PLSQL - Activate connection"
+            },{
+                "command": "plsql.runQuery",
+                "title": "PLSQL - run current command"
+            },
+
+            {
+                "command": "plsql.executeCommand",
+                "title": "PLSQL - execute a command and get result (external request)"
+            },{
+                "command": "plsql.createConnection",
+                "title": "PLSQL - create a new connection (external request)"
+            },{
+                "command": "plsql.removeConnection",
+                "title": "PLSQL - remove a connection (external request)"
             }
-        ]
+        ],
+        "menus": {
+            "commandPalette": [
+                {
+                    "command": "plsql.executeCommand",
+                    "when": "false"
+                },{
+                    "command": "plsql.createConnection",
+                    "when": "false"
+                },{
+                    "command": "plsql.removeConnection",
+                    "when": "false"
+                }
+            ],
+            "editor/context": [
+                {
+                    "command": "plsql.runQuery",
+                    "when": "resourceLangId == plsql && config.plsql-language.oracleConnection.enable"
+                }
+            ]
+        },
+        "keybindings": {
+            "command": "plsql.runQuery",
+            "when": "resourceLangId == plsql && config.plsql-language.oracleConnection.enable",
+            "key": "ctrl+enter"
+        }
     },
     "scripts": {
-        "vscode:prepublish": "tsc -p ./",
-        "compile": "tsc -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install"
-    },
-    "dependencies": {
-        "glob": "7.1.3",
-        "json5": "2.0.1",
-        "dateformat": "3.0.3"
+        "vscode:prepublish": "cd main && npm run update-vscode && cd .. && npm run compile",
+        "compile:main": "tsc -p ./main/tsconfig.json",
+        "compile:server-oracle": "tsc -p ./server-oracle/tsconfig.json",
+        "compile": "npm run compile:main && npm run compile:server-oracle",
+        "compile:test": "tsc -p ./main/test/tsconfig.json",
+        "postinstall": "cd main && npm install && cd ../server-oracle && npm install && cd .."
     },
     "devDependencies": {
-        "typescript": "3.0.3",
+        "typescript": "3.1.2",
         "vscode": "1.1.21",
         "mocha": "5.2.0",
         "@types/node": "10.9.4",
         "@types/mocha": "5.2.5"
+    },
+    "dependencies": {
+        "ag-grid-community": "19.0.0"
     }
 }

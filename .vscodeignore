@@ -1,9 +1,8 @@
 .vscode/**
 .history/**
-typings/**
-src/**
-out/test/**
-test/**
+main/src/**
+server-oracle/src/**
+**/test
 **/*.map
 .gitignore
 .gitattributes

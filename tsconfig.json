@@ -5,8 +5,6 @@
         "lib": [
             "es2017"
         ],
-		"outDir": "out",
-		"rootDir": ".",
 		"sourceMap": true,
 		"watch": false
 	},

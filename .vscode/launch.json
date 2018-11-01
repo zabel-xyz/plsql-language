@@ -1,27 +1,40 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Launch Extension",
-            "type": "extensionHost",
-            "request": "launch",
-            "runtimeExecutable": "${execPath}",
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "extensionHost",
+			"request": "launch",
+			"name": "Launch Main",
+			"runtimeExecutable": "${execPath}",
             "args": [
-                "${workspaceRoot}/test/sql", "--extensionDevelopmentPath=${workspaceRoot}"
+                "${workspaceRoot}/main/test/sql",
+                "--extensionDevelopmentPath=${workspaceRoot}"
             ],
             "stopOnEntry": false,
             "sourceMaps": true,
-            "outDir": "${workspaceRoot}/out"
+			"outFiles": ["${workspaceRoot}/main/out/src/**/*.js"]
+		},
+		{
+			"type": "node",
+			"request": "attach",
+			"name": "Attach to Server",
+			"port": 6009,
+			"restart": true,
+			"outFiles": ["${workspaceRoot}/server-oracle/out/**/*.js"]
         },
         {
-            "name": "Launch Tests",
             "type": "extensionHost",
             "request": "launch",
+            "name": "Launch Tests",
             "runtimeExecutable": "${execPath}",
-            "args": ["${workspaceRoot}/test/sql", "--extensionDevelopmentPath=${workspaceRoot}", "--extensionTestsPath=${workspaceRoot}/out/test" ],
+            "args": [
+                "${workspaceRoot}/main/test/sql",
+                "--extensionDevelopmentPath=${workspaceRoot}",
+                "--extensionTestsPath=${workspaceRoot}/main/out/test"
+            ],
             "stopOnEntry": false,
             "sourceMaps": true,
-            "outDir": "${workspaceRoot}/out/test"
+			"outFiles": ["${workspaceRoot}/main/out/test/**/*.js"]
         }
     ]
 }

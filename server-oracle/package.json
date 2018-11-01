@@ -1,0 +1,13 @@
+{
+	"name": "oracle-connect",
+	"description": "Server to connect to Oracle DB",
+	"publisher": "xyz",
+	"version": "0.0.1",
+	"engines": {
+		"node": "*"
+	},
+	"dependencies": {
+		"vscode-languageserver": "5.1.0"
+	},
+	"scripts": {}
+}
