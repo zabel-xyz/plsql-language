@@ -33,6 +33,7 @@ export class ConnectController {
             this.patternName = pattern.patternName;
 
             this.connections = PLSQLSettings.getConnections();
+            delete this.active;
             this.active = this.getActive();
             // force only one connection active
             this.connections.forEach(item => {
@@ -143,6 +144,12 @@ export class ConnectController {
     public saveConnections() {
         if (!this.connections)
             return;
+
+        if (!this.connections.length) {
+            const settings = PLSQLSettings.getConnections();
+            if (!settings || !settings.length)
+                return;
+        }
 
         this._internalSave = true;
         const config = vscode.workspace.getConfiguration('plsql-language');

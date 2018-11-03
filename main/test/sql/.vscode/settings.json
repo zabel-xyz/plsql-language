@@ -10,7 +10,7 @@
         },
         {
             "ID": 3,
-            "active": true,
+            "active": false,
             "database": "localhost:1521/xe",
             "loginScript": "begin\n  login_pkg.setActive('HELLO');\nend;",
             "password": "ZABEL",
@@ -19,7 +19,7 @@
         },
         {
             "ID": 4,
-            "active": false,
+            "active": true,
             "database": "localhost:1521/xe",
             "password": "hr",
             "tag": "hr",
@@ -27,6 +27,6 @@
             "name": "hr@localhost:1521/xe"
         }
     ],
-    "plsql-language.connection.activeInfos": "ZABEL/ZABEL@localhost:1521/xe",
+    "plsql-language.connection.activeInfos": "hr/hr@localhost:1521/xe",
     "plsql-language.oracleConnection.enable": true
 }

@@ -109,8 +109,7 @@ Prerequiste:
 - Install Node.js from [nodejs.org](https://nodejs.org)
 
 Notes:
-- [node-oracledb](https://oracle.github.io/node-oracledb) is used externally to use pre-built [node-oracledb binary]
-(https://github.com/oracle/node-oracledb/releases)
+- [node-oracledb](https://oracle.github.io/node-oracledb) is used externally to use pre-built [node-oracledb binary](https://github.com/oracle/node-oracledb/releases)
 - `npm install oracledb` is automatically executed on the first activation (when using connection) and installed here:
         `.../.vscode/extensions/xyz.plsql-language-_version_\server-oracle\node_modules\oracledb`
 - Please consult node-oracledb site to resolve issues when installation failed.
