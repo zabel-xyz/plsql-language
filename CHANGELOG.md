@@ -1,3 +1,6 @@
+## 1.6.1
+* Fix bug: no connection is written in settings [#51](https://github.com/zabel-xyz/plsql-language/issues/51)
+
 ## 1.6.0
 * New: add oracledb connection to run current statement (can also be run from another extension)
 * New: connections settings management

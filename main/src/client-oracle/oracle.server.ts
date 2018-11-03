@@ -29,14 +29,20 @@ export class OracleService {
                         }
                     })
                     .catch(err => {
-                        if (!silent)
-                            vscode.window.showErrorMessage(JSON.stringify(err));
+                        if (!silent) {
+                            vscode.window.showErrorMessage('Oracle start failed - See Output/PLSQL for more informations');
+                            PLSQLChannel.show();
+                            PLSQLChannel.log(JSON.stringify(err));
+                        }
                     });
             else {
                 this._oracleServer.stop()
                     .catch((err) => {
-                        if (!silent)
-                            vscode.window.showErrorMessage(err);
+                        if (!silent) {
+                            vscode.window.showErrorMessage('Oracle stop failed - See Output/PLSQL for more informations');
+                            PLSQLChannel.show();
+                            PLSQLChannel.log(JSON.stringify(err));
+                        }
                     });
                 this._oracleServer = null;
             }

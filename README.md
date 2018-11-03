@@ -69,7 +69,8 @@ For this extension works with .sql files you must change your settings (user or 
 ## Connection
 You can configure a list of connection in settings and use the active one in your tasks (see below).
 Use the command: `PLSQL - Activate connection` or click on status bar.
-        ![Image of Connections](images/Connections.gif)
+
+![Image of Connections](images/Connections.gif)
 
 The oracle db connection feature is still under constuction, this is a preview version.
 To activate it
@@ -77,7 +78,11 @@ To activate it
 
 You can run the current SQL statement (CTRL+ENTER).
 If no selection, run current command delimited by character /
-        ![Image of RunCmd](images/RunCmd.gif)
+<BR> Warning:
+- Don't use or select character ; on a select statement.
+- Don't select character /
+
+![Image of RunCmd](images/RunCmd.gif)
 
 You can also run an SQL statement from another extension like this:
 
