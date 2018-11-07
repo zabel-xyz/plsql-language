@@ -90,6 +90,9 @@ export default class PlSqlParserVSC extends PlSqlParser {
             case PLSQLSymbolKind.subtype:
             case PLSQLSymbolKind.cursor:
             case PLSQLSymbolKind.exception:
+            case PLSQLSymbolKind.table:
+            case PLSQLSymbolKind.view:
+            case PLSQLSymbolKind.trigger:
                 return vscode.SymbolKind.Struct;
         }
     }
@@ -118,6 +121,9 @@ export default class PlSqlParserVSC extends PlSqlParser {
             case PLSQLSymbolKind.subtype:
             case PLSQLSymbolKind.cursor:
             case PLSQLSymbolKind.exception:
+            case PLSQLSymbolKind.table:
+            case PLSQLSymbolKind.view:
+            case PLSQLSymbolKind.trigger:
                 return vscode.CompletionItemKind.Struct;
         }
     }

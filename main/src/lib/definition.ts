@@ -40,7 +40,10 @@ const enum PLSQLSymbolKind {
     type,
     subtype,
     cursor,
-    exception
+    exception,
+    trigger,
+    view,
+    table
 }
 
 const enum PLSQLParamKind {

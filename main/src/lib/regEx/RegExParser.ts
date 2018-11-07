@@ -21,8 +21,8 @@ export default class RegExpParser {
 
     private static REG_WORD = '[\\w\\$#]';
     private static REG_WORDTYPE = '[\\w\\$#%\\.]'; // param type on the form  xyztable.xyzfield%type
-    private static regSymbolsCreate = `(?:(create)(?:\\s+or\\s+replace)?\\s+)?`;
-    private static regSymbols = `(?:\\b(function|procedure|package)\\b(?:\\s+(body))?)\\s+`;
+    private static regSymbolsCreate = `(?:(create)(?:\\s+or\\s+replace)?\\s*(?:(?:no\\s+)?force|global\\s+temporary)?\\s*)`;
+    private static regSymbols = `(?:\\b(function|procedure|package|trigger|view|table)\\b(?:\\s+(body))?)\\s+`;
     private static regSymbolsName = `(?:\"?${RegExpParser.REG_WORD}+\"?\\.)?\"?(${RegExpParser.REG_WORD}+)\"?`;
 
     private static regSpecSymbols = `(?:(${RegExpParser.REG_WORD}+)\\s+(${RegExpParser.REG_WORD}+)\\s*(?:\\s*;|.[^;]*;))`;
@@ -67,6 +67,7 @@ export default class RegExpParser {
         while (found = this.regExp.exec(text)) {
             if (found[2]) {
                 // package body or create func or create proc
+                // create table, view or trigger
                 isBody = (found[3] != null) || (found[1] != null && found[2].toLowerCase() !== 'package');
 
                 symbol = {
@@ -85,6 +86,10 @@ export default class RegExpParser {
                     symbol.parent = parent;
                     parent.symbols.push(symbol);
                 }
+
+                if ([ PLSQLSymbolKind.view, PLSQLSymbolKind.trigger, PLSQLSymbolKind.table]
+                    .includes(symbol.kind))
+                    continue;
 
                 // level 1 (create package, proc or func)
                 if (parent === symbol) {
@@ -343,6 +348,12 @@ export default class RegExpParser {
             return PLSQLSymbolKind.cursor;
         else if (type === 'exception')
             return PLSQLSymbolKind.exception;
+        else if (type === 'trigger')
+            return PLSQLSymbolKind.trigger;
+        else if (type === 'view')
+            return PLSQLSymbolKind.view;
+        else if (type === 'table')
+            return PLSQLSymbolKind.table;
         else
             return PLSQLSymbolKind.variable;
     }

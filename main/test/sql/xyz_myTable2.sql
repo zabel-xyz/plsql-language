@@ -1,0 +1,2 @@
+CREATE GLOBAL TEMPORARY TABLE schema.myTable2
+AS SELECT * FROM myTable;

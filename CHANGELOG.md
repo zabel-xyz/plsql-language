@@ -1,3 +1,6 @@
+## 1.6.2
+* New: add view, table, trigger in PLSQL_Parser [#54](https://github.com/zabel-xyz/plsql-language/issues/54)
+
 ## 1.6.1
 * Fix bug: no connection is written in settings [#51](https://github.com/zabel-xyz/plsql-language/issues/51)
 
