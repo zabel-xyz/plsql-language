@@ -1,6 +1,9 @@
 CREATE OR REPLACE PACKAGE schema.MyPackage
 as
 
+  bulk_error exception;
+  pragma exception_init(bulk_error, -24381);
+
   type txyz_myType is record(
       myChar varchar2
     , myNumber number
@@ -10,6 +13,11 @@ as
 
   myConst constant char(2) := '10';
   myGlobalVar number := 10;
+
+  -- Test conditional compilation
+  $IF $$opt $THEN
+    procedure conditional;
+  $END
 
   /**
    * Comment
@@ -33,6 +41,9 @@ end;
 create or replace package body schema.MyPackage
 as
 
+  bulk_error exception;
+  pragma exception_init(bulk_error, -24381);
+
   type txyz_myType2 is record(
       myChar varchar2
     , myNumber number
@@ -53,6 +64,41 @@ as
   is
   begin
     return param1 || ' TEST';
+  end;
+
+  function insideConditional return number
+  is
+  begin
+    while false loop
+      begin
+        $if true $then
+          null;
+        $elsif $$no_op $then
+          null;
+        $end
+      exception when others then
+        null;
+      end;
+    end loop;
+    return null;
+  end;
+
+  $IF $$opt $THEN
+    procedure conditional;
+  $END
+
+  $IF $$opt $THEN
+    procedure conditional is
+    begin
+      null;
+    end;
+  $END
+
+  procedure quote is
+  begin
+    logger.log('end');
+    -- end
+    return null;
   end;
 
   procedure set_myValue(param1 in varchar2)

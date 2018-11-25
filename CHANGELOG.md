@@ -1,3 +1,8 @@
+## 1.6.3
+* Fix bug in RegExpParser - _pragma_ - [#59](https://github.com/zabel-xyz/plsql-language/issues/59)
+* Fix bug in RegExpParser - Conditional compilation [#58](https://github.com/zabel-xyz/plsql-language/issues/58) / [#61](https://github.com/zabel-xyz/plsql-language/issues/61)
+* Fix bug in RegExpParser - Exclude _end_ in quote [#61](https://github.com/zabel-xyz/plsql-language/issues/61)
+
 ## 1.6.2
 * New: add view, table, trigger in PLSQL_Parser [#54](https://github.com/zabel-xyz/plsql-language/issues/54)
 

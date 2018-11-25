@@ -16,6 +16,7 @@ export default class RegExpParser {
 
     private static regComment = `(?:\\/\\*[\\s\\S]*?\\*\\/)|(?:--.*)`;
     private static regCommentDoc = `(?:\\/\\*(\\*)?[\\s\\S]*?\\*\\/)|(?:--.*)`;
+    private static regQuote = `(?:["'][^"']*["'])`;
     private static regCommentInside = `(?:\\/\\*[\\s\\S]*?\\*\\/\\s*)?`; // a bit slower !
     private static regJumpDoc = `(\\/\\*\\*[\\s\\S]*?\\*\\/)`;
 
@@ -26,10 +27,11 @@ export default class RegExpParser {
     private static regSymbolsName = `(?:\"?${RegExpParser.REG_WORD}+\"?\\.)?\"?(${RegExpParser.REG_WORD}+)\"?`;
 
     private static regSpecSymbols = `(?:(${RegExpParser.REG_WORD}+)\\s+(${RegExpParser.REG_WORD}+)\\s*(?:\\s*;|.[^;]*;))`;
+    private static regSpecCondition = `(?:\\$\\b(?:if|elsif)\\b.*\\s*\\$\\bthen\\b|\\$\\b(?:end|else)\\b)`;
     private static regBody = `(?:\\b(procedure|function)\\b\\s+(${RegExpParser.REG_WORD}+)[\\s\\S]*?(;|\\b(?:is|as|begin)\\b))`;
     private static regParams = `(?:\\(|,)\\s*((${RegExpParser.REG_WORD}+)\\s*(in\\s+out|in|out)?\\s*(${RegExpParser.REG_WORDTYPE}*))|(?:\\breturn\\b\\s*(${RegExpParser.REG_WORDTYPE}*))`;
 
-    private static regJumpEnd = `(\\bbegin|case\\b)|(?:(\\bend\\b)\\s*(?:\\b(if|loop|case)\\b)?)`;
+    private static regJumpEnd = `(\\bbegin|case\\b)|(?:(\\$?\\bend\\b)\\s*(?:\\b(if|loop|case)\\b)?)`;
     private static regJumpAsIs = `\\b(is|as)\\b`;
 
     public static initParser(commentInSymbols?: boolean)  {
@@ -40,9 +42,9 @@ export default class RegExpParser {
             `${RegExpParser.regSymbolsName})`;
 
         this.regExp = new RegExp(regExpParser, 'gi');
-        this.regExpS = new RegExp(`${this.regCommentDoc}|${`(\\b(?:end|create)\\b)`}|${this.regSpecSymbols}`, 'gi');
-        this.regExpB = new RegExp(`${this.regCommentDoc}|${this.regBody}|(\\bbegin\\b)|${this.regSpecSymbols}`, 'gi');
-        this.regExpJumpEnd = new RegExp(`${this.regComment}|${this.regJumpEnd}`, 'gi');
+        this.regExpS = new RegExp(`${this.regCommentDoc}|${`(\\b(?:end|create)\\b)`}|${this.regSpecCondition}|${this.regSpecSymbols}`, 'gi');
+        this.regExpB = new RegExp(`${this.regCommentDoc}|${this.regBody}|(\\bbegin\\b)|${this.regSpecCondition}|${this.regSpecSymbols}`, 'gi');
+        this.regExpJumpEnd = new RegExp(`${this.regComment}|${this.regQuote}|${this.regJumpEnd}`, 'gi');
         this.regExpJumpAsIs = new RegExp(`${this.regJumpAsIs}`, 'gi');
         this.regExpJumpDoc = new RegExp(`${this.regJumpDoc}\\s*$`, 'gi');
         this.regExpParams = new RegExp(`${this.regParams}`, 'gi');
@@ -208,7 +210,7 @@ export default class RegExpParser {
                         symbol.offsetEnd = lastIndex;
                         if (lastDoc != null)
                             symbol.documentation = this.jumpDoc(text, lastDoc, found.index);
-                    } else {
+                    } else if (found[6].toLowerCase() !== 'pragma') {
                         // if it's not a symbol, something goes wrong => break
                         lastIndex = oldIndex;
                         break;
@@ -307,7 +309,7 @@ export default class RegExpParser {
             lastIndex = this.regExpJumpEnd.lastIndex;
             if (match[1]) { // begin | case
                 openTokens++;
-            } else if (match[2]) { // end
+            } else if (match[2] && match[2][0] !== '$') { // end | $end
                 if (!match[3] || match[3].toLowerCase() === 'case') {
                     if (openTokens) {
                         openTokens--;
@@ -316,7 +318,7 @@ export default class RegExpParser {
                     } else
                         return lastIndex; // end without begin (error in file !)
                 } // else end loop|if
-            } // else comment => nothing todo
+            } // else comment, quote => nothing todo
         }
         return lastIndex;
     }
