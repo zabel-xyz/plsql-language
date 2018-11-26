@@ -28,5 +28,5 @@
         }
     ],
     "plsql-language.connection.activeInfos": "hr/hr@localhost:1521/xe",
-    "plsql-language.oracleConnection.enable": true
+    // "plsql-language.oracleConnection.enable": true
 }

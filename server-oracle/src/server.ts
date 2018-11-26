@@ -79,10 +79,10 @@ export class OracleConnection {
                 .then(install => {
                     if (!install)
                         return resolve('OracleDB already installed');
-                    this._connection.sendNotification('Oracle/install', 'Start install oracledb@3.0.0...');
-                    require('child_process').exec('npm install '+'oracledb@3.0.0',
+                    this._connection.sendNotification('Oracle/install', 'Start install oracledb@3.0.1...');
+                    require('child_process').exec('npm install '+'oracledb@3.0.1',
                         (err, stdout, stderr) => {
-                            this._connection.sendNotification('Oracle/install', '...End install oracledb@3.0.0');
+                            this._connection.sendNotification('Oracle/install', '...End install oracledb@3.0.1');
                             if (err)
                                 resolve({error: err});
                             if (stderr)

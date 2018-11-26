@@ -1,3 +1,6 @@
+## 1.6.4
+* Use node oracledb@3.0.1
+
 ## 1.6.3
 * Fix bug in RegExpParser - _pragma_ - [#59](https://github.com/zabel-xyz/plsql-language/issues/59)
 * Fix bug in RegExpParser - Conditional compilation [#58](https://github.com/zabel-xyz/plsql-language/issues/58) / [#61](https://github.com/zabel-xyz/plsql-language/issues/61)
