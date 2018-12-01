@@ -2,10 +2,10 @@
     "name": "plsql-language",
     "displayName": "Language PL/SQL",
     "description": "PL/SQL language (Oracle) support",
-    "version": "1.6.4",
+    "version": "1.6.5",
     "publisher": "xyz",
     "engines": {
-        "vscode": "^1.27.0"
+        "vscode": "^1.29.0"
     },
     "homepage": "https://github.com/zabel-xyz/plsql-language",
     "repository": {
@@ -263,13 +263,13 @@
         "postinstall": "cd main && npm install && cd ../server-oracle && npm install && cd .."
     },
     "devDependencies": {
-        "typescript": "3.1.2",
-        "vscode": "1.1.21",
+        "typescript": "3.2.1",
+        "vscode": "1.1.22",
         "mocha": "5.2.0",
-        "@types/node": "10.9.4",
+        "@types/node": "10.12.11",
         "@types/mocha": "5.2.5"
     },
     "dependencies": {
-        "ag-grid-community": "19.0.0"
+        "ag-grid-community": "19.1.4"
     }
 }
