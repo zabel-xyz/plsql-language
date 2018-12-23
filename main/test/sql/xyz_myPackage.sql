@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE schema.MyPackage
+CREATE OR REPLACE PACKAGE schema."MyPackage"
 as
 
   bulk_error exception;
@@ -105,6 +105,7 @@ as
   is
   begin
     MyPackage.myCall('test');
+    MyPackage2."do"('test1');
     schema.MyPackage.myCall('test2');
     pCallInternal('test3');
     case

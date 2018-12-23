@@ -12,7 +12,7 @@ as
   myGlobalVar number := 10;
 
   /**
-   * Comment
+   * Comment איט
    */
   function get_myValue(param1 in varchar2)
     return varchar2;
@@ -21,6 +21,8 @@ as
    * Comment
    */
   procedure set_myValue(param1 in varchar2);
+
+  procedure "do"(param1 in varchar2);
 
   procedure myCall(param1 in varchar2);
 

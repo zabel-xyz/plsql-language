@@ -1,3 +1,6 @@
+## 1.6.6
+* New: supports procedure and function with their name in quotes
+
 ## 1.6.4
 * Use node oracledb@3.0.1
 

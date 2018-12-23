@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE "schema".MyProc(param1 varchar2)
+CREATE OR REPLACE PROCEDURE "schema"."MyProc"(param1 varchar2)
 is
 
   /**

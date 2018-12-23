@@ -206,11 +206,11 @@ suite('PLSQL Definition', () => {
             // body to a procedure file
             buildCase(
                 'MyProc\\(\'Test\'\\);', 2, 'MyProc',
-                'CREATE OR REPLACE PROCEDURE "schema".MyProc\\(param1 varchar2\\)\\s*is', 0, 'xyz_myProc.sql'),
+                'CREATE OR REPLACE PROCEDURE "schema"."MyProc"\\(param1 varchar2\\)\\s*is', 0, 'xyz_myProc.sql'),
             // body to a procedure file (+schema)
             buildCase(
                 'schema.MyProc\\(\'Test\'\\);', 9, 'MyProc',
-                'CREATE OR REPLACE PROCEDURE "schema".MyProc\\(param1 varchar2\\)\\s*is', 0, 'xyz_myProc.sql'),
+                'CREATE OR REPLACE PROCEDURE "schema"."MyProc"\\(param1 varchar2\\)\\s*is', 0, 'xyz_myProc.sql'),
         ];
         runTest('xyz_myPackage2.pkb', testCases, done);
     });
@@ -246,7 +246,7 @@ suite('PLSQL Definition', () => {
             // function to procedure
             buildCase(
                 'schema.MyProc\\(param1\\);', 9, 'MyProc',
-                'CREATE OR REPLACE PROCEDURE "schema".MyProc\\(param1 varchar2\\)', 0, 'xyz_myProc.sql'),
+                'CREATE OR REPLACE PROCEDURE "schema"."MyProc"\\(param1 varchar2\\)', 0, 'xyz_myProc.sql'),
             // function to nested function
             buildCase(
                 'return myNestedFunc\\(param1\\);', 9, 'myNestedFunc',

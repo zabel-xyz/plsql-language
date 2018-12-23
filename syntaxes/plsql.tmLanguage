@@ -125,7 +125,7 @@
                 </dict>
             </dict>
             <key>match</key>
-            <string>(?i)^\s*(function|procedure)\s+([-a-z0-9_]+)</string>
+            <string>(?i)^\s*(function|procedure)\s+"?([-a-z0-9_]+)"?</string>
             <key>name</key>
             <string>meta.procedure.oracle</string>
         </dict>

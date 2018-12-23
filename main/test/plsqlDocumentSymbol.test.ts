@@ -86,6 +86,7 @@ suite('PLSQL Symbols', () => {
                 {name: 'variable myGlobalVar', kind: vscode.SymbolKind.Variable},
                 {name: 'function get_myValue', kind: vscode.SymbolKind.Interface},
                 {name: 'procedure set_myValue', kind: vscode.SymbolKind.Interface},
+                {name: 'procedure "do"', kind: vscode.SymbolKind.Interface},
                 {name: 'procedure myCall', kind: vscode.SymbolKind.Interface}
             ]},
         ], done);
@@ -97,6 +98,7 @@ suite('PLSQL Symbols', () => {
              children: [
                 {name: 'function get_myValue', kind: vscode.SymbolKind.Function},
                 {name: 'procedure set_myValue', kind: vscode.SymbolKind.Method},
+                {name: 'procedure "do"', kind: vscode.SymbolKind.Method},
                 {name: 'procedure myCall', kind: vscode.SymbolKind.Method},
                 {name: 'procedure pCallInternal', kind: vscode.SymbolKind.Method}
             ]},

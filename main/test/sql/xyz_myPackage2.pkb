@@ -17,6 +17,12 @@ as
     return;
   end;
 
+  procedure "do"(param1 in varchar2)
+  is
+  begin
+    return;
+  end;
+
   procedure myCall(param1 in varchar2)
   is
   begin

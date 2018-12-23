@@ -123,11 +123,13 @@ export class PlSqlNavigator {
             } else
                 currentWord = null;
         } else {
-            const regexp = new RegExp(`([\\w\\$#]+)(\\s+|.)${currentWord.replace(/[\$#]/g, '\\$&')}$`);
+            const regexp = new RegExp(`([\\w\\$#]+)(\\s+|.)(\")?${currentWord.replace(/[\$#]/g, '\\$&')}(\")?$`);
             const found = regexp.exec(line.substr(0, endOffset));
             if (found) {
                 previousWord = found[1];
                 previousDot = found[2] === '.';
+                if (found[3] || found[4])
+                    currentWord = `"${currentWord}"`;
             }
         }
         return {

@@ -3,6 +3,15 @@
     "local-history.exclude": [".history",".vscode","**/node_modules","typings","out"],
 
     "typescript.tsdk": "./node_modules/typescript/lib",
-    "plsql-language.connections": [],
-    "plsql-language.connection.activeInfos": ""
+    "plsql-language.connections": [
+        {
+            "ID": 3,
+            "active": true,
+            "database": "localhost:1521/xe",
+            "password": "hr",
+            "username": "hr",
+            "name": "hr@localhost:1521/xe"
+        }
+    ],
+    "plsql-language.connection.activeInfos": "hr/hr@localhost:1521/xe"
 }
