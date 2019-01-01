@@ -20,6 +20,7 @@ export class PlSqlNavigatorVSC /*extends PlSqlNavigator*/ {
         const cursorInfos = this.getCursorInfos(document, position),
               parserRoot = PlSqlParser.parseDocument(document);
 
+        PlSqlNavigator.setEncoding(PLSQLSettings.getEncoding(document.uri));
         return PlSqlNavigator.goto(cursorInfos, document.offsetAt(cursorInfos.line.range.start), parserRoot,
                   this.translatePackageName.bind(this, document), this.getGlobCmdEx.bind(this, document));
     }
@@ -31,6 +32,7 @@ export class PlSqlNavigatorVSC /*extends PlSqlNavigator*/ {
         const cursorInfos = this.getCursorInfos(document, position),
               parserRoot = PlSqlParser.parseDocument(document);
 
+        PlSqlNavigator.setEncoding(PLSQLSettings.getEncoding(document.uri));
         return PlSqlNavigator.goto(cursorInfos, document.offsetAt(cursorInfos.line.range.start), parserRoot,
                   this.translatePackageName.bind(this, document), this.getGlobCmdEx.bind(this, document), true);
     }
@@ -41,6 +43,7 @@ export class PlSqlNavigatorVSC /*extends PlSqlNavigator*/ {
             return Promise.resolve(null);
 
         PlSqlParser.initParser(PLSQLSettings.getCommentInSymbols());
+        PlSqlNavigator.setEncoding(PLSQLSettings.getEncoding(document.uri));
         return PlSqlNavigator.complete(cursorInfos,
                    this.translatePackageName.bind(this, document), this.getGlobCmdEx.bind(this, document));
     }

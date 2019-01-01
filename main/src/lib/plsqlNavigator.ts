@@ -1,6 +1,7 @@
 import './definition';
 import PlSqlParser from './plsqlParser';
 
+import * as iconv from 'iconv-lite';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -11,6 +12,12 @@ export interface PLSQLCursorInfos {
 }
 
 export class PlSqlNavigator {
+
+    private static useEncoding = 'utf8';
+
+    public static setEncoding(encoding: string) {
+        this.useEncoding = encoding;
+    };
 
     public static goto(cursorInfos: PLSQLCursorInfos, lineOffset: number, parserRoot: PLSQLRoot, pkgGetName_cb, search_cb, findSpec?: boolean): Promise<PLSQLSymbol> {
 
@@ -309,7 +316,14 @@ export class PlSqlNavigator {
             fs.readFile(file, (err, data) => {
                 if (err)
                     return reject(err);
-                return resolve(PlSqlParser.parseFile(file, data.toString()));
+
+                let dataS = '';
+                if (this.useEncoding === 'utf8')
+                    dataS = data.toString();
+                else
+                    dataS = iconv.decode(data, this.useEncoding);
+
+                return resolve(PlSqlParser.parseFile(file, dataS));
             });
         });
     }

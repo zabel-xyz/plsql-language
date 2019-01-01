@@ -159,4 +159,9 @@ export class PLSQLSettings {
             patternActiveInfos: <string>config.get('connection.patternActiveInfos')
         };
     }
+
+    public static getEncoding(file: vscode.Uri) {
+        const config = vscode.workspace.getConfiguration('files', file);
+        return config.get('encoding', 'utf8');
+    }
 }
