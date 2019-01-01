@@ -217,7 +217,7 @@ export class PlSqlNavigator {
         let search = {
             files: files,
             glob: undefined,
-            ext: ['sql','pls','pck','pkh','pks','pkb'],
+            ext: ['sql','ddl','dml','pkh','pks','pkb','pck','pls','plb'],
             params: {
                 nocase: true
             }

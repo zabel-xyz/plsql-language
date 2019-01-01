@@ -98,16 +98,31 @@ export class PLSQLSettings {
     }
 
     public static getSearchExt(searchExt: string[]) {
-        const config = vscode.workspace.getConfiguration('files'),
+
+        // copy of package.json
+        const DEFAULT_EXT =
+             ['sql','ddl','dml','pkh','pks','pkb','pck','pls','plb',
+              'bdy','fnc','idx','mv','prc','prg','sch','seq','spc','syn','tab','tbl','tbp','tps','trg','typ','vw'];
+
+        let allExt = [...new Set([...searchExt, ...DEFAULT_EXT])]; // (merge and remove duplicate)
+
+        const config = vscode.workspace.getConfiguration('files', null),
               assoc = <object>config.get('associations');
-        let   plassoc  = [];
 
         if (assoc) {
-            plassoc = Object.keys(assoc)
-                .filter(key => assoc[key] === 'plsql')
-                .map(item => item.replace(/^\*./,''));
+            const assocExt = [], otherExt = [];
+            Object.keys(assoc).forEach(key =>
+                (assoc[key] === 'plsql' ? assocExt : otherExt).push(key.replace(/^\*./,'').toLowerCase())
+            );
+            // Remove ext associated with another language
+            if (otherExt.length)
+                allExt = allExt.filter(item => otherExt.indexOf(item) === -1);
+            // Add ext associated with plsql (remove duplicate)
+            if (assocExt.length)
+                allExt = [...new Set([...allExt, ...assocExt])];
         }
-        return [...new Set([...searchExt ,...plassoc])];
+
+        return allExt;
     }
 
     public static getDocInfos(file: vscode.Uri) {
