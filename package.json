@@ -46,10 +46,29 @@
                     ".ddl",
                     ".dml",
                     ".pkh",
-                    ".pkb",
                     ".pks",
+                    ".pkb",
                     ".pck",
-                    ".pls"
+                    ".pls",
+                    ".plb",
+
+                    ".bdy",
+                    ".fnc",
+                    ".idx",
+                    ".mv",
+                    ".prc",
+                    ".prg",
+                    ".sch",
+                    ".seq",
+                    ".spc",
+                    ".syn",
+                    ".tab",
+                    ".tbl",
+                    ".tbp",
+                    ".tps",
+                    ".trg",
+                    ".typ",
+                    ".vw"
                 ],
                 "configuration": "./syntaxes/plsql.configuration.json"
             }
