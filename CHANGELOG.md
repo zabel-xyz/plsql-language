@@ -1,5 +1,7 @@
 ## 1.6.6
-* New: supports procedure and function with their name in quotes
+* New: supports procedure and function with their name in quotes [#62](https://github.com/zabel-xyz/plsql-language/issues/62)
+* New: Complete extension list [#28](https://github.com/zabel-xyz/plsql-language/issues/28)
+* Fix bug: Signature, Hover, Completion - bad encoding [#63](https://github.com/zabel-xyz/plsql-language/issues/63)
 
 ## 1.6.4
 * Use node oracledb@3.0.1
