@@ -1,7 +1,7 @@
 ## 1.7.0
 * New: supports procedure and function with their name in quotes [#62](https://github.com/zabel-xyz/plsql-language/issues/62)
 * New: complete extension list [#28](https://github.com/zabel-xyz/plsql-language/issues/28)
-* New: supports multi-workspaces search [40](https://github.com/zabel-xyz/plsql-language/issues/40)
+* New: supports multi-workspaces search [#40](https://github.com/zabel-xyz/plsql-language/issues/40)
 * Deprecated setting: plsql-language.searchFolder [read more](https://github.com/zabel-xyz/plsql-language/blob/master/README.md#define-search-paths)
 * Fix bug: Signature, Hover, Completion - bad encoding [#63](https://github.com/zabel-xyz/plsql-language/issues/63)
 

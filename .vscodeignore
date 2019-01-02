@@ -6,7 +6,7 @@ server-oracle/src/**
 **/*.map
 .gitignore
 .gitattributes
-tsconfig.json
+**/tsconfig.json
 tslint.json
 plsql-language-custom/**
 todo.*

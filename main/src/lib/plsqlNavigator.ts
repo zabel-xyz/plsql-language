@@ -212,9 +212,10 @@ export class PlSqlNavigator {
             glob(globCmd.glob, globCmd.params, (err, files) => {
                 if (err)
                     return reject(err);
-                return resolve(
-                    files.map(file => path.join(globCmd.params.cwd, file))
-                         .filter(file => file !== globCmd.current)
+                return resolve(files
+                    .map(file => path.join(globCmd.params.cwd, file))
+                    .filter(file => file !== globCmd.current &&
+                                    globCmd.ext.includes(path.extname(file).toLowerCase().substr(1)) )
                 );
             });
         });
@@ -244,7 +245,8 @@ export class PlSqlNavigator {
             searchTxt = `{${search.files.join(',')}}`;
         else
             searchTxt = search.files[0];
-        search.glob = `**/*${searchTxt}*.{${search.ext.join(',')}}`;
+        // search.glob = `**/*${searchTxt}*.{${search.ext.join(',')}}`;
+        search.glob = `**/*${searchTxt}*.*`; // filter on extension is made after => faster
 
         return search;
     }
