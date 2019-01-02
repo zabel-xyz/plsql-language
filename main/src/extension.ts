@@ -103,6 +103,6 @@ export function activate(context: vscode.ExtensionContext) {
     }
 }
 
-function deactivate() {
+export function deactivate() {
     OracleService.activate(false, '', true);
 }

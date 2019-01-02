@@ -22,6 +22,17 @@ Navigate to methods (procedures and functions) with some limitations :
 
 ![Image of Definition](images/Definition.gif)
 
+## Define search paths
+Use the settings `plsql-language.searchPaths` to specify where to search.
+- null (default) search in all workspaces.
+- ${workspaceFolder}: limit search in current workspace
+- ${workspaceFolder: _name_}: limit search by name of workspace
+- ${workspaceFolder: _index_}: limit search by index of workspace
+- _path_: limit search in this folder
+
+You can specify multiple locations by using an array.
+<br />e.g.: `["${workspaceFolder: pl}", "C:/Develop/MyProjects/Oracle"]`
+
 ## Documentation
 Generate detailed documentation automatically for procedures and functions.
 ![Image of Documentation](images/Documentation.gif)

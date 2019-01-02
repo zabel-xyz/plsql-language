@@ -165,10 +165,21 @@ export class PlSqlNavigator {
         return text && ['function', 'procedure'].includes(text.toLowerCase());
     }
 
-    private static searchExternal(search, search_cb, parseFn): Promise<any> {
+    private static async searchExternal(search, search_cb, parseFn): Promise<any> {
+        const globCmd = this.getGlobCmd(search, search_cb);
+        for (let searchFld of globCmd.searchFld) {
+            globCmd.params.cwd = searchFld;
+            const resultSearch = await this.searchExternalGlob(globCmd, {...search}, parseFn);
+            if (resultSearch)
+                return resultSearch;
+            // else continue with next globSearch
+        };
+    }
+
+    private static searchExternalGlob(globCmd, search, parseFn): Promise<any> {
         return new Promise<any>((resolve, reject) => {
             let files;
-            this.getGlobFiles(this.getGlobCmd(search, search_cb))
+            this.getGlobFiles(globCmd)
                 .then(globFiles => {
                     files = globFiles;
                     return this.parseFiles(files, search, parseFn);
@@ -201,12 +212,15 @@ export class PlSqlNavigator {
             glob(globCmd.glob, globCmd.params, (err, files) => {
                 if (err)
                     return reject(err);
-                return resolve(files.map(file => path.join(globCmd.params.cwd, file)));
+                return resolve(
+                    files.map(file => path.join(globCmd.params.cwd, file))
+                         .filter(file => file !== globCmd.current)
+                );
             });
         });
     }
 
-    private static getGlobCmd(searchTexts, cb) {
+    private static getGlobCmd(searchTexts, cb): any {
 
         let files: string[] = [];
         if (searchTexts.package)

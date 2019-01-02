@@ -27,8 +27,15 @@ export class PLSQLSettings {
     // constructor() {
     // }
 
+    /**
+     * SearchPaths:
+     * Search in all ws null (default)
+     * Search in same ws (${workspaceFolder})
+     * Search in specific folder (D:/Path...)
+     * Search in specific ws (${workspaceFolder: name|index})
+     * Array => ['D:/Path', ${workspaceFolder}]
+     */
     public static getSearchInfos(file: vscode.Uri) {
-
         // ignore search.exclude settings
         let   ignore;
         const searchExclude = <object>vscode.workspace.getConfiguration('search', file).get('exclude');
@@ -38,33 +45,43 @@ export class PLSQLSettings {
 
         const config = vscode.workspace.getConfiguration('plsql-language');
 
-        // search in specified folder or current workspace
-        // const wsFolder = vscode.workspace.getWorkspaceFolder(file);
-        // temporary code to resolve bug https://github.com/Microsoft/vscode/issues/36221
-        const wsFolder = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(file.fsPath));
-        let   cwd =  wsFolder ? wsFolder.uri.fsPath : '',
-              searchFld = <string>config.get('searchFolder');
+        let searchFld = <string|Array<string>>config.get('searchPaths');
         if (searchFld) {
-            cwd = searchFld.replace('${workspaceRoot}', cwd) // deprecated
-                           .replace('${workspaceFolder}', cwd);
-        }
+            if (!Array.isArray(searchFld))
+                searchFld = [searchFld];
 
-        return {ignore, cwd};
+            searchFld = searchFld.map(folder => {
+                // start with
+                // ${workspaceFolder} => current workspace
+                // ${workspaceFolder: name} => workspace find by name
+                // ${workspaceFolder: index} => workspace find by index
+                const match = folder.match(/\${workspaceFolder(?:\s*:\s*(.*))?}/i);
+                if (match) {
+                    if (vscode.workspace.workspaceFolders && match && match.index === 0) {
+                        const wsId = match[1];
+                        if (wsId) {
+                            const find = vscode.workspace.workspaceFolders.find(ws =>
+                                Number.isInteger(<any>wsId - 1) ? ws.index === Number.parseInt(wsId, 10) : ws.name === wsId);
+                            if (find)
+                                return folder.replace(match[0], find.uri.fsPath);
+                        } else {
+                            const wsFolder = vscode.workspace.getWorkspaceFolder(file);
+                            if (wsFolder)
+                                return folder.replace('${workspaceFolder}', wsFolder.uri.fsPath);
+                        }
+                    }
+                    return '';
+                };
+                return folder;
+            }).filter(folder => folder !== '');
+        } else if (vscode.workspace.workspaceFolders) // search in all workspaces
+            searchFld = vscode.workspace.workspaceFolders.map(ws => ws.uri.fsPath);
+        else
+            searchFld = [''];
+
+        return {ignore, searchFld};
     }
 
-    // DEPRECATED...
-    // public static getSearchFile(searchText: string): string {
-    //     const config = vscode.workspace.getConfiguration('plsql-language');
-
-    //     // fileName = convert packageName
-    //     let   fileName = searchText;
-    //     const replaceSearch = <string>config.get('replaceSearch');
-    //     if (replaceSearch) {
-    //         const regExp = new RegExp(replaceSearch, 'i');
-    //         fileName = fileName.replace(regExp, <string>config.get('replaceValue') || '');
-    //     }
-    //     return fileName;
-    // }
 
     public static translatePackageName(packageName: string): string {
         const config = vscode.workspace.getConfiguration('plsql-language');

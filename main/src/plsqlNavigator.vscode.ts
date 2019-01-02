@@ -65,16 +65,16 @@ export class PlSqlNavigatorVSC /*extends PlSqlNavigator*/ {
     }
 
     private static getGlobCmdEx(document, search) {
-        const {cwd, ignore} = PLSQLSettings.getSearchInfos(document.uri);
-        // Ignore current file
-        ignore.push(path.relative(cwd, document.uri.fsPath));
+
+        const {searchFld, ignore} = PLSQLSettings.getSearchInfos(document.uri);
 
         return {
             files: search.files,
             ext: PLSQLSettings.getSearchExt(search.ext),
+            searchFld: searchFld,
+            current: document.uri.fsPath,
             params: {
                 nocase: true,
-                cwd: cwd,
                 ignore: ignore
             }
         };
