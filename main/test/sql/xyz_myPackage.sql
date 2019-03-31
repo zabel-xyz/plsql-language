@@ -25,6 +25,8 @@ as
   function get_myValue(param1 in varchar2)
     return varchar2;
 
+  function myCallJava(param1 in varchar2) return varchar2;
+
   /**
    * Comment
    *
@@ -65,6 +67,13 @@ as
   begin
     return param1 || ' TEST';
   end;
+
+  /**
+    Doc wrapper
+  */
+  function myCallJava(param1 in varchar2) return varchar2
+  as language java
+  name '';
 
   function insideConditional return number
   is

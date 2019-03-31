@@ -100,7 +100,7 @@ You can also run an SQL statement from another extension like this:
         // To access db from another extension
         // Use active connection
         try {
-             const result = await vscode.commands.executeCommand('plsql.executeCommand', {sql: 'SELECT LAST_NAME FROM EMPLOYEES'})
+             const result = await vscode.commands.executeCommand('plsql.executeCommand', {sql: 'SELECT LAST_NAME FROM EMPLOYEES WHERE FIRST_NAME = :NAME', params: ['John']})
              vscode.window.showInformationMessage(JSON.stringify(result));
         } catch(err) {
              vscode.window.showErrorMessage(JSON.stringify(err));

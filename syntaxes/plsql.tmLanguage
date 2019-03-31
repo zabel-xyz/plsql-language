@@ -258,6 +258,12 @@
             <key>name</key>
             <string>keyword.hierarchical.sql.oracle</string>
         </dict>
+         <dict>
+            <key>match</key>
+            <string>(?i)\b(language|name|java|c)\b</string>
+            <key>name</key>
+            <string>keyword.wrapper.oracle</string>
+        </dict>
         <dict>
             <key>match</key>
             <string>(?i)\b(end|then|deterministic|exception|when|declare|begin|in|out|nocopy|is|as|exit|open|fetch|into|close|subtype|type|rowtype|default|exclusive|mode|lock|record|index\s+by|result_cache|constant|comment|\.(nextval|currval))\b</string>

@@ -17,7 +17,7 @@ export class PlSqlNavigator {
 
     public static setEncoding(encoding: string) {
         this.useEncoding = encoding;
-    };
+    }
 
     public static goto(cursorInfos: PLSQLCursorInfos, lineOffset: number, parserRoot: PLSQLRoot, pkgGetName_cb, search_cb, findSpec?: boolean): Promise<PLSQLSymbol> {
 
@@ -173,7 +173,7 @@ export class PlSqlNavigator {
             if (resultSearch)
                 return resultSearch;
             // else continue with next globSearch
-        };
+        }
     }
 
     private static searchExternalGlob(globCmd, search, parseFn): Promise<any> {

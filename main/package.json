@@ -5,7 +5,7 @@
     "version": "0.0.1",
     "publisher": "xyz",
     "engines": {
-        "vscode": "^1.29.0"
+        "vscode": "^1.32.3"
     },
     "scripts": {
         "update-vscode": "vscode-install",
@@ -16,6 +16,6 @@
         "iconv-lite": "0.4.24",
         "json5": "2.1.0",
         "dateformat": "3.0.3",
-        "vscode-languageclient": "5.1.1"
+        "vscode-languageclient": "5.2.1"
     }
 }

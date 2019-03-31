@@ -20,13 +20,15 @@ export default class ConnectUIController {
         } else
             connections = this.controller.getConnections();
 
-        const displayItems = connections.map(item => {
-            return {
-                label: `${item.active ? '$(check) ' : ''} ${item.name}`,
-                item: item,
-                action: 'setActive'
-            };
-        });
+        const displayItems = connections
+            .filter(item => item.active || !item.hidden)
+            .map(item => {
+                return {
+                    label: `${item.active ? '$(check) ' : ''} ${item.name}`,
+                    item: item,
+                    action: 'setActive'
+                };
+            });
         displayItems.push({
             label: '<Insert a new connection>',
             item: undefined,

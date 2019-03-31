@@ -1,3 +1,10 @@
+## 1.8.0
+* Fix bug in RegExpParser - _comment before package name_ - [#68](https://github.com/zabel-xyz/plsql-language/issues/68)
+* Fix bug in RegExpParser - _quote_ - [#70](https://github.com/zabel-xyz/plsql-language/issues/70)
+* Improve RegExpParser - _java_ - [#69](https://github.com/zabel-xyz/plsql-language/issues/69)
+* Improve execution of external sql comand - _use of params_ [see readme](https://github.com/zabel-xyz/plsql-language/blob/master/README.md)
+* New - _hidden_ property in connection settings
+
 ## 1.7.0
 * New: supports procedure and function with their name in quotes [#62](https://github.com/zabel-xyz/plsql-language/issues/62)
 * New: complete extension list [#28](https://github.com/zabel-xyz/plsql-language/issues/28)

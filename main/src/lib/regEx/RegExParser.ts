@@ -16,8 +16,10 @@ export default class RegExpParser {
 
     private static regComment = `(?:\\/\\*[\\s\\S]*?\\*\\/)|(?:--.*)`;
     private static regCommentDoc = `(?:\\/\\*(\\*)?[\\s\\S]*?\\*\\/)|(?:--.*)`;
-    private static regQuote = `(?:["'][^"']*["'])`;
+    private static regQuote = `(?:["][^"]*["]|['][^']*['])`; //`(?:["'][^"']*["'])`;
     private static regCommentInside = `(?:\\/\\*[\\s\\S]*?\\*\\/\\s*)?`; // a bit slower !
+    // TODO: #68
+    // private static regCommentInside = `(?:\\/\\*[\\s\\S]*?\\*\\/\\s*|--.*?\\s+)*\\s*`; // a bit slower !
     private static regJumpDoc = `(\\/\\*\\*[\\s\\S]*?\\*\\/)`;
 
     private static REG_WORD = '[\\w\\$#]';
@@ -28,7 +30,7 @@ export default class RegExpParser {
 
     private static regSpecSymbols = `(?:(${RegExpParser.REG_WORD}+)\\s+(\"?${RegExpParser.REG_WORD}+\"?)\\s*(?:\\s*;|.[^;]*;))`;
     private static regSpecCondition = `(?:\\$\\b(?:if|elsif)\\b.*\\s*\\$\\bthen\\b|\\$\\b(?:end|else)\\b)`;
-    private static regBody = `(?:\\b(procedure|function)\\b\\s+(\"?${RegExpParser.REG_WORD}+\"?)[\\s\\S]*?(;|\\b(?:is|as|begin)\\b))`;
+    private static regBody = `(?:\\b(procedure|function)\\b\\s+(\"?${RegExpParser.REG_WORD}+\"?)[\\s\\S]*?((?:\\bas\\s+(language)\\b.[^;]*;)|;|\\b(?:is|as|begin)\\b))`;
     private static regParams = `(?:\\(|,)\\s*((${RegExpParser.REG_WORD}+)\\s*(in\\s+out|in|out)?\\s*(${RegExpParser.REG_WORDTYPE}*))|(?:\\breturn\\b\\s*(${RegExpParser.REG_WORDTYPE}*))`;
 
     private static regJumpEnd = `(\\bbegin|case\\b)|(?:(\\$?\\bend\\b)\\s*(?:\\b(if|loop|case)\\b)?)`;
@@ -200,17 +202,17 @@ export default class RegExpParser {
             }
             oldIndex = lastIndex;
             lastIndex = this.regExpB.lastIndex;
-            if (found[5]) // begin
+            if (found[6]) // begin
                 break;
-            else if (found[6] && found[7]) {
+            else if (found[7] && found[8]) {
                 if (extractSymbol) {
-                    symbol = this.createSymbolItem(found[6], found[7], found.index, parent, false);
+                    symbol = this.createSymbolItem(found[7], found[8], found.index, parent, false);
                     if (symbol) {
                         symbol.definition = found[0];
                         symbol.offsetEnd = lastIndex;
                         if (lastDoc != null)
                             symbol.documentation = this.jumpDoc(text, lastDoc, found.index);
-                    } else if (found[6].toLowerCase() !== 'pragma') {
+                    } else if (found[7].toLowerCase() !== 'pragma') {
                         // if it's not a symbol, something goes wrong => break
                         lastIndex = oldIndex;
                         break;
@@ -226,7 +228,7 @@ export default class RegExpParser {
                     symbol.definition = found[0];
                     if (lastDoc != null)
                         symbol.documentation = this.jumpDoc(text, lastDoc, found.index);
-                    if (isBody) {
+                    if (isBody && found[5] !== 'language') {
                         if (found[4].toLowerCase() === 'begin') {
                             // begin => jump to end
                         } else { // is,as

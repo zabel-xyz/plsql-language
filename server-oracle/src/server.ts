@@ -135,11 +135,13 @@ export class OracleConnection {
             if (cmd === 'commit' || cmd === 'rollback')
                 internalConnection[cmd]()
                     .then(() => resolve({ data: cmd }))
-                    .catch(err => reject({ error: this.formatOracleError(err) }))
+                    .catch(err => reject({ error: this.formatOracleError(err) }));
             else {
                 // this._connection.sendNotification('Oracle/debug', 'ExecCmd');
                 // if no params, don't add an arguments null !
-                internalConnection.execute(params.sql)
+                params.params = params.params || {};
+                params.opt = params.opt || {};
+                internalConnection.execute(params.sql, params.params, params.opt)
                     .then(result => resolve({ params: params, data: result }))
                     .catch(err => reject({ params: params, error: this.formatOracleError(err) }));
             }
@@ -252,7 +254,7 @@ export class OracleConnection {
             message: error.message,
             num: error.errorNum,
             offset: error.offset
-        }
+        };
     }
 }
 

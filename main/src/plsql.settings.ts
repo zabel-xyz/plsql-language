@@ -13,6 +13,7 @@ export interface PLSQLConnection {
     privilege?: string;
     schema?: string;
     active?: boolean;
+    hidden?: boolean;
     loginScript?: string;
     ID?: number;
     name?: string;

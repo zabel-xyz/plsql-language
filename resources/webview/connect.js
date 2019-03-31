@@ -25,6 +25,17 @@
             });
         });
 
+    document.querySelectorAll('.checkbox')
+        .forEach(input => {
+            input.addEventListener('click', event => {
+                if (input.checked)
+                    if (input.id === 'active')
+                        document.querySelector('.checkbox#hidden').checked = false
+                    else if (input.id === 'hidden')
+                        document.querySelector('.checkbox#active').checked = false
+            });
+        });
+
     document.querySelectorAll('select')
         .forEach(input => {
             input.addEventListener('input', event => {
@@ -43,6 +54,7 @@
             loginScript: document.connection.loginScript.value,
             tag: document.connection.tag.value,
             active: document.connection.active.checked ? true : false,
+            hidden: document.connection.hidden.checked ? true : false,
             ID: _currentID
         };
         const sendData = {};
@@ -174,10 +186,13 @@
             _currentID = data.ID;
         else
             _currentID = null;
-        if (!data || data.active)
+        if (!data) {
             document.connection.active.checked = true;
-        else
-            document.connection.active.checked = false;
+            document.connection.hidden.checked = false;
+        } else {
+            document.connection.active.checked = data.active;
+            document.connection.hidden.checked = !data.active && data.hidden;
+        }
     }
 
     function updateList(items) {

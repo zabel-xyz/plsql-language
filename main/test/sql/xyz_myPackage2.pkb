@@ -1,4 +1,6 @@
 create or replace package body MyPackage2
+/* test */
+-- test2
 as
 
   function get_myValue(param1 in varchar2)
@@ -20,6 +22,7 @@ as
   procedure "do"(param1 in varchar2)
   is
   begin
+    l := "l'abc";
     return;
   end;
 
@@ -29,6 +32,11 @@ as
     -- some code to execute
     return;
   end;
+
+  function myCallJava(param1 in varchar2) return varchar2
+  as language java
+  name ''
+  ;
 
   procedure pCallInternal(param1 in varchar2)
   is

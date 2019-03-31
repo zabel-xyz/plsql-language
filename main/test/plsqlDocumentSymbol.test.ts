@@ -48,6 +48,7 @@ suite('PLSQL Symbols', () => {
                 {name: 'variable myGlobalVar', kind: vscode.SymbolKind.Variable},
                 {name: 'procedure conditional', kind: vscode.SymbolKind.Interface},
                 {name: 'function get_myValue', kind: vscode.SymbolKind.Interface},
+                {name: 'function myCallJava', kind: vscode.SymbolKind.Interface},
                 {name: 'procedure set_myValue', kind: vscode.SymbolKind.Interface},
                 {name: 'procedure myCall', kind: vscode.SymbolKind.Interface}
             ]},
@@ -60,6 +61,7 @@ suite('PLSQL Symbols', () => {
                 {name: 'variable myGlobalVar2', kind: vscode.SymbolKind.Variable},
                 {name: 'function pForward', kind: vscode.SymbolKind.Interface},
                 {name: 'function get_myValue', kind: vscode.SymbolKind.Function},
+                {name: 'function myCallJava', kind: vscode.SymbolKind.Function},
                 {name: 'function insideConditional', kind: vscode.SymbolKind.Function},
                 {name: 'procedure conditional', kind: vscode.SymbolKind.Interface},
                 {name: 'procedure conditional', kind: vscode.SymbolKind.Method},
@@ -100,6 +102,7 @@ suite('PLSQL Symbols', () => {
                 {name: 'procedure set_myValue', kind: vscode.SymbolKind.Method},
                 {name: 'procedure "do"', kind: vscode.SymbolKind.Method},
                 {name: 'procedure myCall', kind: vscode.SymbolKind.Method},
+                {name: 'function myCallJava', kind: vscode.SymbolKind.Function},
                 {name: 'procedure pCallInternal', kind: vscode.SymbolKind.Method}
             ]},
         ], done);
