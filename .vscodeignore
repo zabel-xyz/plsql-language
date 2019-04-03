@@ -10,3 +10,5 @@ server-oracle/src/**
 tslint.json
 plsql-language-custom/**
 todo.*
+**/ag-grid-community/src/**
+**/ag-grid-community/spec/**
