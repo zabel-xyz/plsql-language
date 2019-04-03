@@ -17,9 +17,7 @@ export default class RegExpParser {
     private static regComment = `(?:\\/\\*[\\s\\S]*?\\*\\/)|(?:--.*)`;
     private static regCommentDoc = `(?:\\/\\*(\\*)?[\\s\\S]*?\\*\\/)|(?:--.*)`;
     private static regQuote = `(?:["][^"]*["]|['][^']*['])`; //`(?:["'][^"']*["'])`;
-    private static regCommentInside = `(?:\\/\\*[\\s\\S]*?\\*\\/\\s*)?`; // a bit slower !
-    // TODO: #68
-    // private static regCommentInside = `(?:\\/\\*[\\s\\S]*?\\*\\/\\s*|--.*?\\s+)*\\s*`; // a bit slower !
+    private static regCommentInside = `(?:\\/\\*[\\s\\S]*?\\*\\/\\s*|--.*\\s+)*\\s*`; // a bit slower !
     private static regJumpDoc = `(\\/\\*\\*[\\s\\S]*?\\*\\/)`;
 
     private static REG_WORD = '[\\w\\$#]';

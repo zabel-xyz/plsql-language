@@ -73,7 +73,7 @@ as
   */
   function myCallJava(param1 in varchar2) return varchar2
   as language java
-  name '';
+  name 'myJavaFunc';
 
   function insideConditional return number
   is
@@ -105,6 +105,7 @@ as
 
   procedure quote is
   begin
+    l := '"';
     logger.log('end');
     -- end
     return null;

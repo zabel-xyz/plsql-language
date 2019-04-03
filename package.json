@@ -269,7 +269,7 @@
         },
         "keybindings": {
             "command": "plsql.runQuery",
-            "when": "resourceLangId == plsql && config.plsql-language.oracleConnection.enable",
+            "when": "resourceLangId == plsql && config.plsql-language.oracleConnection.enable && editorTextFocus",
             "key": "ctrl+enter"
         }
     },
