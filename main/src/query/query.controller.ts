@@ -40,9 +40,11 @@ export class QueryController {
             return;
 
         if (param.tag) {
-            param = this.connectionCtrl.getByTag(param.tag);
-            if (!param)
-                return Promise.reject('Cannot connect tag not found');
+            const connection = this.connectionCtrl.getByTag(param.tag);
+            if (connection)
+                return Promise.reject(`Cannot connect tag ${param.tag} not found`);
+            else
+                param = connection;
         }
         param.silent = true;
         param.custom = true;

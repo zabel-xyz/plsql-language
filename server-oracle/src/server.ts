@@ -12,6 +12,8 @@ export class OracleConnection {
     private static _customID = 0;
     private static _customConnections = {};
 
+    private static ORACLE_DB_VERSION = 'oracledb@"^3.0.0"';
+
     public static init() {
         this._connection = createConnection(/*ProposedFeatures.all*/);
         [
@@ -62,7 +64,7 @@ export class OracleConnection {
     //                     if (err)
     //                         return resolve({error: 'OracleDB - npm load failed ' + err});
 
-    //                     npm.commands.install(['oracledb@3.0.0'], (err, data) =>  {
+    //                     npm.commands.install([ORACLE_DB_VERSION], (err, data) =>  {
     //                         if (err)
     //                             return resolve({error: 'OracleDB - install failed '+ err});
     //                         return resolve('OracleDB - install work '+JSON.stringify(data));
@@ -79,10 +81,10 @@ export class OracleConnection {
                 .then(install => {
                     if (!install)
                         return resolve('OracleDB already installed');
-                    this._connection.sendNotification('Oracle/install', 'Start install oracledb@3.0.1...');
-                    require('child_process').exec('npm install '+'oracledb@3.0.1',
+                    this._connection.sendNotification('Oracle/install', `Start install ${OracleConnection.ORACLE_DB_VERSION}...`);
+                    require('child_process').exec(`npm install ${OracleConnection.ORACLE_DB_VERSION}`,
                         (err, stdout, stderr) => {
-                            this._connection.sendNotification('Oracle/install', '...End install oracledb@3.0.1');
+                            this._connection.sendNotification('Oracle/install', `...End install ${OracleConnection.ORACLE_DB_VERSION}`);
                             if (err)
                                 resolve({error: err});
                             if (stderr)
@@ -177,6 +179,8 @@ export class OracleConnection {
                     result.connection = connection;
                     result.connected = true;
 
+                    if (params.schema)
+                        result.schema = params.schema;
                     if (!params.loginScript)
                         return;
                     else
