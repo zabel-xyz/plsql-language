@@ -31,7 +31,7 @@ export default class RegExpParser {
     private static regBody = `(?:\\b(procedure|function)\\b\\s+(\"?${RegExpParser.REG_WORD}+\"?)[\\s\\S]*?((?:\\bas\\s+(language)\\b.[^;]*;)|;|\\b(?:is|as|begin)\\b))`;
     private static regParams = `(?:\\(|,)\\s*((${RegExpParser.REG_WORD}+)\\s*(in\\s+out|in|out)?\\s*(${RegExpParser.REG_WORDTYPE}*))|(?:\\breturn\\b\\s*(${RegExpParser.REG_WORDTYPE}*))`;
 
-    private static regJumpEnd = `(\\bbegin|case\\b)|(?:(\\$?\\bend\\b)\\s*(?:\\b(if|loop|case)\\b)?)`;
+    private static regJumpEnd = `(\\b(?:begin|case)\\b)|(?:(\\$?\\bend\\b)\\s*(?:\\b(if|loop|case)\\b)?)`;
     private static regJumpAsIs = `\\b(is|as)\\b`;
 
     public static initParser(commentInSymbols?: boolean)  {

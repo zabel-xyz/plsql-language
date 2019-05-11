@@ -1,3 +1,6 @@
+## 1.8.2
+* Fix bug in RegExpParser - _variable with keyword case_ - [#74](https://github.com/zabel-xyz/plsql-language/issues/74)
+
 ## 1.8.0
 * Fix bug in RegExpParser - _comment before package name_ - [#68](https://github.com/zabel-xyz/plsql-language/issues/68)
 * Fix bug in RegExpParser - _quote_ - [#70](https://github.com/zabel-xyz/plsql-language/issues/70)

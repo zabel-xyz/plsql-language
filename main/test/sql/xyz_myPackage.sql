@@ -111,6 +111,23 @@ as
     return null;
   end;
 
+  function get_token_count(pi_text    in varchar2
+                         , pi_pattern in varchar2 := g_std_sep
+                         , pi_case    in varchar2 := 'i'
+  )
+    return number
+  as
+    l_return number;
+  begin
+    if pi_text is null then
+      l_return := 0;
+    else
+      l_return := regexp_count(pi_text, pi_pattern, 1, pi_case);
+    end if;
+
+    return l_return;
+  end get_token_count;
+
   procedure set_myValue(param1 in varchar2)
   is
   begin
