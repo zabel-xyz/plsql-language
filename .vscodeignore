@@ -13,3 +13,4 @@ plsql-language-custom/**
 todo.*
 **/node_modules/ag-grid-community/src/**
 **/node_modules/ag-grid-community/spec/**
+**/node_modules/oracledb/**
