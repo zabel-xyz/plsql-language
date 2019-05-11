@@ -66,6 +66,7 @@ suite('PLSQL Symbols', () => {
                 {name: 'procedure conditional', kind: vscode.SymbolKind.Interface},
                 {name: 'procedure conditional', kind: vscode.SymbolKind.Method},
                 {name: 'procedure quote', kind: vscode.SymbolKind.Method},
+                {name: 'function get_token_count', kind: vscode.SymbolKind.Function},
                 {name: 'procedure set_myValue', kind: vscode.SymbolKind.Method},
                 {name: 'procedure myCall', kind: vscode.SymbolKind.Method},
                 {name: 'procedure pCallInternal', kind: vscode.SymbolKind.Method},
