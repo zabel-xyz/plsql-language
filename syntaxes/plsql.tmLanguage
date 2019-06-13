@@ -236,7 +236,13 @@
         </dict>
         <dict>
             <key>match</key>
-            <string>(?i)\b(p(i|o|io)_[-a-z0-9_]+)\b</string>
+            <string>(?i)\b(p(i|o|io|in|out)_[-a-z0-9_]+)\b</string>
+            <key>name</key>
+            <string>variable.parameter.oracle</string>
+        </dict>
+        <dict>
+            <key>match</key>
+            <string>(?i)((?<!IF\s)(?<!\.)(?<!FOR\s)(?<!cursor\s\w\s\()(?<!and\s)(?<!where\s))(\b\w+\b)(?=\s*IN\b|\s*IN\bOUT\b|(?<!IN)\b(?=\s*OUT\b))</string>
             <key>name</key>
             <string>variable.parameter.oracle</string>
         </dict>
