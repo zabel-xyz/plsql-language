@@ -51,7 +51,6 @@
                     ".pck",
                     ".pls",
                     ".plb",
-
                     ".bdy",
                     ".fnc",
                     ".idx",
@@ -85,7 +84,11 @@
             "title": "PL/SQL configuration",
             "properties": {
                 "plsql-language.searchPaths": {
-                    "type": ["string", "array", "null"],
+                    "type": [
+                        "string",
+                        "array",
+                        "null"
+                    ],
                     "default": null,
                     "markdownDescription": "Paths to search plsql files (default is to search in all workspaces) [read more](https://github.com/zabel-xyz/plsql-language/blob/master/README.md#define-search-paths)"
                 },
@@ -231,18 +234,20 @@
             {
                 "command": "plsql.activateConnection",
                 "title": "PLSQL - Activate connection"
-            },{
+            },
+            {
                 "command": "plsql.runQuery",
                 "title": "PLSQL - run current command"
             },
-
             {
                 "command": "plsql.executeCommand",
                 "title": "PLSQL - execute a command and get result (external request)"
-            },{
+            },
+            {
                 "command": "plsql.createConnection",
                 "title": "PLSQL - create a new connection (external request)"
-            },{
+            },
+            {
                 "command": "plsql.removeConnection",
                 "title": "PLSQL - remove a connection (external request)"
             }
@@ -252,10 +257,12 @@
                 {
                     "command": "plsql.executeCommand",
                     "when": "false"
-                },{
+                },
+                {
                     "command": "plsql.createConnection",
                     "when": "false"
-                },{
+                },
+                {
                     "command": "plsql.removeConnection",
                     "when": "false"
                 }
@@ -283,7 +290,7 @@
     },
     "devDependencies": {
         "typescript": "3.4.1",
-        "vscode": "1.1.33",
+        "vscode": "1.1.37",
         "mocha": "6.0.2",
         "@types/node": "11.12.2",
         "@types/mocha": "5.2.6"
