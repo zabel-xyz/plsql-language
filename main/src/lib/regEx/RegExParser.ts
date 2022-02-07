@@ -16,13 +16,13 @@ export default class RegExpParser {
 
     private static regComment = `(?:\\/\\*[\\s\\S]*?\\*\\/)|(?:--.*)`;
     private static regCommentDoc = `(?:\\/\\*(\\*)?[\\s\\S]*?\\*\\/)|(?:--.*)`;
-    private static regQuote = `(?:["][^"]*["]|['][^']*['])`; //`(?:["'][^"']*["'])`;
+    private static regQuote = `(?:["][^"]*["]|['][^']*[']|q'\\([\\s\\S]*?\\)'|q'\\[[\\s\\S]*?\\]'|q'\\{[\\s\\S]*?\\}'|q'\\<[\\s\\S]*?\\>'|q'\\|[\\s\\S]*?\\|'|q'![\\s\\S]*?!'|q'#[\\s\\S]*?#'|q'\`[\\s\\S]*?\`'|q'\\^[\\s\\S]*?\\^')`; //`(?:["'][^"']*["'])`;
     private static regCommentInside = `(?:\\/\\*[\\s\\S]*?\\*\\/\\s*|--.*\\s+)*\\s*`; // a bit slower !
     private static regJumpDoc = `(\\/\\*\\*[\\s\\S]*?\\*\\/)`;
 
     private static REG_WORD = '[\\w\\$#]';
     private static REG_WORDTYPE = '[\\w\\$#%\\.]'; // param type on the form  xyztable.xyzfield%type
-    private static regSymbolsCreate = `(?:(create)(?:\\s+or\\s+replace)?\\s*(?:(?:no\\s+)?force|global\\s+temporary)?\\s*)`;
+    private static regSymbolsCreate = `(?:(create)(?:\\s+or\\s+replace)?\\s*(?:(?:no\\s+)?force|global\\s+temporary|(?:non)?editionable)?\\s*)`;
     private static regSymbols = `(?:\\b(function|procedure|package|trigger|view|table)\\b(?:\\s+(body))?)\\s+`;
     private static regSymbolsName = `(?:\"?${RegExpParser.REG_WORD}+\"?\\.)?\"?(${RegExpParser.REG_WORD}+)\"?`;
 
