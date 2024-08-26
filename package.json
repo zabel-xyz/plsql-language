@@ -289,6 +289,6 @@
         "@types/mocha": "5.2.6"
     },
     "dependencies": {
-        "ag-grid-community": "20.2.0"
+        "ag-grid-community": "31.3.4"
     }
 }
