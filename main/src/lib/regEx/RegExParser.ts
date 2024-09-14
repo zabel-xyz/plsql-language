@@ -22,7 +22,7 @@ export default class RegExpParser {
 
     private static REG_WORD = '[\\w\\$#]';
     private static REG_WORDTYPE = '[\\w\\$#%\\.]'; // param type on the form  xyztable.xyzfield%type
-    private static regSymbolsCreate = `(?:(create)(?:\\s+or\\s+replace)?\\s*(?:(?:no\\s+)?force|global\\s+temporary)?\\s*)`;
+    private static regSymbolsCreate = `(?:(create)(?:\\s+or\\s+replace)?\\s*(?:(?:(?:no\\s+)?force)?(?:\\s+(?:non)?editionable)?|global\\s+temporary)?\\s*)`;
     private static regSymbols = `(?:\\b(function|procedure|package|trigger|view|table)\\b(?:\\s+(body))?)\\s+`;
     private static regSymbolsName = `(?:\"?${RegExpParser.REG_WORD}+\"?\\.)?\"?(${RegExpParser.REG_WORD}+)\"?`;
 
