@@ -12,23 +12,23 @@ import * as path from 'path';
 import PLSQLChannel from '../plsqlChannel';
 
 export class OracleService {
-    private static _oracleServer;
+    private static _oracleServer: OracleServer | null;
 
     public static activate(enable: Boolean, contextPath?: string, silent = false) {
         if (!this._oracleServer && enable) {
             this._oracleServer = new OracleServer(
-                    path.join(contextPath, 'server-oracle', 'out'), 'server.js');
+                    path.join(contextPath || '', 'server-oracle', 'out'), 'server.js');
         }
         if (this._oracleServer) {
             if (enable)
                 this._oracleServer.start()
-                    .then(msg => {
+                    .then((msg: any) => {
                         if (!silent) {
                             // PLSQLChannel.show();
                             PLSQLChannel.log(JSON.stringify(msg));
                         }
                     })
-                    .catch(err => {
+                    .catch((err: any) => {
                         if (!silent) {
                             vscode.window.showErrorMessage('Oracle start failed - See Output/PLSQL for more informations');
                             PLSQLChannel.show();
@@ -37,7 +37,7 @@ export class OracleService {
                     });
             else {
                 this._oracleServer.stop()
-                    .catch((err) => {
+                    .catch((err: any) => {
                         if (!silent) {
                             vscode.window.showErrorMessage('Oracle stop failed - See Output/PLSQL for more informations');
                             PLSQLChannel.show();
@@ -49,7 +49,7 @@ export class OracleService {
         }
     }
 
-    public static execCommand(params): Promise<any> {
+    public static execCommand(params: any): Promise<any> {
         if (this._oracleServer)
             return this._oracleServer.execCommand(params);
         else
@@ -63,14 +63,14 @@ export class OracleService {
             return false;
     }
 
-    public static connect(params): Promise<any> {
+    public static connect(params: any): Promise<any> {
         if (this._oracleServer)
             return this._oracleServer.connect(params);
         else
             return this.ErrorNoOracleServer();
     }
 
-    public static disconnect(params?): Promise<any> {
+    public static disconnect(params?: any): Promise<any> {
         if (this._oracleServer)
             return this._oracleServer.disconnect(params);
         else
@@ -84,7 +84,7 @@ export class OracleService {
 
 class OracleServer {
 
-    private _client: LanguageClient;
+    private _client: LanguageClient | null = null;
     private _isClientReady = false;
     private _isClientInitialized = false;
     private _serverPath: string;
@@ -98,7 +98,7 @@ class OracleServer {
 
     public start(): Promise<any> {
         if (this._client || !this._serverPath)
-            return Promise.resolve();
+            return Promise.resolve('Already started');
 
         return new Promise<any>((resolve, reject) => {
 
@@ -131,15 +131,17 @@ class OracleServer {
                 .then(() => {
                     this._isClientReady = true;
 
-                    this._client.onNotification('Oracle/install', (data) => {
-                        PLSQLChannel.show();
-                        PLSQLChannel.log(data);
-                    });
+                    if (this._client) {
+                        this._client.onNotification('Oracle/install', (data) => {
+                            PLSQLChannel.show();
+                            PLSQLChannel.log(data);
+                        });
 
-                    this._client.onNotification('Oracle/debug', (data) => {
-                        PLSQLChannel.show();
-                        PLSQLChannel.log(data);
-                    });
+                        this._client.onNotification('Oracle/debug', (data) => {
+                            PLSQLChannel.show();
+                            PLSQLChannel.log(data);
+                        });
+                    }
 
                     return this.install();
                 })
@@ -162,7 +164,7 @@ class OracleServer {
     }
 
     public stop(): Promise<any> {
-        return new Promise<any>((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
 
             this.disconnect()
                 .then(() => promiseFinally())
@@ -184,7 +186,7 @@ class OracleServer {
         });
     }
 
-    public connect(params): Promise<any> {
+    public connect(params: any): Promise<any> {
         return new Promise<any>((resolve, reject) => {
             this.execRequest('Oracle/connect', params)
                 .then(result => {
@@ -196,7 +198,7 @@ class OracleServer {
         });
     }
 
-    public disconnect(params?): Promise<any> {
+    public disconnect(params?: any): Promise<any> {
         return new Promise<any>((resolve, reject) => {
             this.execRequest('Oracle/disconnect', params)
                 .then(result => {
@@ -212,7 +214,7 @@ class OracleServer {
         return this._isConnected;
     }
 
-    public execCommand(params): Promise<any> {
+    public execCommand(params: any): Promise<any> {
         return this.execRequest('Oracle/execCommand', params);
     }
 

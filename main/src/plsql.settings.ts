@@ -38,8 +38,8 @@ export class PLSQLSettings {
      */
     public static getSearchInfos(file: vscode.Uri) {
         // ignore search.exclude settings
-        let   ignore;
-        const searchExclude = <object>vscode.workspace.getConfiguration('search', file).get('exclude');
+        let   ignore: string[] = [];
+        const searchExclude = <{[key: string]: boolean}>vscode.workspace.getConfiguration('search', file).get('exclude');
         if (searchExclude) {
             ignore = Object.keys(searchExclude).filter(key => searchExclude[key]);
         }
@@ -125,10 +125,10 @@ export class PLSQLSettings {
         let allExt = [...new Set([...searchExt, ...DEFAULT_EXT])]; // (merge and remove duplicate)
 
         const config = vscode.workspace.getConfiguration('files', null),
-              assoc = <object>config.get('associations');
+              assoc = <{[key: string]: string}>config.get('associations');
 
         if (assoc) {
-            const assocExt = [], otherExt = [];
+            const assocExt: string[] = [], otherExt: string[] = [];
             Object.keys(assoc).forEach(key =>
                 (assoc[key] === 'plsql' ? assocExt : otherExt).push(key.replace(/^\*./,'').toLowerCase())
             );

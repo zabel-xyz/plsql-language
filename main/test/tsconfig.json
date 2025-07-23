@@ -3,5 +3,13 @@
 	"compilerOptions": {
 		"outDir": "../out",
 		"rootDir": "../",
-	}
+		"typeRoots": [
+			"../@types",
+			"../../@types",
+			"../../../node_modules/@types"
+		]
+	},
+	"include": [
+		"../**/*"
+	]
 }

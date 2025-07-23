@@ -10,20 +10,20 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
 
     private plDocController = new PLDocController();
     private plsqlCompletionCustom = new PLSQLCompletionCustom();
-    private plDocCustomItems: vscode.CompletionItem[];
-    private plsqlSnippets:  vscode.CompletionItem[];
+    private plDocCustomItems: vscode.CompletionItem[] = [];
+    private plsqlSnippets: vscode.CompletionItem[] = [];
 
     public provideCompletionItems(document: vscode.TextDocument, position: vscode.Position,
-        token: vscode.CancellationToken): Thenable<vscode.CompletionItem[]> {
+        _token: vscode.CancellationToken): Thenable<vscode.CompletionItem[]> {
 
-        return new Promise<vscode.CompletionItem[]>((resolve, reject) => {
+        return new Promise<vscode.CompletionItem[]>((resolve, _reject) => {
 
             const completeItems: vscode.CompletionItem[] = [];
 
             const lineText = document.lineAt(position.line).text,
                   text = document.getText(),
                   wordRange = document.getWordRangeAtPosition(position),
-                  word = wordRange && document.getText(wordRange),
+                  word = wordRange ? document.getText(wordRange) : '',
                   cursorInfos = PlSqlNavigator.getCursorInfos(document, position);
 
             if (!cursorInfos.previousDot) {
@@ -33,12 +33,12 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
                     completeItems.push(plDocItem);
 
                 // PLDOC - custom items
-                if (!this.plDocCustomItems)
+                if (!this.plDocCustomItems.length)
                     this.plDocCustomItems = this.getPlDocCustomItems(document);
                 Array.prototype.push.apply(completeItems, this.filterCompletion(this.plDocCustomItems, word));
 
                 // PLSQL - snippets
-                if (!this.plsqlSnippets)
+                if (!this.plsqlSnippets.length)
                     this.plsqlSnippets = this.getSnippets();
                 Array.prototype.push.apply(completeItems, this.filterCompletion(this.plsqlSnippets, word));
 
@@ -57,36 +57,37 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
 
                 // TODO symbol in workspace
 
-                return resolve(this.processCompleteItems(completeItems));
+                return resolve(this.processCompleteItems(completeItems) || []);
             } else {
                 if (cursorInfos.previousWord) {
                     // 1. Use plsql.completion.json
                     const members = this.getCompletionCustomItems(document, cursorInfos.previousWord);
                     if (members && members.length) {
                         Array.prototype.push.apply(completeItems, members);
-                        return resolve(this.processCompleteItems(completeItems));
+                        return resolve(this.processCompleteItems(completeItems) || []);
                     }
 
                     // 2. Use Package member completion (spec)
                     this.getPackageItems(document, position, cursorInfos)
                     .then(items => {
                         Array.prototype.push.apply(completeItems, items);
-                        return resolve(this.processCompleteItems(completeItems));
+                        return resolve(this.processCompleteItems(completeItems) || []);
                     })
-                    .catch(err => {
-                        console.log(err);
-                        return resolve(undefined);
+                    .catch(_err => {
+                        console.log(_err);
+                        return resolve([]);
                     });
                 }
             }
         });
     }
 
-    private processCompleteItems(completeItems) {
+    private processCompleteItems(completeItems: vscode.CompletionItem[]): vscode.CompletionItem[] | undefined {
         // completionItems must be filtered and if empty return undefined
         // otherwise word suggestion are lost ! (https://github.com/Microsoft/vscode/issues/21611)
         if (completeItems.length > 0)
             return completeItems;
+        return undefined;
     }
 
     private filterCompletion(items: vscode.CompletionItem[], word: string) {
@@ -100,7 +101,7 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
         else return [];
     }
 
-    private createSnippetItem(snippet, origin = ''): vscode.CompletionItem {
+    private createSnippetItem(snippet: any, origin = ''): vscode.CompletionItem {
         return this.createCompleteItem(vscode.CompletionItemKind.Snippet,
                 snippet.prefix, snippet.description, snippet.body.join('\n'), origin);
     }
@@ -122,7 +123,7 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
         return item;
     }
 
-    private getPlDocItem(document: vscode.TextDocument, position: vscode.Position, lineText: string, text: string): vscode.CompletionItem {
+    private getPlDocItem(document: vscode.TextDocument, position: vscode.Position, lineText: string, text: string): vscode.CompletionItem | undefined {
         // Empty line, above a function or procedure
         if ((text !== '') && (lineText.trim() === '') && (document.lineCount > position.line + 1)) {
 
@@ -133,6 +134,7 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
             if (snippet)
                 return this.createSnippetItem(snippet, 'pldoc');
         }
+        return undefined;
     }
 
     private getPlDocCustomItems(document: vscode.TextDocument): vscode.CompletionItem[] {
@@ -152,7 +154,7 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
 
     private getPackageItems(document: vscode.TextDocument, position: vscode.Position, cursorInfos: PLSQLCursorInfos): Promise<vscode.CompletionItem[]> {
 
-        return new Promise<vscode.CompletionItem[]>((resolve, reject) => {
+        return new Promise<vscode.CompletionItem[]>((resolve, _reject) => {
 
             PlSqlNavigator.complete(document, position, cursorInfos)
                 .then(symbols => {
@@ -161,7 +163,7 @@ export class PLSQLCompletionItemProvider implements vscode.CompletionItemProvide
                     else
                         return resolve([]);
                 })
-                .catch(err => resolve([]));
+                .catch(_err => resolve([]));
         });
     }
 

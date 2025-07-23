@@ -5,7 +5,7 @@
     "typescript.tsdk": "./node_modules/typescript/lib",
     "plsql-language.connections": [
         {
-            "ID": 3,
+            "ID": 2,
             "active": true,
             "database": "localhost:1521/xe",
             "password": "hr",

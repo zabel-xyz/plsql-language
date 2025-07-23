@@ -22,7 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
         wordPattern: /(-?\d*\.\d\w*)|([^\`\~\!\@\%\^\&\*\(\)\-\=\+\[\{\]\}\|\;\:\'\"\,\.\<\>\/\?\s]+)/
     });
 
-    let hoverProvider, signatureHelpProvider;
+    let hoverProvider: PLSQLHoverProvider | undefined, signatureHelpProvider: PLSQLSignatureProvider | undefined;
 
     // language providers
     activateHover();
@@ -44,6 +44,8 @@ export function activate(context: vscode.ExtensionContext) {
     // Connection
     const connectController = new ConnectController();
     const connectStatusBar = new ConnectStatusBar(connectController);
+    // Keep status bar reference to avoid it being disposed
+    context.subscriptions.push({ dispose: () => { connectStatusBar; } } as vscode.Disposable);
     const connectUIController = new ConnectUIController(context, connectController);
     context.subscriptions.push(vscode.commands.registerCommand('plsql.activateConnection',
             connectUIController.activateConnectionsList, connectUIController));

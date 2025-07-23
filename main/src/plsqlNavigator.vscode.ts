@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 
 import { PLSQLSettings } from './plsql.settings';
 import PlSqlParser from './plsqlParser.vscode';
@@ -13,7 +12,7 @@ export interface PLSQLCursorInfosVSC extends PLSQLCursorInfos {
 
 export class PlSqlNavigatorVSC /*extends PlSqlNavigator*/ {
 
-    public static goto(document: vscode.TextDocument, position: vscode.Position): Promise<PLSQLSymbol> {
+    public static goto(document: vscode.TextDocument, position: vscode.Position): Promise<PLSQLSymbol | null> {
 
         PlSqlParser.initParser(PLSQLSettings.getCommentInSymbols());
 
@@ -25,7 +24,7 @@ export class PlSqlNavigatorVSC /*extends PlSqlNavigator*/ {
                   this.translatePackageName.bind(this, document), this.getGlobCmdEx.bind(this, document));
     }
 
-    public static getDeclaration(document: vscode.TextDocument, position: vscode.Position): Promise<PLSQLSymbol> {
+    public static getDeclaration(document: vscode.TextDocument, position: vscode.Position): Promise<PLSQLSymbol | null> {
 
         PlSqlParser.initParser(PLSQLSettings.getCommentInSymbols());
 
@@ -37,15 +36,15 @@ export class PlSqlNavigatorVSC /*extends PlSqlNavigator*/ {
                   this.translatePackageName.bind(this, document), this.getGlobCmdEx.bind(this, document), true);
     }
 
-    public static complete(document: vscode.TextDocument, position: vscode.Position, cursorInfos: PLSQLCursorInfos): Promise<PLSQLSymbol[]> {
+    public static complete(document: vscode.TextDocument, _position: vscode.Position, cursorInfos: PLSQLCursorInfos): Promise<PLSQLSymbol[]> {
 
         if (!cursorInfos.previousWord)
-            return Promise.resolve(null);
+            return Promise.resolve([]);
 
         PlSqlParser.initParser(PLSQLSettings.getCommentInSymbols());
         PlSqlNavigator.setEncoding(PLSQLSettings.getEncoding(document.uri));
         return PlSqlNavigator.complete(cursorInfos,
-                   this.translatePackageName.bind(this, document), this.getGlobCmdEx.bind(this, document));
+                   this.getGlobCmdEx.bind(this, document));
     }
 
     public static getCursorInfos(document: vscode.TextDocument, position: vscode.Position): PLSQLCursorInfosVSC {
@@ -60,11 +59,11 @@ export class PlSqlNavigatorVSC /*extends PlSqlNavigator*/ {
         return { ...cursorInfo, line};
     }
 
-    private static translatePackageName(document, packageName: string): string {
+    private static translatePackageName(_document: vscode.TextDocument, packageName: string): string {
         return PLSQLSettings.translatePackageName(packageName);
     }
 
-    private static getGlobCmdEx(document, search) {
+    private static getGlobCmdEx(document: vscode.TextDocument, search: any): any {
 
         const {searchFld, ignore} = PLSQLSettings.getSearchInfos(document.uri);
 

@@ -10,7 +10,6 @@ export default class ConnectUIController {
     }
 
     public activateConnectionsList() {
-        const me = this;
 
         let connections: PLSQLConnection[];
         const active = this.controller.getActive();
@@ -20,7 +19,11 @@ export default class ConnectUIController {
         } else
             connections = this.controller.getConnections();
 
-        const displayItems = connections
+        const displayItems: {
+            label: string;
+            item: PLSQLConnection | undefined;
+            action: string;
+        }[] = connections
             .filter(item => item.active || !item.hidden)
             .map(item => {
                 return {
@@ -43,7 +46,18 @@ export default class ConnectUIController {
         vscode.window.showQuickPick(displayItems)
             .then(val => {
                 if (val) {
-                    me[val.action].apply(me, [val.item]);
+                    // Use explicit method calls instead of dynamic indexing
+                    switch (val.action) {
+                        case 'setActive':
+                            this.setActive(val.item as PLSQLConnection);
+                            break;
+                        case 'addConnection':
+                            this.addConnection();
+                            break;
+                        case 'showSettings':
+                            this.showSettings();
+                            break;
+                    }
                 }
             });
     }

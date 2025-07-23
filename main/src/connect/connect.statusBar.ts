@@ -4,15 +4,14 @@ import { PLSQLConnection } from '../plsql.settings';
 
 export class ConnectStatusBar {
 
-    private statusBar;
-    private statusBarVisible;
+    private statusBar: vscode.StatusBarItem;
+    private statusBarVisible: boolean = false;
 
-    constructor(private controller: ConnectController) {
-        const me = this;
-        me.statusBar = vscode.window.createStatusBarItem();
-        controller.eventEmitter.on('setActive', (connection) => me.activeChange(connection));
+    constructor(controller: ConnectController) {
+        this.statusBar = vscode.window.createStatusBarItem();
+        controller.eventEmitter.on('setActive', (connection) => this.activeChange(connection));
         controller.getConnections();
-        me.statusBar.command = 'plsql.activateConnection';
+        this.statusBar.command = 'plsql.activateConnection';
     }
 
     private activeChange(connection: PLSQLConnection) {

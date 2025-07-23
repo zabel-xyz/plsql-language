@@ -4,8 +4,7 @@ export default class DocFormater {
 
     public static format(doc: string, useJsDoc: boolean): string {
         if (!doc)
-            return;
-
+            return '';
         if (useJsDoc)
             return this.formatToMarkdown(doc);
         else
@@ -20,9 +19,8 @@ export default class DocFormater {
 
     private static formatToMarkdown(doc: string): string {
         doc = this.formatToText(doc);
-
         const regExpFormat = /([\r\n])?(@param|@return|@\w+)[\t ]*:?[\t ]*({[\w%$#]+})?[\t ]*(\w*)[\t ]*(\w*)/gi;
-        return doc.replace(regExpFormat, (match, br, name, type, desc1, desc2) => {
+        return doc.replace(regExpFormat, (_match: string, br: string, name: string, type: string, desc1: string, desc2: string) => {
             let result = `_${name}_ `;
             if (br)
                 result = '\n\n'+result; //double \n to force new line

@@ -5,19 +5,23 @@ import PlSqlParser from '../plsqlParser.vscode';
 
 export class PLSQLSignatureProvider implements vscode.SignatureHelpProvider {
 
-    public enable: boolean;
+    public enable: boolean = false;
 
     public provideSignatureHelp(document: vscode.TextDocument, position: vscode.Position,
-        token: vscode.CancellationToken): vscode.ProviderResult<vscode.SignatureHelp> {
-            return new Promise<vscode.SignatureHelp>((resolve, reject) => {
+        _token: vscode.CancellationToken, _context: vscode.SignatureHelpContext): vscode.ProviderResult<vscode.SignatureHelp> {
+            return new Promise<vscode.SignatureHelp | undefined>((resolve, _reject) => {
 
-                if (!this.enable)
-                    resolve();
+                if (!this.enable) {
+                    resolve(undefined);
+                    return;
+                }
 
                 let theCall = this.walkBackwardsToBeginningOfCall(document, position);
                 if (theCall == null)
-                    return resolve(null);
+                    return resolve(undefined);
                 let callerPos = this.previousTokenPosition(document, theCall.openParen);
+                if (callerPos == null)
+                    return resolve(undefined);
 
                 // TODO use cache
                 PlSqlNavigator.getDeclaration(document, callerPos)
@@ -28,7 +32,7 @@ export class PLSQLSignatureProvider implements vscode.SignatureHelpProvider {
 
                         const symbolDoc = PlSqlParser.getFormatSymbolDocumentation(symbol);
 
-                        si = new vscode.SignatureInformation(symbol.definition, symbolDoc);
+                        si = new vscode.SignatureInformation(symbol.definition || symbol.name, symbolDoc);
                         si.parameters = PlSqlParser.parseParams(symbol)
                                 .filter(p => p.kind !== PLSQLParamKind.return)
                                 .map(p => new vscode.ParameterInformation(p.text));
@@ -37,16 +41,17 @@ export class PLSQLSignatureProvider implements vscode.SignatureHelpProvider {
                         result.activeParameter = Math.min(theCall.commas.length, si.parameters.length - 1);
                         return resolve(result);
                     } else
-                        return resolve(null);
+                        return resolve(undefined);
                 })
                 .catch(err => {
-                    reject(err);
+                    console.error(err);
+                    resolve(undefined);
                });
             });
     }
 
     private walkBackwardsToBeginningOfCall(document: vscode.TextDocument, position: vscode.Position): {
-            openParen: vscode.Position, commas: vscode.Position[] } {
+            openParen: vscode.Position, commas: vscode.Position[] } | null {
         let parenBalance = 0;
         let commas = [];
         let maxLookupLines = 30;
@@ -84,7 +89,7 @@ export class PLSQLSignatureProvider implements vscode.SignatureHelpProvider {
         return null;
     }
 
-    private previousTokenPosition(document: vscode.TextDocument, position: vscode.Position): vscode.Position {
+    private previousTokenPosition(document: vscode.TextDocument, position: vscode.Position): vscode.Position | null {
         while (position.character > 0) {
             let word = document.getWordRangeAtPosition(position);
             if (word) {

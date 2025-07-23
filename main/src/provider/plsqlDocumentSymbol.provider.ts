@@ -4,7 +4,7 @@ import { PLSQLSettings } from '../plsql.settings';
 
 export class PLSQLDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
 
-    public provideDocumentSymbols(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.DocumentSymbol[] {
+    public provideDocumentSymbols(document: vscode.TextDocument, _token: vscode.CancellationToken): vscode.DocumentSymbol[] {
         PlSqlParser.initParser(PLSQLSettings.getCommentInSymbols());
         return PlSqlParser.getAllSymbols(document);
     }

@@ -7,11 +7,11 @@ import events = require('events');
 export class ConnectController {
 
     public readonly eventEmitter;
-    private active: PLSQLConnection;
-    private connections: PLSQLConnection[];
-    private activeInfos: string;
-    private patternActiveInfos: string;
-    private patternName: string;
+    private active: PLSQLConnection | null = null;
+    private connections: PLSQLConnection[] = [];
+    private activeInfos: string = '';
+    private patternActiveInfos: string = '';
+    private patternName: string = '';
     private ID = 1;
     private _internalSave = false;
 
@@ -33,7 +33,7 @@ export class ConnectController {
             this.patternName = pattern.patternName;
 
             this.connections = PLSQLSettings.getConnections();
-            delete this.active;
+            this.active = null;
             this.active = this.getActive();
             // force only one connection active
             this.connections.forEach(item => {
@@ -51,36 +51,46 @@ export class ConnectController {
         return this.connections;
     }
 
-    public getConnectionByID(ID: number): PLSQLConnection {
+    public getConnectionByID(ID: number): PLSQLConnection | undefined {
         const connections = this.getConnections();
         if (connections)
             return connections.find(c => c.ID === ID);
+        return undefined;
     }
 
     public getConnectionIndexByID(ID: number): number {
         const connections = this.getConnections();
-        if (connections)
-            return connections.findIndex(c => c.ID === ID);
+        if (connections) {
+            const index = connections.findIndex(c => c.ID === ID);
+            return index >= 0 ? index : -1;
+        }
+        return -1;
     }
 
-    public updateActiveInfos(connection: PLSQLConnection) {
-        this.activeInfos = this.getTextInfos(connection);
+    public updateActiveInfos(connection: PLSQLConnection | null) {
+        if (connection) {
+            this.activeInfos = this.getTextInfos(connection);
+        } else {
+            this.activeInfos = '';
+        }
     }
 
     public getTextInfos(connection: PLSQLConnection): string {
         if (this.patternActiveInfos && connection)
             return this.patternActiveInfos
-                .replace('${database}', connection.database)
-                .replace('${username}', connection.username)
-                .replace('${password}', connection.password)
-                .replace('${schema}', connection.schema);
+                .replace('${database}', connection.database || '')
+                .replace('${username}', connection.username || '')
+                .replace('${password}', connection.password || '')
+                .replace('${schema}', connection.schema || '');
         else
             return '';
     }
 
-    public getActive(): PLSQLConnection {
-        if (!this.active && this.connections)
-            this.active = this.connections.find(item => item.active);
+    public getActive(): PLSQLConnection | null {
+        if (!this.active && this.connections) {
+            const found = this.connections.find(item => item.active);
+            this.active = found || null;
+        }
         return this.active;
     }
 
@@ -103,9 +113,10 @@ export class ConnectController {
         this.notifyActive(actConnection);
     }
 
-    public getByTag(tag: string): PLSQLConnection {
+    public getByTag(tag: string): PLSQLConnection | undefined {
         if (this.connections)
             return this.connections.find(item => item.tag === tag);
+        return undefined;
     }
 
     public addConnection(connection: PLSQLConnection) {
@@ -120,13 +131,15 @@ export class ConnectController {
 
     public updateConnection(connection: PLSQLConnection) {
         connection.name = this.getName(connection);
-        const idx = this.getConnectionIndexByID(connection.ID);
+        const idx = this.getConnectionIndexByID(connection.ID || 0);
 
-        if (this.connections[idx].active !== connection.active)
-            this.setActive(connection, connection.active);
+        if (idx >= 0 && this.connections[idx].active !== connection.active)
+            this.setActive(connection, connection.active || false);
 
-        this.connections[idx] = connection;
-        this.saveConnections();
+        if (idx >= 0) {
+            this.connections[idx] = connection;
+            this.saveConnections();
+        }
     }
 
     public removeConnection(connection: PLSQLConnection | number) {
@@ -161,15 +174,17 @@ export class ConnectController {
     private getName(connection: PLSQLConnection) {
         if (this.patternName)
             return this.patternName
-                .replace('${database}', connection.database)
-                .replace('${username}', connection.username)
-                .replace('${password}', connection.password)
-                .replace('${schema}', connection.schema);
+                .replace('${database}', connection.database || '')
+                .replace('${username}', connection.username || '')
+                .replace('${password}', connection.password || '')
+                .replace('${schema}', connection.schema || '');
         else
             return `unknown ${connection.ID}`;
     }
 
-    private notifyActive(connection: PLSQLConnection) {
-        this.eventEmitter.emit('setActive', connection);
+    private notifyActive(connection: PLSQLConnection | null) {
+        if (connection) {
+            this.eventEmitter.emit('setActive', connection);
+        }
     }
 }

@@ -15,20 +15,21 @@ suite('PLSQL Completion', () => {
 
     const provider = new PLSQLCompletionItemProvider();
 
-    function runTest(file: string, cases: ICase[], done) {
+    function runTest(file: string, cases: ICase[], done: any) {
 
-        const uri = vscode.Uri.file(path.join(vscode.workspace.rootPath, file));
+        const rootPath = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : '';
+        const uri = vscode.Uri.file(path.join(rootPath, file));
         vscode.workspace.openTextDocument(uri)
             .then(textDocument => {
-                return Promise.all(cases.map( (test, index) => {
+                return Promise.all(cases.map( (test, _index) => {
                     // found line index
                     const regExp = new RegExp(test.curTextLine, 'gi');
                     const found = regExp.exec(textDocument.getText());
                     assert.notEqual(found, null, `curText: ${test.curTextLine} not found`);
-                    const curPos = textDocument.positionAt(test.atBeginning ? found.index + 2 : regExp.lastIndex);
+                    const curPos = textDocument.positionAt(test.atBeginning ? found!.index + 2 : regExp.lastIndex);
 
                     // run test
-                    return provider.provideCompletionItems(textDocument, curPos, null)
+                    return provider.provideCompletionItems(textDocument, curPos, null as any)
                         .then(completion => {
                             if (completion) {
                                 test.expCompletion.forEach((expItem) => {

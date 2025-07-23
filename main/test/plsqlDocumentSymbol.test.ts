@@ -9,9 +9,9 @@ suite('PLSQL Symbols', () => {
 
     const provider = new PLSQLDocumentSymbolProvider();
 
-    function checkSymbol(symbols, expSymbols) {
+    function checkSymbol(symbols: any[], expSymbols: any[]) {
         assert.equal(symbols.length, expSymbols.length, '(number of symbols)');
-        symbols.forEach((symbol, index) => {
+        symbols.forEach((symbol: any, index: number) => {
             assert.equal(symbol.name.toLowerCase(), expSymbols[index].name.toLowerCase());
             assert.equal(symbol.kind, expSymbols[index].kind, `(${index}) ${symbol.name.toLowerCase()}`);
             if (symbol.children && expSymbols[index].children)
@@ -23,11 +23,12 @@ suite('PLSQL Symbols', () => {
         });
     }
 
-    function runTest(file: string, expSymbols, done) {
-        const uri = vscode.Uri.file(path.join(vscode.workspace.rootPath, file));
+    function runTest(file: string, expSymbols: any[], done: any) {
+        const rootPath = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : '';
+        const uri = vscode.Uri.file(path.join(rootPath, file));
         vscode.workspace.openTextDocument(uri)
             .then(textDocument => {
-                const symbols = provider.provideDocumentSymbols(textDocument, null);
+                const symbols = provider.provideDocumentSymbols(textDocument, null as any);
                 if (symbols) {
                     checkSymbol(symbols, expSymbols);
                 } else

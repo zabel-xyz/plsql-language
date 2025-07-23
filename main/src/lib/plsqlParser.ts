@@ -2,18 +2,7 @@ import RegExpParser from './regEx/RegExParser';
 import DocFormater from './docFormater';
 import './definition';
 
-// import AntlrParser from './Antlr/AntlrParser';
 
-interface PLSQLInfos {
-    packageName: string;
-    spec?: PLSQLSymbol;
-    body?: PLSQLSymbol;
-}
-
-interface PLSQLRange {
-    start: number;
-    end: number;
-}
 
 export default class PlSqlParser {
 
@@ -32,53 +21,52 @@ export default class PlSqlParser {
         return this.getParser().parseParams(symbol);
     }
 
-    public static findSymbolByNameOffset(symbols: PLSQLSymbol[], name: string, offset = 0, recursive = true): PLSQLSymbol {
+    public static findSymbolByNameOffset(symbols: PLSQLSymbol[], name: string, offset = 0, recursive = true): PLSQLSymbol | undefined {
         // find first symbol after given offset
         const lower = name.toLowerCase();
-        return this.findSymbol(symbols, symbol => (symbol.name.toLowerCase() === lower && symbol.offset >= offset), recursive);
+        return this.findSymbol(symbols, (symbol: PLSQLSymbol) => (symbol.name.toLowerCase() === lower && symbol.offset !== undefined && symbol.offset >= offset), recursive);
     }
 
-    public static findSymbolNearOffset(symbols: PLSQLSymbol[], offset: number, recursive = true): PLSQLSymbol {
+    public static findSymbolNearOffset(symbols: PLSQLSymbol[], offset: number, recursive = true): PLSQLSymbol | undefined {
         // find last symbol with offset smaller than given offset
-        let nearSymbol;
-        this.findSymbol(symbols, (symbol) => {
-            const result = (symbol.offset > offset);
+        let nearSymbol: PLSQLSymbol | undefined = undefined;
+        this.findSymbol(symbols, (symbol: PLSQLSymbol) => {
+            const result = (symbol.offset !== undefined && symbol.offset > offset);
             if (!result)
                 nearSymbol = symbol;
             return result;
         } , recursive);
-
         return nearSymbol;
     }
 
-    public static findSymbolByNameKind(symbols: PLSQLSymbol[], name: string, kind: PLSQLSymbolKind|PLSQLSymbolKind[], recursive = true): PLSQLSymbol {
-        const lower = name.toLowerCase(),
-              kindArray = Array.isArray(kind) ? kind : [kind];
-        return this.findSymbol(symbols, symbol => (symbol.name.toLowerCase() === lower && kindArray.includes(symbol.kind)), recursive);
+    public static findSymbolByNameKind(symbols: PLSQLSymbol[], name: string, kind: PLSQLSymbolKind|PLSQLSymbolKind[], recursive = true): PLSQLSymbol | undefined {
+        const lower = name.toLowerCase();
+        const kindArray = Array.isArray(kind) ? kind : [kind];
+        return this.findSymbol(symbols, (symbol: PLSQLSymbol) => (symbol.name.toLowerCase() === lower && kindArray.includes(symbol.kind)), recursive);
     }
 
     public static getSymbolsDeclaration(root: PLSQLRoot): PLSQLSymbol[] {
         const allSymbols: PLSQLSymbol[] = [];
-
-        this.forEachSymbol(root.symbols, symbol => {
+        this.forEachSymbol(root.symbols, (symbol: PLSQLSymbol) => {
             if (![PLSQLSymbolKind.function, PLSQLSymbolKind.procedure,
                 PLSQLSymbolKind.packageBody, PLSQLSymbolKind.packageSpec].includes(symbol.kind))
                 allSymbols.push(symbol);
         });
-
         return allSymbols;
     }
 
     // Body to Spec and Spec to Body
-    public static switchSymbol(symbol: PLSQLSymbol): PLSQLSymbol {
-        let kind;
+    public static switchSymbol(symbol: PLSQLSymbol): PLSQLSymbol | undefined {
+        let kind: PLSQLSymbolKind | undefined;
         if (symbol.kind === PLSQLSymbolKind.packageSpec)
             kind = PLSQLSymbolKind.packageBody;
         else if (symbol.kind === PLSQLSymbolKind.packageBody)
             kind = PLSQLSymbolKind.packageSpec;
         else
             return symbol; // not a package
-        return this.findSymbolByNameKind(symbol.root.symbols, symbol.name, kind, false);
+        if (symbol.root && symbol.root.symbols)
+            return this.findSymbolByNameKind(symbol.root.symbols, symbol.name, kind, false);
+        return undefined;
     }
 
     // Body to Spec and Spec to Body
@@ -118,13 +106,13 @@ export default class PlSqlParser {
         return allSymbols;
     }
 
-    public static getSymbolFileName(symbol: PLSQLSymbol) {
+    public static getSymbolFileName(symbol: PLSQLSymbol): string | undefined {
         while (symbol.parent)
             symbol = symbol.parent;
-        return symbol.root.fileName;
+        return symbol.root ? symbol.root.fileName : undefined;
     }
 
-    public static formatSymbolDocumentation(symbol: PLSQLSymbol, useJSDoc: boolean) {
+    public static formatSymbolDocumentation(symbol: PLSQLSymbol, useJSDoc: boolean): void {
         if (symbol.documentation && !symbol.formatedDoc) {
             symbol.formatedDoc = {
                 text: DocFormater.format(symbol.documentation, useJSDoc),
@@ -133,19 +121,18 @@ export default class PlSqlParser {
         }
     }
 
-    private static forEachSymbol(symbols: PLSQLSymbol[], fn) {
+    private static forEachSymbol(symbols: PLSQLSymbol[] | undefined, fn: (symbol: PLSQLSymbol) => void): void {
         if (symbols)
-            symbols.forEach(symbol => {
+            symbols.forEach((symbol: PLSQLSymbol) => {
                 fn.apply(this, [symbol]);
                 this.forEachSymbol(symbol.symbols, fn);
             });
     }
 
-    private static findSymbol(symbols: PLSQLSymbol[], fn, recursive = true): PLSQLSymbol {
+    private static findSymbol(symbols: PLSQLSymbol[] | undefined, fn: (symbol: PLSQLSymbol) => boolean, recursive = true): PLSQLSymbol | undefined {
         if (!symbols)
-            return;
-
-        let result: PLSQLSymbol;
+            return undefined;
+        let result: PLSQLSymbol | undefined = undefined;
         for (let symbol of symbols) {
             if (fn.apply(this, [symbol]))
                 return symbol;
@@ -155,6 +142,7 @@ export default class PlSqlParser {
                     return result;
             }
         }
+        return undefined;
     }
 
     private static getParser() {

@@ -18,7 +18,7 @@ export default class ConnectInputPanel {
     private static readonly viewType = 'ConnectInput';
     private readonly _panel: vscode.WebviewPanel;
     private readonly _extensionPath: string;
-    private _htmlContent: string;
+    private _htmlContent: string = '';
     private _disposables: vscode.Disposable[] = [];
 
 
@@ -32,10 +32,10 @@ export default class ConnectInputPanel {
         }
     }
 
-    public sendData(connection ?: PLSQLConnection | number) {
+    public sendData(connection?: PLSQLConnection | number | null) {
         // Send a message to the webview webview.
         // You can send any JSON serializable data.
-        const connections = this._controller.getConnections();
+        // const connections = this._controller.getConnections();
 
         if (this._showAll && connection && (typeof connection === 'number') )
             connection = this._controller.getConnectionByID(connection);
@@ -85,7 +85,7 @@ export default class ConnectInputPanel {
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
 
         // Update the content based on view changes
-        this._panel.onDidChangeViewState(e => {
+        this._panel.onDidChangeViewState(_e => {
             if (this._panel.visible) {
                 this._update();
             } else
@@ -166,7 +166,7 @@ export default class ConnectInputPanel {
         return this.readHTMLFile(htmlPathOnDisk, scriptUri, cssUri, this.getNonce());
     }
 
-    private readHTMLFile(file: string, scriptUri, cssUri, nonce): Promise<string> {
+    private readHTMLFile(file: string, scriptUri: any, cssUri: any, nonce: any): Promise<string> {
         return new Promise((resolve, reject) => {
             fs.readFile(file, 'utf8', (err, data) => {
                 if (err)

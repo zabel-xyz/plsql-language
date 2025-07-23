@@ -13,7 +13,7 @@ interface PLSQLCompletionItem  {
 
 interface PLSQLCompletionDefinition {
     folder: vscode.Uri;
-    members: any; // object of PLSQLCompletionItem[]
+    members: {[key: string]: PLSQLCompletionItem[]}; // object of PLSQLCompletionItem[]
     objects?: PLSQLCompletionItem[];
 }
 
@@ -27,61 +27,67 @@ export default class PLSQLCompletionCustom {
     constructor() {
     }
 
-    public getCompletion(document: vscode.TextDocument, text?: string): PLSQLCompletionItem[] {
+    public getCompletion(document: vscode.TextDocument, text?: string): PLSQLCompletionItem[] | undefined {
 
         const completion = this.init(document.uri);
-        if (completion)
+        if (completion) {
             if (text)
                 return completion.members[text.toLowerCase()];
             else
                 return completion.objects;
+        }
+        return undefined;
     }
 
-    private init(file: vscode.Uri): PLSQLCompletionDefinition {
+    private init(file: vscode.Uri): PLSQLCompletionDefinition | undefined {
 
         // Find workspaceFolder corresponding to file
-        let folder;
+        let folder: vscode.Uri | undefined;
         // const wsFolder = vscode.workspace.getWorkspaceFolder(file);
         // temporary code to resolve bug https://github.com/Microsoft/vscode/issues/36221
         const wsFolder = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(file.fsPath));
         if (wsFolder)
             folder = wsFolder.uri;
 
-        let completionDefs = this.plsqlCompletionDefs.find((value, index, obj) => {
+        let completionDefs = this.plsqlCompletionDefs.find((value, _index, _obj) => {
             if (folder && value.folder)
                 return (value.folder.fsPath === folder.fsPath);
             else
                 return (folder === value.folder);
         });
         if (!completionDefs) {
-            completionDefs = this.readJSONFile(folder);
-            if (completionDefs)
-                this.plsqlCompletionDefs.push(completionDefs);
-            else
-                this.plsqlCompletionDefs.push({folder: folder, members: {}});
+            if (folder) {
+                completionDefs = this.readJSONFile(folder);
+                if (completionDefs)
+                    this.plsqlCompletionDefs.push(completionDefs);
+                else
+                    this.plsqlCompletionDefs.push({folder: folder, members: {}});
+            } else {
+                return undefined;
+            }
         }
         return completionDefs;
     }
 
-    private readJSONFile(workspacefolder: vscode.Uri): PLSQLCompletionDefinition {
+    private readJSONFile(workspacefolder: vscode.Uri): PLSQLCompletionDefinition | undefined {
         const location = PLSQLSettings.getCompletionPath(workspacefolder);
         if (!location)
-            return;
+            return undefined;
 
-        let parsedJSON;
+        let parsedJSON: {[key: string]: any};
         try {
             parsedJSON = json5.parse(fs.readFileSync(location).toString()); // invalid JSON or permission issue can happen here
         } catch (error) {
             console.error(error);
-            return;
+            return undefined;
         }
 
-        const members = {};
-        const objects = [];
+        const members: {[key: string]: PLSQLCompletionItem[]} = {};
+        const objects: PLSQLCompletionItem[] = [];
         Object.keys(parsedJSON).forEach(item => {
             if (parsedJSON[item].members)
                 members[item.toLowerCase()] = parsedJSON[item].members.map(
-                    member => ({label: member.label, kind: this.convertToCompletionKind(member.kind), documentation: member.documentation}));
+                    (member: any) => ({label: member.label, kind: this.convertToCompletionKind(member.kind), documentation: member.documentation}));
             objects.push({label: item, kind: this.convertToCompletionKind(parsedJSON[item].kind), documentation: parsedJSON[item].documentation});
         });
 

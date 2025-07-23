@@ -4,13 +4,15 @@ import { PlSqlNavigatorVSC as PlSqlNavigator }  from '../plsqlNavigator.vscode';
 import PlSqlParser from '../plsqlParser.vscode';
 
 export class PLSQLHoverProvider implements vscode.HoverProvider {
-    public enable: boolean;
+    public enable: boolean = false;
 
     public provideHover(document: vscode.TextDocument, position: vscode.Position,
-        token: vscode.CancellationToken): vscode.ProviderResult<vscode.Hover> {
-            return new Promise<vscode.Hover>((resolve, reject) => {
-                if (!this.enable)
-                    resolve();
+        _token: vscode.CancellationToken): vscode.ProviderResult<vscode.Hover> {
+            return new Promise<vscode.Hover | undefined>((resolve, _reject) => {
+                if (!this.enable) {
+                    resolve(undefined);
+                    return;
+                }
 
                 // TODO use cache
                 PlSqlNavigator.getDeclaration(document, position)
@@ -29,10 +31,11 @@ export class PLSQLHoverProvider implements vscode.HoverProvider {
                         }
                         resolve(new vscode.Hover(hoverText));
                     } else
-                        resolve();
+                        resolve(undefined);
                 })
                 .catch(err => {
-                    reject(err);
+                    console.error(err);
+                    resolve(undefined);
                 });
             });
     }

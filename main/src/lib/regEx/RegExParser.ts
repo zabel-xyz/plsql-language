@@ -56,36 +56,36 @@ export default class RegExpParser {
             this.initParser();
 
         const root: PLSQLRoot = {
-            fileName: fileName,
+            fileName: fileName ?? '',
             symbols: []
         };
 
-        let found, isBody,
-            symbol: PLSQLSymbol,
-            parent: PLSQLSymbol,
-            fromOffset, offset = 0;
+        let found: RegExpExecArray | null,
+            parent: PLSQLSymbol | undefined = undefined,
+            fromOffset: number | undefined, offset = 0;
 
         this.regExp.lastIndex = 0;
-        while (found = this.regExp.exec(text)) {
+        while ((found = this.regExp.exec(text))) {
             if (found[2]) {
                 // package body or create func or create proc
                 // create table, view or trigger
-                isBody = (found[3] != null) || (found[1] != null && found[2].toLowerCase() !== 'package');
+                const isBody = (found[3] != null) || (found[1] != null && found[2].toLowerCase() !== 'package');
 
-                symbol = {
+                const symbol: PLSQLSymbol = {
                     name: found[4],
                     offset: found.index,
                     kindName: found[2] + (found[3] != null ? ' '+found[3] : ''),
-                    kind: this.getSymbolKind(found[2].toLowerCase(), isBody)
+                    kind: this.getSymbolKind(found[2].toLowerCase(), isBody),
+                    symbols: []
                 };
 
                 if (!parent || found[1]) {
                     symbol.root = root;
                     root.symbols.push(symbol);
-                    symbol.symbols = [];
                     parent = symbol;
                 } else {
                     symbol.parent = parent;
+                    if (!parent.symbols) parent.symbols = [];
                     parent.symbols.push(symbol);
                 }
 
@@ -117,13 +117,12 @@ export default class RegExpParser {
     }
 
     public static parseParams(symbol: PLSQLSymbol): PLSQLParam[] {
-        if (symbol.params || !symbol.definition)
+        if (symbol.params && Array.isArray(symbol.params))
             return symbol.params;
-
+        if (!symbol.definition) return [];
         symbol.params = [];
-
         let found;
-        while (found = this.regExpParams.exec(symbol.definition)) {
+        while ((found = this.regExpParams.exec(symbol.definition))) {
             if (found[1])
                 symbol.params.push({
                     text: found[1],
@@ -131,7 +130,7 @@ export default class RegExpParser {
                     type: found[4],
                     kind: this.getParamKind(found[3]) // todo: convert
                 });
-            else // if (found[5])
+            else if (found[5])
                 symbol.params.push({
                     text: found[0],
                     type: found[5],
@@ -161,8 +160,7 @@ export default class RegExpParser {
     private static getSymbolsSpec(text: string, fromOffset: number, parent: PLSQLSymbol): number  {
         let found,
             lastIndex = fromOffset,
-            lastDoc = null,
-            symbol;
+            lastDoc = null;
 
         this.regExpS.lastIndex = lastIndex;
         while (found = this.regExpS.exec(text)) {
@@ -171,12 +169,12 @@ export default class RegExpParser {
                 continue;
             }
             else if (found[3] && found[4]) {
-                symbol = this.createSymbolItem(found[3], found[4], found.index, parent, false);
-                if (symbol) {
-                    symbol.definition = found[0];
-                    symbol.offsetEnd = this.regExpS.lastIndex;
+                const tempSymbol = this.createSymbolItem(found[3], found[4], found.index, parent, false);
+                if (tempSymbol) {
+                    tempSymbol.definition = found[0];
+                    tempSymbol.offsetEnd = this.regExpS.lastIndex;
                     if (lastDoc != null)
-                        symbol.documentation = this.jumpDoc(text, lastDoc, found.index);
+                        tempSymbol.documentation = this.jumpDoc(text, lastDoc, found.index);
                 }
             } else if (found[2]) // end || create
                 break;
@@ -187,10 +185,10 @@ export default class RegExpParser {
     }
 
     private static getSymbolsBody(text: string, fromOffset: number, parent: PLSQLSymbol, extractSymbol = true): number  {
-        let found, symbol: PLSQLSymbol,
+        let found,
             lastIndex = fromOffset,
             lastDoc = null,
-            oldIndex, isBody;
+            oldIndex;
 
         this.regExpB.lastIndex = lastIndex;
         while (found = this.regExpB.exec(text)) {
@@ -204,12 +202,12 @@ export default class RegExpParser {
                 break;
             else if (found[7] && found[8]) {
                 if (extractSymbol) {
-                    symbol = this.createSymbolItem(found[7], found[8], found.index, parent, false);
-                    if (symbol) {
-                        symbol.definition = found[0];
-                        symbol.offsetEnd = lastIndex;
+                    const tempSymbol = this.createSymbolItem(found[7], found[8], found.index, parent, false);
+                    if (tempSymbol) {
+                        tempSymbol.definition = found[0];
+                        tempSymbol.offsetEnd = lastIndex;
                         if (lastDoc != null)
-                            symbol.documentation = this.jumpDoc(text, lastDoc, found.index);
+                            tempSymbol.documentation = this.jumpDoc(text, lastDoc, found.index);
                     } else if (found[7].toLowerCase() !== 'pragma') {
                         // if it's not a symbol, something goes wrong => break
                         lastIndex = oldIndex;
@@ -220,22 +218,22 @@ export default class RegExpParser {
                 // Declare function, procedure => add symbol
                 if (!parent.symbols)
                     parent.symbols = [];
-                isBody = found[4].toLowerCase() !== ';';
-                symbol = this.createSymbolItem(found[2], found[3], found.index, parent, isBody);
-                if (symbol) {
-                    symbol.definition = found[0];
+                const isBodyBool = !!(found[4] && found[4].toLowerCase() !== ';');
+                const tempSymbol = this.createSymbolItem(found[2], found[3], found.index, parent, isBodyBool);
+                if (tempSymbol) {
+                    tempSymbol.definition = found[0];
                     if (lastDoc != null)
-                        symbol.documentation = this.jumpDoc(text, lastDoc, found.index);
-                    if (isBody && found[5] !== 'language') {
-                        if (found[4].toLowerCase() === 'begin') {
+                        tempSymbol.documentation = this.jumpDoc(text, lastDoc, found.index);
+                    if (isBodyBool && found[5] !== 'language') {
+                        if (found[4] && found[4].toLowerCase() === 'begin') {
                             // begin => jump to end
                         } else { // is,as
                             // read between is and begin (subPro/subFunc)
-                            lastIndex = this.getSymbolsBody(text, lastIndex, symbol, false);
+                            lastIndex = this.getSymbolsBody(text, lastIndex, tempSymbol, false);
                         }
                         // jump to end
                         lastIndex = this.jumpToEnd(text, lastIndex);
-                        symbol.offsetEnd = lastIndex;
+                        tempSymbol.offsetEnd = lastIndex;
                         this.regExpB.lastIndex = lastIndex;
                     }
                 }
@@ -246,8 +244,8 @@ export default class RegExpParser {
     }
 
     private static createSymbolItem(text1: string, text2: string, offset: number, parent: PLSQLSymbol, isBody: boolean): PLSQLSymbol | undefined {
-        let kindName: string,
-            identifier: string,
+        let kindName: string | undefined = undefined,
+            identifier: string | undefined = undefined,
             symbol: PLSQLSymbol;
 
         if (text1 && text2) {
@@ -263,7 +261,7 @@ export default class RegExpParser {
                 identifier = text1;
             }
 
-            if (kindName) {
+            if (kindName && identifier) {
                 symbol = {
                     name: identifier,
                     offset: offset,
@@ -271,10 +269,12 @@ export default class RegExpParser {
                     kind: this.getSymbolKind(kindName.toLowerCase(), isBody),
                     parent: parent
                 };
+                if (!parent.symbols) parent.symbols = [];
                 parent.symbols.push(symbol);
                 return symbol;
             }
         }
+        return undefined;
     }
 
     private static jumpAsIs(text: string, fromOffset: number): number {

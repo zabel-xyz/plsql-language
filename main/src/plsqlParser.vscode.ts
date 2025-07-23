@@ -40,10 +40,10 @@ export default class PlSqlParserVSC extends PlSqlParser {
         PlSqlParser.formatSymbolDocumentation(symbol, useJsDoc);
 
         let symbolDoc: string | vscode.MarkdownString;
-        if (symbol.formatedDoc.isMarkdown)
+        if (symbol.formatedDoc && symbol.formatedDoc.isMarkdown)
             symbolDoc = new vscode.MarkdownString(symbol.formatedDoc.text);
         else
-            symbolDoc = symbol.formatedDoc.text;
+            symbolDoc = symbol.formatedDoc ? symbol.formatedDoc.text : '';
         return symbolDoc;
     }
 

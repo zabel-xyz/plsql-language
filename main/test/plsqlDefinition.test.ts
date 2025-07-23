@@ -18,21 +18,22 @@ suite('PLSQL Definition', () => {
 
     const provider = new PLSQLDefinitionProvider();
 
-    function runTest(file: string, cases: ICase[], done) {
+    function runTest(file: string, cases: ICase[], done: any) {
 
-        const uri = vscode.Uri.file(path.join(vscode.workspace.rootPath, file));
+        const rootPath = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : '';
+        const uri = vscode.Uri.file(path.join(rootPath, file));
         vscode.workspace.openTextDocument(uri)
             .then(textDocument => {
                 return Promise.all(cases.map( (test, index) => {
                     // found line index
                     const found = new RegExp(test.curTextLine, 'i').exec(textDocument.getText());
                     assert.notEqual(found, null, `curText: ${test.curTextLine} not found`);
-                    const curPos = textDocument.positionAt(found.index+test.curChar);
+                    const curPos = textDocument.positionAt(found!.index+test.curChar);
 
                     // run test
                     const num = `(${index}) `;
-                    let result;
-                    return provider.provideDefinition(textDocument, curPos, null)
+                    let result: any;
+                    return provider.provideDefinition(textDocument, curPos, null as any)
                         .then(r => {
 
                             result = r;
@@ -48,7 +49,7 @@ suite('PLSQL Definition', () => {
                         .then(document => {
                             const match = new RegExp(test.expTextLine, 'i').exec(document.getText());
                             assert.notEqual(match, null, `expText: ${test.expTextLine} not found`);
-                            const expPos = document.positionAt(match.index+test.expChar);
+                            const expPos = document.positionAt(match!.index+test.expChar);
 
                             assert.equal(result.range.start.line, expPos.line, num+'line: '+JSON.stringify(result.range));
                             assert.equal(result.range.start.character, expPos.character, num+'char: '+JSON.stringify(result.range));
